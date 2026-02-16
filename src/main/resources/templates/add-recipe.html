@@ -1,0 +1,130 @@
+<!DOCTYPE html>
+<html lang="en" xmlns:th="http://www.thymeleaf.org">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Add Recipe</title>
+    <link rel="stylesheet" th:href="@{/css/style.css(v=63)}" href="/css/style.css?v=63" />
+  </head>
+  <body class="page-recipes">
+    <div th:replace="~{fragments :: navbar}"></div>
+
+    <main class="page-content">
+      <section class="add-recipe-page">
+        <div class="add-recipe-shell">
+          <div class="add-recipe-card add-recipe-card--split" data-book>
+          <form id="add-recipe-form" class="add-recipe-form add-recipe-form--split" th:action="@{/recipes/add}" method="post" enctype="multipart/form-data">
+            <input type="hidden" th:name="${_csrf.parameterName}" th:value="${_csrf.token}" />
+            <div class="add-recipe-spread add-recipe-spread--one">
+              <div class="add-recipe-col add-recipe-col--left">
+                <div class="add-recipe-field">
+                  <label for="recipe-title">Title</label>
+                  <input id="recipe-title" name="title" type="text" placeholder="Recipe title" required />
+                </div>
+                <div class="add-recipe-field">
+                  <label for="recipe-photo">Recipe photo</label>
+                  <input id="recipe-photo" name="photo" type="file" accept="image/*" />
+                </div>
+                <div class="add-recipe-field">
+                  <label for="recipe-desc">Short description</label>
+                  <textarea id="recipe-desc" name="shortDescription" rows="2" placeholder="Short description"></textarea>
+                </div>
+                <div class="add-recipe-grid">
+                  <div class="add-recipe-field">
+                    <label for="recipe-time">Prep time</label>
+                    <input id="recipe-time" name="prepTime" type="text" placeholder="e.g. 35 min" required />
+                  </div>
+                  <div class="add-recipe-field">
+                    <label for="recipe-meal">Meal type</label>
+                    <select id="recipe-meal" name="mealType" required>
+                      <option value="" disabled selected>Select one</option>
+                      <option>Breakfast</option>
+                      <option>Lunch</option>
+                      <option>Dinner</option>
+                      <option>Dessert</option>
+                    </select>
+                  </div>
+                </div>
+                <div class="add-recipe-tags">
+                  <div class="add-recipe-tag-group">
+                    <span>Region</span>
+                    <label><input type="checkbox" name="regionTags" value="American" /> American</label>
+                    <label><input type="checkbox" name="regionTags" value="Asian" /> Asian</label>
+                    <label><input type="checkbox" name="regionTags" value="European" /> European</label>
+                    <label><input type="checkbox" name="regionTags" value="Mexican" /> Mexican</label>
+                  </div>
+                  <div class="add-recipe-tag-group">
+                    <span>Style</span>
+                    <label><input type="checkbox" name="styleTags" value="No cook" /> No cook</label>
+                    <label><input type="checkbox" name="styleTags" value="One pot" /> One pot</label>
+                    <label><input type="checkbox" name="styleTags" value="Budget" /> Budget</label>
+                  </div>
+                  <div class="add-recipe-tag-group">
+                    <span>Nutrition</span>
+                    <label><input type="checkbox" name="nutritionTags" value="Vegetarian" /> Vegetarian</label>
+                    <label><input type="checkbox" name="nutritionTags" value="Gluten-free" /> Gluten-free</label>
+                    <label><input type="checkbox" name="nutritionTags" value="Protein+" /> Protein+</label>
+                    <label><input type="checkbox" name="nutritionTags" value="Fibre+" /> Fibre+</label>
+                  </div>
+                </div>
+              </div>
+              <div class="add-recipe-divider" aria-hidden="true"></div>
+              <div class="add-recipe-col add-recipe-col--right">
+                <div class="add-recipe-field add-recipe-field--fill">
+                  <label for="recipe-ingredients">Ingredients</label>
+                  <textarea id="recipe-ingredients" name="ingredients" rows="5" placeholder="List ingredients"></textarea>
+                </div>
+              </div>
+            </div>
+
+            <div class="add-recipe-spread add-recipe-spread--two">
+              <div class="add-recipe-col add-recipe-col--left">
+                <div class="add-recipe-field add-recipe-field--fill">
+                  <label for="recipe-steps">Steps</label>
+                  <textarea id="recipe-steps" name="steps" rows="12" placeholder="Write the steps"></textarea>
+                </div>
+              </div>
+              <div class="add-recipe-divider" aria-hidden="true"></div>
+              <div class="add-recipe-col add-recipe-col--right">
+                <div class="add-recipe-field add-recipe-field--fill">
+                  <label for="recipe-notes">Instructions</label>
+                  <textarea id="recipe-notes" name="instructions" rows="12" placeholder="Write the instructions"></textarea>
+                </div>
+              </div>
+            </div>
+          </form>
+          <div class="add-recipe-book-nav">
+            <button class="add-recipe-arrow add-recipe-arrow--left" type="button" data-prev-page aria-label="Previous">
+              <span class="add-recipe-arrow__icon" aria-hidden="true"></span>
+            </button>
+            <button class="add-recipe-arrow add-recipe-arrow--right" type="button" data-next-page aria-label="Next">
+              <span class="add-recipe-arrow__icon" aria-hidden="true"></span>
+            </button>
+          </div>
+          </div>
+          <div class="add-recipe-actions">
+            <a class="btn-secondary add-recipe-cancel" href="/profile">Cancel</a>
+            <button class="btn-primary add-recipe-submit" type="submit" form="add-recipe-form">Save recipe</button>
+          </div>
+        </div>
+      </section>
+    </main>
+
+    <div th:replace="~{fragments :: footer}"></div>
+    <script>
+      (() => {
+        const book = document.querySelector("[data-book]");
+        if (!book) return;
+        const nextBtn = book.querySelector("[data-next-page]");
+        const prevBtn = book.querySelector("[data-prev-page]");
+
+        book.querySelectorAll("[data-next-page]").forEach((btn) => {
+          btn.addEventListener("click", () => book.classList.add("is-page-two"));
+        });
+        book.querySelectorAll("[data-prev-page]").forEach((btn) => {
+          btn.addEventListener("click", () => book.classList.remove("is-page-two"));
+        });
+      })();
+    </script>
+  </body>
+</html>

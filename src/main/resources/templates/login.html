@@ -1,0 +1,16 @@
+<!DOCTYPE html>
+<html lang="en" xmlns:th="http://www.thymeleaf.org">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Login</title>
+    <link rel="stylesheet" th:href="@{/css/style.css(v=63)}" href="/css/style.css?v=63" />
+  </head>
+  <body>
+    <div th:replace="~{fragments :: navbar}"></div>
+
+    <main class="page-content"></main>
+    <div th:replace="~{fragments :: auth-modals}"></div>
+    <div th:replace="~{fragments :: footer}"></div>
+  </body>
+</html>

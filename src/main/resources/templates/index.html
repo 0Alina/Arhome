@@ -1,0 +1,207 @@
+<!DOCTYPE html>
+<html lang="en" xmlns:th="http://www.thymeleaf.org">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Home</title>
+    <link rel="stylesheet" th:href="@{/css/style.css(v=63)}" href="/css/style.css?v=63" />
+  </head>
+  <body class="page-home">
+    <div th:replace="~{fragments :: navbar}"></div>
+
+    <main class="page-content">
+      <section class="hero">
+        <div class="hero-inner">
+          <div class="hero-text">
+            <h1>Designed Around Flavor. Built for Home.</h1>
+            <p>
+              Where flavor meets everyday home cooking. A thoughtful way to plan, cook, and
+              enjoy food every day.
+            </p>
+            <div class="hero-actions">
+              <a class="btn-primary" href="/recipes">Start Cooking</a>
+              <a class="btn-secondary" href="#benefits">Learn More</a>
+            </div>
+          </div>
+          <div class="hero-visual">
+            <div class="hero-logo">Ar(h)&ocirc;me</div>
+          </div>
+        </div>
+      </section>
+      <section class="benefits" id="benefits">
+        <div class="benefits-inner">
+          <h2>One Plan. Three Wins.</h2>
+          <div class="benefit-cards">
+            <article class="benefit-card">
+              <div class="benefit-icon" aria-hidden="true">&#x1F552;</div>
+              <h3>Save time</h3>
+              <p>Meal planning shouldn't take hours.</p>
+              <p>Personalized plans, built around your goals and preferences.</p>
+              <p>Less planning. More living.</p>
+            </article>
+            <article class="benefit-card">
+              <div class="benefit-icon" aria-hidden="true">&#x1F4B8;</div>
+              <h3>Save money</h3>
+              <p>Stop buying food you never use.</p>
+              <p>Smart groceries lists built from real meals and selected recipes.</p>
+              <p>No waste. No guesswork.</p>
+            </article>
+            <article class="benefit-card">
+              <div class="benefit-icon" aria-hidden="true">&#x26A1;</div>
+              <h3>Save energy</h3>
+              <p>No more daily food decisions.</p>
+              <p>From planning to shopping, everything stays in one place.</p>
+              <p>Cooking feels simpler. Eating feels better.</p>
+            </article>
+          </div>
+        </div>
+      </section>
+
+      <section class="features">
+        <div class="features-inner">
+          <h2>Made for real everyday needs</h2>
+          <article class="feature-row">
+            <div class="feature-content">
+              <h3>Instant Personalized Meal Plans</h3>
+              <p>
+                Create fully personalized weekly meal plans in seconds with AI. Adjust meals for
+                your schedule and goals without breaking your routine.
+              </p>
+              <a class="btn-primary" href="/plans">Create your plan</a>
+            </div>
+            <div class="feature-media feature-media--meals" aria-hidden="true"></div>
+          </article>
+
+          <article class="feature-row feature-row--reverse">
+            <div class="feature-content">
+              <h3>Automatic Shopping Lists</h3>
+              <p>
+                Turn your plan into a clear, organized list grouped by aisles. Spend less time
+                shopping and waste less food.
+              </p>
+              <a class="btn-primary" href="/shopping">Get the list</a>
+            </div>
+            <div class="feature-media feature-media--grocery" aria-hidden="true"></div>
+          </article>
+
+          <article class="feature-row">
+            <div class="feature-content">
+              <h3>Smart Recipe Discovery</h3>
+              <p>
+                Explore recipes that match your preferences, diet, and pantry. Save favorites and
+                build your weekly rotation in minutes.
+              </p>
+              <a class="btn-primary" href="/recipes">Browse recipes</a>
+            </div>
+            <div class="feature-media feature-media--recipes" aria-hidden="true"></div>
+          </article>
+
+          <article class="feature-row feature-row--reverse">
+            <div class="feature-content">
+              <h3>Track Progress &amp; Nutrition</h3>
+              <p>
+                Stay on track with clear nutrition insights and progress snapshots. Keep goals in
+                focus without extra work.
+              </p>
+              <a class="btn-primary" href="/profile">View insights</a>
+            </div>
+            <div class="feature-media feature-media--insights" aria-hidden="true"></div>
+          </article>
+        </div>
+      </section>
+
+      <section class="popular">
+        <div class="popular-inner">
+          <h2>Popular right now</h2>
+          <div class="popular-grid">
+            <article class="popular-card">
+              <div class="popular-image popular-image--classic" aria-hidden="true"></div>
+              <div class="popular-body">
+                <span class="popular-kicker">Recipe</span>
+                <h3>Classic Sourdough</h3>
+                <p class="popular-by">by I must see</p>
+                <div class="popular-tags">
+                  <span>bread</span>
+                  <span>sourdough</span>
+                </div>
+              </div>
+            </article>
+            <article class="popular-card">
+              <div class="popular-image popular-image--pumpkin" aria-hidden="true"></div>
+              <div class="popular-body">
+                <span class="popular-kicker">Recipe</span>
+                <h3>Pumpkin Seed Sourdough</h3>
+                <p class="popular-by">by I must see</p>
+                <div class="popular-tags">
+                  <span>bread</span>
+                  <span>sourdough</span>
+                </div>
+              </div>
+            </article>
+            <article class="popular-card">
+              <div class="popular-image popular-image--zucchini" aria-hidden="true"></div>
+              <div class="popular-body">
+                <span class="popular-kicker">Recipe</span>
+                <h3>Mom's Zucchini Bread</h3>
+                <p class="popular-by">by Ezra Schmidt</p>
+                <div class="popular-tags">
+                  <span>bread</span>
+                </div>
+              </div>
+            </article>
+          </div>
+          <a class="btn-primary popular-cta" href="/recipes">Explore all public items</a>
+        </div>
+      </section>
+    </main>
+
+    <div th:replace="~{fragments :: auth-modals}"></div>
+    <div th:replace="~{fragments :: footer}"></div>
+  </body>
+</html>
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+

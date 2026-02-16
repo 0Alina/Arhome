@@ -1,0 +1,385 @@
+<!DOCTYPE html>
+<html lang="en" xmlns:th="http://www.thymeleaf.org">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Recipes</title>
+    <link rel="stylesheet" th:href="@{/css/style.css(v=63)}" href="/css/style.css?v=63" />
+  </head>
+  <body class="recipes-page page-recipes">
+    <div th:replace="~{fragments :: navbar}"></div>
+
+    <main class="page-content page-content--recipes">
+      <section class="recipes-shell">
+        <header class="recipes-hero">
+          <div>
+            <h1>Find your next favorite meals</h1>
+            <p class="recipes-subtitle">
+              Explore curated recipes, save the ones you love, and build a plan that fits your week.
+            </p>
+            <div class="recipes-search">
+              <input type="text" placeholder="Search recipes or ingredients" aria-label="Search recipes or ingredients" />
+              <button type="button">Search</button>
+            </div>
+          </div>
+          <div class="recipes-hero-card recipes-hero-card--image">
+            <img src="/img/recipess.jpg" alt="Featured recipes" />
+          </div>
+        </header>
+
+        <div class="recipes-layout">
+          <aside class="recipes-filters" aria-label="Recipe filters">
+            <div class="filters-group">
+              <h3>Meal type</h3>
+              <button type="button">Breakfast</button>
+              <button type="button">Lunch</button>
+              <button type="button">Dinner</button>
+              <button type="button">Dessert</button>
+            </div>
+            <div class="filters-group">
+              <h3>Region</h3>
+              <button type="button">American</button>
+              <button type="button">Asian</button>
+              <button type="button">European</button>
+              <button type="button">Mexican</button>
+            </div>
+            <div class="filters-group">
+              <h3>By</h3>
+              <button type="button">Teen Kitchen</button>
+              <button type="button">Young &amp; Hungry</button>
+              <button type="button">Home Cooks</button>
+              <button type="button">Grandma's Classics</button>
+            </div>
+            <div class="filters-group">
+              <h3>Time</h3>
+              <button type="button">&lt; 15 min</button>
+              <button type="button">15 min - 30 min</button>
+              <button type="button">30 min - 1 h</button>
+              <button type="button">1 h - 2 h</button>
+              <button type="button">&gt; 2 h</button>
+            </div>
+            <div class="filters-group">
+              <h3>Style</h3>
+              <button type="button">No cook</button>
+              <button type="button">One pot</button>
+              <button type="button">Budget</button>
+            </div>
+            <div class="filters-group">
+              <h3>Nutrition</h3>
+              <button type="button">Vegetarian</button>
+              <button type="button">Gluten-free</button>
+              <button type="button">Protein+</button>
+              <button type="button">Fiber+</button>
+            </div>
+          </aside>
+
+          <div class="recipes-grid">
+          <article class="recipes-card">
+            <button class="recipes-favorite" type="button" aria-label="Favorite recipe" aria-pressed="false">
+              <svg viewBox="0 0 20 20" aria-hidden="true">
+                <path d="M9.999 17.27l-1.45-1.32C4.4 12.36 2 10.28 2 7.5 2 5.5 3.5 4 5.5 4c1.54 0 3.04.99 3.57 2.36h1.87C11.46 4.99 12.96 4 14.5 4 16.5 4 18 5.5 18 7.5c0 2.78-2.4 4.86-6.55 8.45l-1.45 1.32z"/>
+              </svg>
+            </button>
+            <div class="recipes-media recipes-media--citrus" aria-hidden="true"></div>
+            <div class="recipes-body">
+              <div>
+                <h3>Herb Citrus Chicken</h3>
+                <p class="recipes-note">Dinner &middot; 35 min</p>
+                <p class="recipes-desc">
+                  Zesty chicken with a soft herb sauce, perfect for quick weeknights.
+                </p>
+              </div>
+              <div class="recipes-tags">
+                <span>cozy</span>
+                <span>gluten-free</span>
+                <span>weeknight</span>
+              </div>
+              <div class="recipes-actions">
+                <button class="recipes-action" type="button">+ groceries</button>
+              </div>
+            </div>
+          </article>
+
+          <article class="recipes-card">
+            <button class="recipes-favorite" type="button" aria-label="Favorite recipe" aria-pressed="false">
+              <svg viewBox="0 0 20 20" aria-hidden="true">
+                <path d="M9.999 17.27l-1.45-1.32C4.4 12.36 2 10.28 2 7.5 2 5.5 3.5 4 5.5 4c1.54 0 3.04.99 3.57 2.36h1.87C11.46 4.99 12.96 4 14.5 4 16.5 4 18 5.5 18 7.5c0 2.78-2.4 4.86-6.55 8.45l-1.45 1.32z"/>
+              </svg>
+            </button>
+            <div class="recipes-media recipes-media--berry" aria-hidden="true"></div>
+            <div class="recipes-body">
+              <div>
+                <h3>Roasted Berry Oat Tart</h3>
+                <p class="recipes-note">Dessert &middot; 50 min</p>
+                <p class="recipes-desc">
+                  A golden oat crust with warm berries and a vanilla drizzle.
+                </p>
+              </div>
+              <div class="recipes-tags">
+                <span>weekend</span>
+                <span>sweet</span>
+                <span>comfort</span>
+              </div>
+              <div class="recipes-actions">
+                <button class="recipes-action" type="button">+ groceries</button>
+              </div>
+            </div>
+          </article>
+
+          <article class="recipes-card">
+            <button class="recipes-favorite" type="button" aria-label="Favorite recipe" aria-pressed="false">
+              <svg viewBox="0 0 20 20" aria-hidden="true">
+                <path d="M9.999 17.27l-1.45-1.32C4.4 12.36 2 10.28 2 7.5 2 5.5 3.5 4 5.5 4c1.54 0 3.04.99 3.57 2.36h1.87C11.46 4.99 12.96 4 14.5 4 16.5 4 18 5.5 18 7.5c0 2.78-2.4 4.86-6.55 8.45l-1.45 1.32z"/>
+              </svg>
+            </button>
+            <div class="recipes-media recipes-media--oat" aria-hidden="true"></div>
+            <div class="recipes-body">
+              <div>
+                <h3>Vanilla Pear Porridge</h3>
+                <p class="recipes-note">Breakfast &middot; 20 min</p>
+                <p class="recipes-desc">
+                  Creamy oats with roasted pear, cinnamon, and almond butter.
+                </p>
+              </div>
+              <div class="recipes-tags">
+                <span>cozy</span>
+                <span>vegetarian</span>
+                <span>pantry</span>
+              </div>
+              <div class="recipes-actions">
+                <button class="recipes-action" type="button">+ groceries</button>
+              </div>
+            </div>
+          </article>
+
+          <article class="recipes-card">
+            <button class="recipes-favorite" type="button" aria-label="Favorite recipe" aria-pressed="false">
+              <svg viewBox="0 0 20 20" aria-hidden="true">
+                <path d="M9.999 17.27l-1.45-1.32C4.4 12.36 2 10.28 2 7.5 2 5.5 3.5 4 5.5 4c1.54 0 3.04.99 3.57 2.36h1.87C11.46 4.99 12.96 4 14.5 4 16.5 4 18 5.5 18 7.5c0 2.78-2.4 4.86-6.55 8.45l-1.45 1.32z"/>
+              </svg>
+            </button>
+            <div class="recipes-media recipes-media--greens" aria-hidden="true"></div>
+            <div class="recipes-body">
+              <div>
+                <h3>Roasted Grain Bowl</h3>
+                <p class="recipes-note">Lunch &middot; 25 min</p>
+                <p class="recipes-desc">
+                  Nutty grains with caramelized veggies and tahini dressing.
+                </p>
+              </div>
+              <div class="recipes-tags">
+                <span>plant-based</span>
+                <span>asian</span>
+                <span>make ahead</span>
+              </div>
+              <div class="recipes-actions">
+                <button class="recipes-action" type="button">+ groceries</button>
+              </div>
+            </div>
+          </article>
+
+          <article class="recipes-card">
+            <button class="recipes-favorite" type="button" aria-label="Favorite recipe" aria-pressed="false">
+              <svg viewBox="0 0 20 20" aria-hidden="true">
+                <path d="M9.999 17.27l-1.45-1.32C4.4 12.36 2 10.28 2 7.5 2 5.5 3.5 4 5.5 4c1.54 0 3.04.99 3.57 2.36h1.87C11.46 4.99 12.96 4 14.5 4 16.5 4 18 5.5 18 7.5c0 2.78-2.4 4.86-6.55 8.45l-1.45 1.32z"/>
+              </svg>
+            </button>
+            <div class="recipes-media recipes-media--soup" aria-hidden="true"></div>
+            <div class="recipes-body">
+              <div>
+                <h3>Rustic Lentil Soup</h3>
+                <p class="recipes-note">Dinner &middot; 40 min</p>
+                <p class="recipes-desc">
+                  Slow-simmered lentils with herbs and a smoky paprika finish.
+                </p>
+              </div>
+              <div class="recipes-tags">
+                <span>one pot</span>
+                <span>budget</span>
+                <span>comfort</span>
+              </div>
+              <div class="recipes-actions">
+                <button class="recipes-action" type="button">+ groceries</button>
+              </div>
+            </div>
+          </article>
+
+          <article class="recipes-card">
+            <button class="recipes-favorite" type="button" aria-label="Favorite recipe" aria-pressed="false">
+              <svg viewBox="0 0 20 20" aria-hidden="true">
+                <path d="M9.999 17.27l-1.45-1.32C4.4 12.36 2 10.28 2 7.5 2 5.5 3.5 4 5.5 4c1.54 0 3.04.99 3.57 2.36h1.87C11.46 4.99 12.96 4 14.5 4 16.5 4 18 5.5 18 7.5c0 2.78-2.4 4.86-6.55 8.45l-1.45 1.32z"/>
+              </svg>
+            </button>
+            <div class="recipes-media recipes-media--toast" aria-hidden="true"></div>
+            <div class="recipes-body">
+              <div>
+                <h3>Honey Ricotta Toast</h3>
+                <p class="recipes-note">Breakfast &middot; 10 min</p>
+                <p class="recipes-desc">
+                  Crisp toast with whipped ricotta, honey, and toasted nuts.
+                </p>
+              </div>
+              <div class="recipes-tags">
+                <span>quick</span>
+                <span>sweet-savory</span>
+                <span>no cook</span>
+              </div>
+              <div class="recipes-actions">
+                <button class="recipes-action" type="button">+ groceries</button>
+              </div>
+            </div>
+          </article>
+
+          <article class="recipes-card">
+            <button class="recipes-favorite" type="button" aria-label="Favorite recipe" aria-pressed="false">
+              <svg viewBox="0 0 20 20" aria-hidden="true">
+                <path d="M9.999 17.27l-1.45-1.32C4.4 12.36 2 10.28 2 7.5 2 5.5 3.5 4 5.5 4c1.54 0 3.04.99 3.57 2.36h1.87C11.46 4.99 12.96 4 14.5 4 16.5 4 18 5.5 18 7.5c0 2.78-2.4 4.86-6.55 8.45l-1.45 1.32z"/>
+              </svg>
+            </button>
+            <div class="recipes-media recipes-media--soup" aria-hidden="true"></div>
+            <div class="recipes-body">
+              <div>
+                <h3>Smoky Tomato Stew</h3>
+                <p class="recipes-note">Dinner &middot; 55 min</p>
+                <p class="recipes-desc">
+                  Slow-cooked tomatoes with smoked paprika, garlic, and rustic herbs.
+                </p>
+              </div>
+              <div class="recipes-tags">
+                <span>one pot</span>
+                <span>budget</span>
+                <span>vegetarian</span>
+              </div>
+              <div class="recipes-actions">
+                <button class="recipes-action" type="button">+ groceries</button>
+              </div>
+            </div>
+          </article>
+
+          <article class="recipes-card">
+            <button class="recipes-favorite" type="button" aria-label="Favorite recipe" aria-pressed="false">
+              <svg viewBox="0 0 20 20" aria-hidden="true">
+                <path d="M9.999 17.27l-1.45-1.32C4.4 12.36 2 10.28 2 7.5 2 5.5 3.5 4 5.5 4c1.54 0 3.04.99 3.57 2.36h1.87C11.46 4.99 12.96 4 14.5 4 16.5 4 18 5.5 18 7.5c0 2.78-2.4 4.86-6.55 8.45l-1.45 1.32z"/>
+              </svg>
+            </button>
+            <div class="recipes-media recipes-media--greens" aria-hidden="true"></div>
+            <div class="recipes-body">
+              <div>
+                <h3>Sesame Crunch Salad</h3>
+                <p class="recipes-note">Lunch &middot; 18 min</p>
+                <p class="recipes-desc">
+                  Crisp greens with sesame crunch, cucumber, and ginger lime dressing.
+                </p>
+              </div>
+              <div class="recipes-tags">
+                <span>asian</span>
+                <span>fiber+</span>
+                <span>no cook</span>
+              </div>
+              <div class="recipes-actions">
+                <button class="recipes-action" type="button">+ groceries</button>
+              </div>
+            </div>
+          </article>
+
+          <article class="recipes-card">
+            <button class="recipes-favorite" type="button" aria-label="Favorite recipe" aria-pressed="false">
+              <svg viewBox="0 0 20 20" aria-hidden="true">
+                <path d="M9.999 17.27l-1.45-1.32C4.4 12.36 2 10.28 2 7.5 2 5.5 3.5 4 5.5 4c1.54 0 3.04.99 3.57 2.36h1.87C11.46 4.99 12.96 4 14.5 4 16.5 4 18 5.5 18 7.5c0 2.78-2.4 4.86-6.55 8.45l-1.45 1.32z"/>
+              </svg>
+            </button>
+            <div class="recipes-media recipes-media--berry" aria-hidden="true"></div>
+            <div class="recipes-body">
+              <div>
+                <h3>Apple Walnut Crumble</h3>
+                <p class="recipes-note">Dessert &middot; 45 min</p>
+                <p class="recipes-desc">
+                  Warm baked apples with toasted walnuts and a cinnamon oat topping.
+                </p>
+              </div>
+              <div class="recipes-tags">
+                <span>weekend</span>
+                <span>comfort</span>
+                <span>vegetarian</span>
+              </div>
+              <div class="recipes-actions">
+                <button class="recipes-action" type="button">+ groceries</button>
+              </div>
+            </div>
+          </article>
+          </div>
+        </div>
+      </section>
+    </main>
+    <div th:replace="~{fragments :: auth-modals}"></div>
+    <div th:replace="~{fragments :: footer}"></div>
+    <script>
+      (() => {
+        const favorites = document.querySelectorAll(".recipes-favorite");
+        favorites.forEach((btn) => {
+          btn.addEventListener("click", (event) => {
+            event.stopPropagation();
+            btn.classList.toggle("is-active");
+            btn.setAttribute("aria-pressed", btn.classList.contains("is-active") ? "true" : "false");
+          });
+        });
+
+        const filterButtons = document.querySelectorAll(".filters-group button");
+        filterButtons.forEach((btn) => {
+          btn.setAttribute("aria-pressed", "false");
+          btn.addEventListener("click", () => {
+            const isActive = btn.classList.toggle("is-active");
+            btn.setAttribute("aria-pressed", isActive ? "true" : "false");
+          });
+        });
+      })();
+    </script>
+  </body>
+</html>
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+

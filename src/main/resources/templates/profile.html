@@ -1,0 +1,216 @@
+<!DOCTYPE html>
+<html lang="en" xmlns:th="http://www.thymeleaf.org">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Profile</title>
+    <link rel="stylesheet" th:href="@{/css/style.css(v=63)}" href="/css/style.css?v=63" />
+  </head>
+  <body class="page-profile">
+    <div th:replace="~{fragments :: navbar}"></div>
+
+    <main class="page-content">
+      <section class="profile">
+        <div class="profile-shell">
+          <div class="profile-header">
+            <span class="section-kicker"></span>
+            <h1>Profile Details</h1>
+          </div>
+
+          <div class="profile-card">
+            <div class="profile-summary">
+              <div class="profile-photo" aria-hidden="true"></div>
+              <div class="profile-identity">
+                <h2 class="profile-name" th:text="${profileFullName}">Nume Prenume</h2>
+                <div class="profile-meta">
+                  <div class="profile-meta-item">
+                    <span class="meta-label">Category</span>
+                    <span class="meta-value"
+                          th:text="${profileCategory != null && profileCategory != 'Unselected' ? profileCategory : 'Not selected'}">Not selected</span>
+                  </div>
+                  <div class="profile-meta-item">
+                    <span class="meta-label">Email Address</span>
+                    <span class="meta-value" th:text="${profileEmail}">andreea.popescu@example.com</span>
+                  </div>
+                </div>
+              </div>
+            </div>
+
+            <div class="profile-stats">
+              <div class="profile-stat">
+                <div class="profile-stat-icon" aria-hidden="true">&#x1F372;</div>
+                <div>
+                  <span class="profile-stat-value">18</span>
+                  <span class="profile-stat-label">Recipes uploaded</span>
+                </div>
+              </div>
+              <div class="profile-stat">
+                <div class="profile-stat-icon" aria-hidden="true">&#x1F5D3;</div>
+                <div>
+                  <span class="profile-stat-value">6</span>
+                  <span class="profile-stat-label">Plans created</span>
+                </div>
+              </div>
+              <div class="profile-stat">
+                <div class="profile-stat-icon" aria-hidden="true">&#x2B50;</div>
+                <div>
+                  <span class="profile-stat-value">4.8</span>
+                  <span class="profile-stat-label">Average rating</span>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+      </section>
+
+      <section class="history">
+        <div class="history-shell">
+          <div class="history-header">
+            <span class="section-kicker"></span>
+            <h2>My Recipes</h2>
+          </div>
+          <div class="history-grid">
+            <div class="recipes-add">
+              <a class="btn-primary recipes-add-btn" href="/recipes/add">Add Recipe</a>
+            </div>
+            <article class="recipes-card" th:each="recipe : ${recipes}">
+              <button class="recipes-edit" type="button" aria-label="Edit recipe">Edit</button>
+              <div class="recipes-media recipes-media--citrus" aria-hidden="true"></div>
+              <div class="recipes-body">
+                <div>
+                  <h3 th:text="${recipe.title}">Recipe title</h3>
+                  <p class="recipes-note" th:text="${recipe.mealType + ' · ' + recipe.prepTime}">Meal · 0 min</p>
+                  <p class="recipes-desc" th:text="${recipe.shortDescription}">Short description.</p>
+                </div>
+                <div class="recipes-tags">
+                  <span th:each="tag : ${recipe.tags}" th:text="${tag}">tag</span>
+                </div>
+                <div class="recipes-actions">
+                  <button class="recipes-action" type="button">+ groceries</button>
+                </div>
+              </div>
+            </article>
+            <p class="recipes-empty" th:if="${#lists.isEmpty(recipes)}">No recipes yet. Add your first one!</p>
+          </div>
+        </div>
+      </section>
+    </main>
+    <div th:replace="~{fragments :: auth-modals}"></div>
+    <div th:replace="~{fragments :: footer}"></div>
+    <div class="category-modal" th:if="${needsCategory}">
+      <div class="category-modal__overlay"></div>
+      <div class="category-modal__card" role="dialog" aria-modal="true">
+        <h2>Select your category</h2>
+        <p>This helps us personalize your experience.</p>
+        <form th:action="@{/profile/category}" method="post">
+          <input type="hidden" th:name="${_csrf.parameterName}" th:value="${_csrf.token}" />
+          <label>
+            <span>Category</span>
+            <div class="category-select" data-select="category">
+              <button class="category-select__trigger" type="button" aria-haspopup="listbox" aria-expanded="false">
+                <span class="category-select__value">Select one</span>
+                <span class="category-select__chevron" aria-hidden="true"></span>
+              </button>
+              <div class="category-select__menu" role="listbox" aria-hidden="true">
+                <button type="button" class="category-select__option" data-value="Teen Kitchen (13-19 years)">Teen Kitchen (13-19 years)</button>
+                <button type="button" class="category-select__option" data-value="Young &amp; Hungry (20-35 years)">Young &amp; Hungry (20-35 years)</button>
+                <button type="button" class="category-select__option" data-value="Home Cooks (36-55 years)">Home Cooks (36-55 years)</button>
+                <button type="button" class="category-select__option" data-value="Grandma&rsquo;s Classics (56+ years)">Grandma&rsquo;s Classics (56+ years)</button>
+              </div>
+              <input type="hidden" name="category" required />
+            </div>
+          </label>
+          <button type="submit" class="btn-primary">Save category</button>
+        </form>
+      </div>
+    </div>
+    <script>
+      (() => {
+        const select = document.querySelector("[data-select='category']");
+        if (!select) return;
+
+        const trigger = select.querySelector(".category-select__trigger");
+        const menu = select.querySelector(".category-select__menu");
+        const value = select.querySelector(".category-select__value");
+        const input = select.querySelector("input[name='category']");
+
+        const closeMenu = () => {
+          select.classList.remove("is-open");
+          trigger.setAttribute("aria-expanded", "false");
+          menu.setAttribute("aria-hidden", "true");
+        };
+
+        trigger.addEventListener("click", () => {
+          const isOpen = select.classList.toggle("is-open");
+          trigger.setAttribute("aria-expanded", isOpen ? "true" : "false");
+          menu.setAttribute("aria-hidden", isOpen ? "false" : "true");
+        });
+
+        menu.querySelectorAll(".category-select__option").forEach((option) => {
+          option.addEventListener("click", () => {
+            const selected = option.getAttribute("data-value");
+            value.textContent = option.textContent.trim();
+            input.value = selected;
+            closeMenu();
+          });
+        });
+
+        document.addEventListener("click", (event) => {
+          if (!select.contains(event.target)) {
+            closeMenu();
+          }
+        });
+      })();
+    </script>
+  </body>
+</html>
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+

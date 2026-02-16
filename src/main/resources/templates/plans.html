@@ -1,0 +1,301 @@
+<!DOCTYPE html>
+<html lang="en" xmlns:th="http://www.thymeleaf.org">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Plans</title>
+    <link rel="stylesheet" th:href="@{/css/style.css(v=63)}" href="/css/style.css?v=63" />
+  </head>
+  <body class="page-plans">
+    <div th:replace="~{fragments :: navbar}"></div>
+
+    <main class="page-content page-content--plans">
+      <section class="plans-shell">
+        <div class="plans-hero-card">
+          <div class="plans-hero-content">
+            <h1>Meal Plans That Fit Your Life</h1>
+            <p class="plans-hero-text">Start with a proven plan &mdash; or build your own from scratch.</p>
+          </div>
+        </div>
+
+        <div class="plans-panels">
+          <article class="plans-panel plans-panel--wide">
+            <h2>Diet Types</h2>
+            <div class="diet-types-grid">
+              <article class="diet-type-card" data-diet="high-protein">
+                <div class="diet-type-icon" aria-hidden="true">&#x1F969;</div>
+                <h3>High Protein</h3>
+                <p><strong>Best for:</strong> muscle support, satiety, active lifestyle</p>
+                <p><strong>Focus:</strong> lean protein &amp; balanced meals</p>
+              </article>
+              <article class="diet-type-card" data-diet="keto">
+                <div class="diet-type-icon" aria-hidden="true">&#x1F951;</div>
+                <h3>Keto</h3>
+                <p><strong>Best for:</strong> low-carb lifestyle, fat adaptation</p>
+                <p><strong>Focus:</strong> high fat, very low carbs</p>
+              </article>
+              <article class="diet-type-card" data-diet="weight-loss">
+                <div class="diet-type-icon" aria-hidden="true">&#x2696;&#xFE0F;</div>
+                <h3>Weight Loss</h3>
+                <p><strong>Best for:</strong> calorie control &amp; sustainable fat loss</p>
+                <p><strong>Focus:</strong> portion control &amp; nutrient density</p>
+              </article>
+              <article class="diet-type-card" data-diet="high-fiber">
+                <div class="diet-type-icon" aria-hidden="true">&#x1F33E;</div>
+                <h3>High Fiber</h3>
+                <p><strong>Best for:</strong> digestion, gut health, fullness</p>
+                <p><strong>Focus:</strong> whole foods &amp; plant diversity</p>
+              </article>
+              <article class="diet-type-card" data-diet="balanced">
+                <div class="diet-type-icon" aria-hidden="true">&#x1F9D8;</div>
+                <h3>Balanced</h3>
+                <p><strong>Best for:</strong> everyday eating &amp; flexibility</p>
+                <p><strong>Focus:</strong> variety &amp; sustainability</p>
+              </article>
+              <article class="diet-type-card" data-diet="plant-based">
+                <div class="diet-type-icon" aria-hidden="true">&#x1F331;</div>
+                <h3>Plant-Based</h3>
+                <p><strong>Best for:</strong> vegetarian / flexitarian diets</p>
+                <p><strong>Focus:</strong> plant protein &amp; whole foods</p>
+              </article>
+              <button class="diet-type-cta" type="button">Personalize your own diet</button>
+            </div>
+          </article>
+          <article class="plans-panel plans-panel--narrow">
+            <h2>Diet Details</h2>
+            <div class="diet-details-card" data-diet-details>
+              <p class="diet-details-placeholder">Select a diet to see details here.</p>
+            </div>
+          </article>
+        </div>
+      </section>
+    </main>
+    <div th:replace="~{fragments :: auth-modals}"></div>
+    <div th:replace="~{fragments :: footer}"></div>
+    <script>
+      (() => {
+        const detailCard = document.querySelector("[data-diet-details]");
+        const dietCards = document.querySelectorAll(".diet-type-card");
+        if (!detailCard || dietCards.length === 0) return;
+
+        const details = {
+          "high-protein": {
+            title: "High Protein",
+            macros: [
+              "Protein: 30&ndash;35%",
+              "Carbs: 30&ndash;35%",
+              "Fats: 30&ndash;35%",
+            ],
+            targets: [
+              "Protein: 120&ndash;160 g",
+              "Carbs: 150&ndash;220 g",
+              "Fats: 60&ndash;80 g",
+            ],
+            eats: [
+              "Chicken, turkey, lean beef",
+              "Eggs, Greek yogurt, cottage cheese",
+              "Fish &amp; seafood",
+              "Legumes, tofu",
+              "Whole grains &amp; vegetables",
+            ],
+            restrictions: [
+              "No strict restrictions",
+              "Limits highly processed foods &amp; added sugars",
+            ],
+            note:
+              "Helps reduce hunger and maintain muscle mass while staying flexible and easy to follow.",
+          },
+          keto: {
+            title: "Keto",
+            macros: [
+              "Fats: 70&ndash;75%",
+              "Protein: 20&ndash;25%",
+              "Carbs: 5&ndash;10%",
+            ],
+            targets: [
+              "Carbs: 20&ndash;40 g (net carbs)",
+              "Protein: 90&ndash;130 g",
+              "Fats: 140&ndash;180 g",
+            ],
+            eats: [
+              "Avocado, olive oil, butter",
+              "Fatty fish, meat, eggs",
+              "Cheese &amp; full-fat dairy",
+              "Low-carb vegetables (zucchini, spinach, broccoli)",
+              "Nuts &amp; seeds (in moderation)",
+            ],
+            restrictions: [
+              "No sugar",
+              "No grains or starchy foods",
+              "Very limited fruit",
+            ],
+            note:
+              "Requires consistency; carb intake must stay low to remain in ketosis.",
+          },
+          "weight-loss": {
+            title: "Weight Loss",
+            macros: ["Protein: ~30%", "Carbs: ~40%", "Fats: ~30%"],
+            targets: [
+              "Calories: mild deficit (&ndash;300 to &ndash;500 kcal)",
+              "Protein: 110&ndash;150 g",
+              "Carbs: 150&ndash;200 g",
+              "Fats: 50&ndash;70 g",
+            ],
+            eats: [
+              "Lean proteins",
+              "Vegetables at every meal",
+              "Whole grains in controlled portions",
+              "Healthy fats (olive oil, nuts)",
+            ],
+            restrictions: [
+              "Reduced ultra-processed foods",
+              "Limited sugary drinks &amp; snacks",
+            ],
+            note:
+              "Designed to be sustainable long-term, without extreme rules.",
+          },
+          "high-fiber": {
+            title: "High Fiber",
+            macros: ["Carbs: 45&ndash;50%", "Protein: ~25%", "Fats: 25&ndash;30%"],
+            targets: [
+              "Fiber: 30&ndash;40 g",
+              "Protein: 90&ndash;120 g",
+              "Carbs: 200&ndash;260 g",
+            ],
+            eats: [
+              "Whole grains (oats, brown rice, quinoa)",
+              "Legumes (beans, lentils, chickpeas)",
+              "Vegetables &amp; fruits",
+              "Seeds (chia, flax)",
+            ],
+            restrictions: ["Low refined grains", "Minimal processed foods"],
+            note:
+              "Supports digestion and keeps you fuller for longer.",
+          },
+          balanced: {
+            title: "Balanced",
+            macros: ["Protein: 25&ndash;30%", "Carbs: 40&ndash;45%", "Fats: 25&ndash;30%"],
+            targets: [
+              "Protein: 90&ndash;130 g",
+              "Carbs: 180&ndash;250 g",
+              "Fats: 60&ndash;80 g",
+            ],
+            eats: [
+              "Mix of proteins, carbs &amp; fats",
+              "Fruits, vegetables, grains",
+              "Occasional treats allowed",
+            ],
+            restrictions: ["None"],
+            note:
+              "Ideal starting point if you don&#39;t follow a specific diet.",
+          },
+          "plant-based": {
+            title: "Plant-Based",
+            macros: ["Carbs: ~50%", "Protein: ~25%", "Fats: ~25%"],
+            targets: [
+              "Protein: 80&ndash;120 g",
+              "Carbs: 220&ndash;280 g",
+              "Fats: 50&ndash;70 g",
+            ],
+            eats: [
+              "Legumes, tofu, tempeh",
+              "Whole grains",
+              "Vegetables &amp; fruits",
+              "Nuts &amp; seeds",
+            ],
+            restrictions: ["No meat", "Optional dairy/eggs (flexible)"],
+            note:
+              "Emphasizes fiber and micronutrients, with plant-based protein sources.",
+          },
+        };
+
+        const renderList = (items, className = "") =>
+          `<ul class="diet-details-list ${className}">${items
+            .map((item) => `<li>${item}</li>`)
+            .join("")}</ul>`;
+
+        const renderDetails = (data) => `
+          <div class="diet-details-section">
+            <h4>Macronutrient Split</h4>
+            ${renderList(data.macros, "diet-details-list--title")}
+          </div>
+          <div class="diet-details-section">
+            <h4>Daily Targets (avg)</h4>
+            ${renderList(data.targets)}
+          </div>
+          <div class="diet-details-section">
+            <h4>What You&#39;ll Eat</h4>
+            ${renderList(data.eats)}
+          </div>
+          <div class="diet-details-section">
+            <h4>Restrictions</h4>
+            ${renderList(data.restrictions)}
+          </div>
+          <div class="diet-details-section">
+            <h4>Good to Know</h4>
+            <p>${data.note}</p>
+          </div>
+        `;
+
+        dietCards.forEach((card) => {
+          card.addEventListener("click", () => {
+            dietCards.forEach((item) => item.classList.remove("is-active"));
+            card.classList.add("is-active");
+            const key = card.dataset.diet;
+            const data = details[key];
+            detailCard.innerHTML = data
+              ? renderDetails(data)
+              : "<p class=\"diet-details-placeholder\">Details coming soon.</p>";
+          });
+        });
+      })();
+    </script>
+  </body>
+</html>
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+

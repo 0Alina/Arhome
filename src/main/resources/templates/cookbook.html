@@ -1,0 +1,288 @@
+<!DOCTYPE html>
+<html lang="en" xmlns:th="http://www.thymeleaf.org">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Collection</title>
+    <link rel="stylesheet" th:href="@{/css/style.css(v=63)}" href="/css/style.css?v=63" />
+  </head>
+  <body class="cookbook-page page-cookbook">
+    <div th:replace="~{fragments :: navbar}"></div>
+    <main class="page-content page-content--cookbook">
+      <section class="cookbook-shell">
+        <section class="cookbook-hero">
+          <div class="cookbook-hero-inner">
+            <div class="cookbook-hero-text">
+              <h1>Your Collection, Curated for Daily Cooking</h1>
+              <p class="cookbook-subtitle">
+                A growing collection of recipes tailored to your preferences, schedule, and
+                pantry. Save favorites, filter by mood, and build a week that feels easy.
+              </p>
+              <div class="cookbook-meta">
+                <div>
+                  <span class="cookbook-meta-label">Meals saved</span>
+                  <span class="cookbook-meta-value">128 recipes</span>
+                </div>
+                <div>
+                  <span class="cookbook-meta-label">Last updated</span>
+                  <span class="cookbook-meta-value">Today</span>
+                </div>
+              </div>
+            </div>
+            <div class="cookbook-hero-card">
+              <img class="cookbook-icon" src="/img/cookbook.png" alt="Collection illustration" />
+            </div>
+          </div>
+        </section>
+        <section class="cookbook-body">
+          <div class="cookbook-controls">
+            <div class="cookbook-search-row">
+              <div class="cookbook-search">
+                <input type="text" placeholder="Search recipes" aria-label="Search recipes" />
+                <button class="cookbook-search-btn" type="button">Search</button>
+              </div>
+            </div>
+            <div class="cookbook-toolbar">
+              <div class="cookbook-filters">
+                <button class="cookbook-filter is-active" type="button">All</button>
+                <button class="cookbook-filter" type="button">Breakfast</button>
+                <button class="cookbook-filter" type="button">Lunch</button>
+                <button class="cookbook-filter" type="button">Dinner</button>
+                <button class="cookbook-filter" type="button">Dessert</button>
+              </div>
+              <div class="cookbook-sort">
+                <span class="cookbook-sort-label">Sort by</span>
+                <div class="cookbook-select" data-select>
+                  <select aria-label="Sort recipes">
+                    <option selected>Recently saved</option>
+                    <option>Shortest time</option>
+                    <option>Alphabetical</option>
+                  </select>
+                  <button class="cookbook-select-trigger" type="button" aria-haspopup="listbox">Recently saved</button>
+                  <ul class="cookbook-select-menu" role="listbox">
+                    <li class="cookbook-select-option is-selected" role="option">Recently saved</li>
+                    <li class="cookbook-select-option" role="option">Shortest time</li>
+                    <li class="cookbook-select-option" role="option">Alphabetical</li>
+                  </ul>
+                </div>
+              </div>
+            </div>
+          </div>
+          <div class="cookbook-grid">
+            <article class="cookbook-card">
+              <button class="cookbook-favorite is-active" type="button" aria-label="Favorite recipe" aria-pressed="true">
+                <svg viewBox="0 0 20 20" aria-hidden="true">
+                  <path d="M9.999 17.27l-1.45-1.32C4.4 12.36 2 10.28 2 7.5 2 5.5 3.5 4 5.5 4c1.54 0 3.04.99 3.57 2.36h1.87C11.46 4.99 12.96 4 14.5 4 16.5 4 18 5.5 18 7.5c0 2.78-2.4 4.86-6.55 8.45l-1.45 1.32z"/>
+                </svg>
+              </button>
+              <div class="cookbook-media cookbook-media--oat" aria-hidden="true"></div>
+              <div class="cookbook-card-body">
+                <div>
+                  <h3>Vanilla Pear Porridge</h3>
+                  <p class="cookbook-card-note">Breakfast &middot; 20 min</p>
+                </div>
+                <p class="cookbook-card-desc">
+                  Creamy oats with roasted pear, cinnamon, and a soft caramel drizzle.
+                </p>
+                <div class="cookbook-tags">
+                  <span>cozy</span>
+                  <span>vegetarian</span>
+                  <span>pantry</span>
+                </div>
+                <div class="cookbook-card-actions">
+                  <button class="cookbook-action" type="button">+ groceries</button>
+                </div>
+              </div>
+            </article>
+            <article class="cookbook-card">
+              <button class="cookbook-favorite is-active" type="button" aria-label="Favorite recipe" aria-pressed="true">
+                <svg viewBox="0 0 20 20" aria-hidden="true">
+                  <path d="M9.999 17.27l-1.45-1.32C4.4 12.36 2 10.28 2 7.5 2 5.5 3.5 4 5.5 4c1.54 0 3.04.99 3.57 2.36h1.87C11.46 4.99 12.96 4 14.5 4 16.5 4 18 5.5 18 7.5c0 2.78-2.4 4.86-6.55 8.45l-1.45 1.32z"/>
+                </svg>
+              </button>
+              <div class="cookbook-media cookbook-media--citrus" aria-hidden="true"></div>
+              <div class="cookbook-card-body">
+                <div>
+                  <h3>Herb Citrus Chicken</h3>
+                  <p class="cookbook-card-note">Dinner &middot; 35 min</p>
+                </div>
+                <p class="cookbook-card-desc">
+                  Zesty chicken with a soft herb sauce, perfect for quick weeknights.
+                </p>
+                <div class="cookbook-tags">
+                  <span>cozy</span>
+                  <span>gluten-free</span>
+                  <span>weeknight</span>
+                </div>
+                <div class="cookbook-card-actions">
+                  <button class="cookbook-action" type="button">+ groceries</button>
+                </div>
+              </div>
+            </article>
+            <article class="cookbook-card">
+              <button class="cookbook-favorite is-active" type="button" aria-label="Favorite recipe" aria-pressed="true">
+                <svg viewBox="0 0 20 20" aria-hidden="true">
+                  <path d="M9.999 17.27l-1.45-1.32C4.4 12.36 2 10.28 2 7.5 2 5.5 3.5 4 5.5 4c1.54 0 3.04.99 3.57 2.36h1.87C11.46 4.99 12.96 4 14.5 4 16.5 4 18 5.5 18 7.5c0 2.78-2.4 4.86-6.55 8.45l-1.45 1.32z"/>
+                </svg>
+              </button>
+              <div class="cookbook-media cookbook-media--berry" aria-hidden="true"></div>
+              <div class="cookbook-card-body">
+                <div>
+                  <h3>Roasted Berry Oat Tart</h3>
+                  <p class="cookbook-card-note">Dessert &middot; 50 min</p>
+                </div>
+                <p class="cookbook-card-desc">
+                  A golden oat crust with warm berries and a vanilla drizzle.
+                </p>
+                <div class="cookbook-tags">
+                  <span>weekend</span>
+                  <span>sweet</span>
+                  <span>comfort</span>
+                </div>
+                <div class="cookbook-card-actions">
+                  <button class="cookbook-action" type="button">+ groceries</button>
+                </div>
+              </div>
+            </article>
+            <article class="cookbook-card">
+              <button class="cookbook-favorite is-active" type="button" aria-label="Favorite recipe" aria-pressed="true">
+                <svg viewBox="0 0 20 20" aria-hidden="true">
+                  <path d="M9.999 17.27l-1.45-1.32C4.4 12.36 2 10.28 2 7.5 2 5.5 3.5 4 5.5 4c1.54 0 3.04.99 3.57 2.36h1.87C11.46 4.99 12.96 4 14.5 4 16.5 4 18 5.5 18 7.5c0 2.78-2.4 4.86-6.55 8.45l-1.45 1.32z"/>
+                </svg>
+              </button>
+              <div class="cookbook-media cookbook-media--greens" aria-hidden="true"></div>
+              <div class="cookbook-card-body">
+                <div>
+                  <h3>Roasted Grain Bowl</h3>
+                  <p class="cookbook-card-note">Lunch &middot; 25 min</p>
+                </div>
+                <p class="cookbook-card-desc">
+                  Nutty grains with caramelized veggies and tahini dressing.
+                </p>
+                <div class="cookbook-tags">
+                  <span>plant-based</span>
+                  <span>asian</span>
+                  <span>make ahead</span>
+                </div>
+                <div class="cookbook-card-actions">
+                  <button class="cookbook-action" type="button">+ groceries</button>
+                </div>
+              </div>
+            </article>
+            <article class="cookbook-card">
+              <button class="cookbook-favorite is-active" type="button" aria-label="Favorite recipe" aria-pressed="true">
+                <svg viewBox="0 0 20 20" aria-hidden="true">
+                  <path d="M9.999 17.27l-1.45-1.32C4.4 12.36 2 10.28 2 7.5 2 5.5 3.5 4 5.5 4c1.54 0 3.04.99 3.57 2.36h1.87C11.46 4.99 12.96 4 14.5 4 16.5 4 18 5.5 18 7.5c0 2.78-2.4 4.86-6.55 8.45l-1.45 1.32z"/>
+                </svg>
+              </button>
+              <div class="cookbook-media cookbook-media--soup" aria-hidden="true"></div>
+              <div class="cookbook-card-body">
+                <div>
+                  <h3>Rustic Lentil Soup</h3>
+                  <p class="cookbook-card-note">Dinner &middot; 40 min</p>
+                </div>
+                <p class="cookbook-card-desc">
+                  Slow-simmered lentils with herbs and a smoky paprika finish.
+                </p>
+                <div class="cookbook-tags">
+                  <span>one pot</span>
+                  <span>budget</span>
+                  <span>comfort</span>
+                </div>
+                <div class="cookbook-card-actions">
+                  <button class="cookbook-action" type="button">+ groceries</button>
+                </div>
+              </div>
+            </article>
+            <article class="cookbook-card">
+              <button class="cookbook-favorite is-active" type="button" aria-label="Favorite recipe" aria-pressed="true">
+                <svg viewBox="0 0 20 20" aria-hidden="true">
+                  <path d="M9.999 17.27l-1.45-1.32C4.4 12.36 2 10.28 2 7.5 2 5.5 3.5 4 5.5 4c1.54 0 3.04.99 3.57 2.36h1.87C11.46 4.99 12.96 4 14.5 4 16.5 4 18 5.5 18 7.5c0 2.78-2.4 4.86-6.55 8.45l-1.45 1.32z"/>
+                </svg>
+              </button>
+              <div class="cookbook-media cookbook-media--toast" aria-hidden="true"></div>
+              <div class="cookbook-card-body">
+                <div>
+                  <h3>Honey Ricotta Toast</h3>
+                  <p class="cookbook-card-note">Breakfast &middot; 10 min</p>
+                </div>
+                <p class="cookbook-card-desc">
+                  Crisp toast with whipped ricotta, honey, and toasted nuts.
+                </p>
+                <div class="cookbook-tags">
+                  <span>quick</span>
+                  <span>sweet-savory</span>
+                  <span>no cook</span>
+                </div>
+                <div class="cookbook-card-actions">
+                  <button class="cookbook-action" type="button">+ groceries</button>
+                </div>
+              </div>
+            </article>
+          </div>
+        </section>
+      </section>
+    </main>
+    <section class="cookbook-modal" aria-hidden="true">
+      <div class="cookbook-modal-card">
+        <button class="cookbook-modal-close" type="button" aria-label="Close">&times;</button>
+        <h3>Recipe details</h3>
+        <p class="cookbook-modal-text">
+          Select a recipe to view ingredients, steps, and nutrition.
+        </p>
+      </div>
+    </section>
+    <div th:replace="~{fragments :: auth-modals}"></div>
+    <div th:replace="~{fragments :: footer}"></div>
+    <script>
+      (() => {
+        const filterButtons = document.querySelectorAll(".cookbook-filter");
+        filterButtons.forEach((btn) => {
+          btn.addEventListener("click", () => {
+            filterButtons.forEach((item) => item.classList.remove("is-active"));
+            btn.classList.add("is-active");
+          });
+        });
+
+        const favoriteButtons = document.querySelectorAll(".cookbook-favorite");
+        favoriteButtons.forEach((btn) => {
+          btn.addEventListener("click", () => {
+            const isActive = btn.classList.toggle("is-active");
+            btn.setAttribute("aria-pressed", isActive ? "true" : "false");
+          });
+        });
+
+        const select = document.querySelector("[data-select]");
+        if (!select) return;
+        const trigger = select.querySelector(".cookbook-select-trigger");
+        const menu = select.querySelector(".cookbook-select-menu");
+        const options = Array.from(select.querySelectorAll(".cookbook-select-option"));
+        const nativeSelect = select.querySelector("select");
+
+        const closeMenu = () => {
+          select.classList.remove("is-open");
+        };
+
+        trigger.addEventListener("click", (event) => {
+          event.stopPropagation();
+          select.classList.toggle("is-open");
+        });
+
+        options.forEach((option, index) => {
+          option.addEventListener("click", () => {
+            options.forEach((opt) => opt.classList.remove("is-selected"));
+            option.classList.add("is-selected");
+            trigger.textContent = option.textContent;
+            if (nativeSelect) nativeSelect.selectedIndex = index;
+            closeMenu();
+          });
+        });
+
+        document.addEventListener("click", closeMenu);
+        document.addEventListener("keydown", (event) => {
+          if (event.key === "Escape") closeMenu();
+        });
+      })();
+    </script>
+  </body>
+</html>
