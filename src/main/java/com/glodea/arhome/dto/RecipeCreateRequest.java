@@ -12,6 +12,7 @@ public class RecipeCreateRequest {
     private String ingredients;
     private String steps;
     private String instructions;
+    private String imagePath;
     private List<String> regionTags = new ArrayList<>();
     private List<String> styleTags = new ArrayList<>();
     private List<String> nutritionTags = new ArrayList<>();
@@ -70,6 +71,14 @@ public class RecipeCreateRequest {
 
     public void setInstructions(String instructions) {
         this.instructions = instructions;
+    }
+
+    public String getImagePath() {
+        return imagePath;
+    }
+
+    public void setImagePath(String imagePath) {
+        this.imagePath = imagePath;
     }
 
     public List<String> getRegionTags() {

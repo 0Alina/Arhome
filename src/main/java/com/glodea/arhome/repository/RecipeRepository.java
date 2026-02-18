@@ -9,4 +9,6 @@ import com.glodea.arhome.entity.User;
 
 public interface RecipeRepository extends JpaRepository<Recipe, Long> {
     List<Recipe> findByUserOrderByCreatedAtDesc(User user);
+    java.util.Optional<Recipe> findByIdAndUser(Long id, User user);
+    List<Recipe> findAllByOrderByCreatedAtDesc();
 }

@@ -1,0 +1,93 @@
+<!DOCTYPE html>
+<html lang="en" xmlns:th="http://www.thymeleaf.org">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title th:text="${recipe.title}">Recipe</title>
+    <link rel="stylesheet" th:href="@{/css/style.css(v=63)}" href="/css/style.css?v=63" />
+  </head>
+  <body class="page-recipes page-recipe-detail">
+    <div th:replace="~{fragments :: navbar}"></div>
+
+    <main class="page-content page-content--recipe-detail">
+      <section class="recipe-detail">
+        <div class="recipe-detail-shell">
+          <div class="recipe-detail-header">
+            <div class="recipe-detail-image" th:style="${recipe.imagePath != null ? 'background-image: url(' + recipe.imagePath + ')' : ''}"></div>
+            <div class="recipe-detail-info">
+              <h1 th:text="${recipe.title}">Recipe title</h1>
+              <div class="recipe-detail-meta">
+                <div class="recipe-meta-item">
+                  <span class="recipe-meta-icon" aria-hidden="true">
+                    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5">
+                      <path stroke-linecap="round" stroke-linejoin="round" d="M12 6v6h4.5m4.5 0a9 9 0 1 1-18 0 9 9 0 0 1 18 0Z" />
+                    </svg>
+                  </span>
+                  <span th:text="${recipe.prepTime}">35 min</span>
+                </div>
+                <div class="recipe-meta-item" th:switch="${recipe.mealType}">
+                  <span class="recipe-meta-icon" aria-hidden="true" th:case="'Breakfast'">
+                    <img src="/img/breakfast.png" alt="" />
+                  </span>
+                  <span class="recipe-meta-icon" aria-hidden="true" th:case="'Lunch'">
+                    <img src="/img/lunch.png" alt="" />
+                  </span>
+                  <span class="recipe-meta-icon" aria-hidden="true" th:case="'Dinner'">
+                    <img src="/img/dinner.png" alt="" />
+                  </span>
+                  <span class="recipe-meta-icon" aria-hidden="true" th:case="'Dessert'">
+                    <img src="/img/dessert.png" alt="" />
+                  </span>
+                  <span class="recipe-meta-icon" aria-hidden="true" th:case="*">
+                    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6">
+                      <path stroke-linecap="round" stroke-linejoin="round" d="M12 4c2.5 0 4 1.6 4 3.6 0 .7-.2 1.3-.6 1.8 2 .6 3.6 2.4 3.6 4.6 0 3-2.5 5-7 5s-7-2-7-5c0-2.2 1.6-4 3.6-4.6-.4-.5-.6-1.1-.6-1.8C8 5.6 9.5 4 12 4Z"/>
+                    </svg>
+                  </span>
+                  <span th:text="${recipe.mealType}">Dinner</span>
+                </div>
+              </div>
+              <p class="recipe-detail-desc" th:text="${recipe.shortDescription}">Short description.</p>
+              <div class="recipe-detail-tags">
+                <span class="recipe-user-category"
+                      th:if="${authorCategory != null && authorCategory != 'Unselected'}"
+                      th:text="${authorCategory}">Category</span>
+                <span th:each="tag : ${tags}" th:text="${tag}">tag</span>
+              </div>
+              <p class="recipe-detail-author">
+                Cooked with love by <span th:text="${authorName}">Chef</span>
+              </p>
+            </div>
+          </div>
+
+          <section class="recipe-ingredients">
+            <h2>Ingredients</h2>
+            <div class="recipe-ingredients-grid">
+              <div class="recipe-ingredient" th:each="line : ${ingredientsLines}" th:text="${line}">Ingredient</div>
+            </div>
+          </section>
+
+          <section class="recipe-steps">
+            <h2>Cooking <span>Steps</span></h2>
+            <div class="recipe-steps-list">
+              <div class="recipe-step" th:each="step : ${stepsItems}">
+                <span class="recipe-step-index"
+                      th:text="${#numbers.formatInteger(step.number, 2)}">01</span>
+                <div class="recipe-step-body">
+                  <p class="recipe-step-title" th:text="${step.title}">Step title</p>
+                  <p class="recipe-step-desc" th:each="line : ${step.desc}" th:text="${line}">Step description</p>
+                </div>
+              </div>
+            </div>
+          </section>
+
+          <section class="recipe-serving" th:if="${recipe.instructions != null && !#strings.isEmpty(recipe.instructions)}">
+            <h2>Serving <span>Instructions</span></h2>
+            <p class="recipe-serving-text" th:text="${recipe.instructions}">Serving instructions.</p>
+          </section>
+        </div>
+      </section>
+    </main>
+
+    <div th:replace="~{fragments :: footer}"></div>
+  </body>
+</html>

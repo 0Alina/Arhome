@@ -3,7 +3,7 @@
   <head>
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-    <title>Add Recipe</title>
+    <title th:text="${pageTitle != null ? pageTitle : 'Add Recipe'}">Add Recipe</title>
     <link rel="stylesheet" th:href="@{/css/style.css(v=63)}" href="/css/style.css?v=63" />
   </head>
   <body class="page-recipes">
@@ -13,58 +13,65 @@
       <section class="add-recipe-page">
         <div class="add-recipe-shell">
           <div class="add-recipe-card add-recipe-card--split" data-book>
-          <form id="add-recipe-form" class="add-recipe-form add-recipe-form--split" th:action="@{/recipes/add}" method="post" enctype="multipart/form-data">
+          <form id="add-recipe-form" class="add-recipe-form add-recipe-form--split" th:action="@{${formAction}}" method="post">
             <input type="hidden" th:name="${_csrf.parameterName}" th:value="${_csrf.token}" />
             <div class="add-recipe-spread add-recipe-spread--one">
               <div class="add-recipe-col add-recipe-col--left">
                 <div class="add-recipe-field">
                   <label for="recipe-title">Title</label>
-                  <input id="recipe-title" name="title" type="text" placeholder="Recipe title" required />
+                  <input id="recipe-title" name="title" type="text" placeholder="Recipe title" th:value="${recipe.title}" required />
                 </div>
                 <div class="add-recipe-field">
-                  <label for="recipe-photo">Recipe photo</label>
-                  <input id="recipe-photo" name="photo" type="file" accept="image/*" />
+                  <label for="recipe-photo">Recipe photo (optional)</label>
+                  <div class="file-field">
+                    <input id="recipe-photo" type="file" accept="image/*" />
+                    <button class="file-button" type="button" data-file-trigger
+                            th:text="${isEdit == true ? 'Change file' : 'Choose file'}">Choose file</button>
+                    <span class="file-name" data-file-name
+                          th:text="${isEdit == true ? 'Current image set' : 'No image selected'}">No image selected</span>
+                  </div>
+                  <input type="hidden" name="imagePath" th:value="${recipe.imagePath}" data-image-path />
                 </div>
                 <div class="add-recipe-field">
                   <label for="recipe-desc">Short description</label>
-                  <textarea id="recipe-desc" name="shortDescription" rows="2" placeholder="Short description"></textarea>
+                  <textarea id="recipe-desc" name="shortDescription" rows="2" placeholder="Short description" th:text="${recipe.shortDescription}"></textarea>
                 </div>
                 <div class="add-recipe-grid">
                   <div class="add-recipe-field">
                     <label for="recipe-time">Prep time</label>
-                    <input id="recipe-time" name="prepTime" type="text" placeholder="e.g. 35 min" required />
+                    <input id="recipe-time" name="prepTime" type="text" placeholder="e.g. 35 min" th:value="${recipe.prepTime}" required />
                   </div>
                   <div class="add-recipe-field">
                     <label for="recipe-meal">Meal type</label>
                     <select id="recipe-meal" name="mealType" required>
-                      <option value="" disabled selected>Select one</option>
-                      <option>Breakfast</option>
-                      <option>Lunch</option>
-                      <option>Dinner</option>
-                      <option>Dessert</option>
+                      <option value="" disabled th:selected="${recipe.mealType == null}">Select one</option>
+                      <option th:selected="${recipe.mealType == 'Breakfast'}">Breakfast</option>
+                      <option th:selected="${recipe.mealType == 'Lunch'}">Lunch</option>
+                      <option th:selected="${recipe.mealType == 'Dinner'}">Dinner</option>
+                      <option th:selected="${recipe.mealType == 'Dessert'}">Dessert</option>
                     </select>
                   </div>
                 </div>
                 <div class="add-recipe-tags">
                   <div class="add-recipe-tag-group">
                     <span>Region</span>
-                    <label><input type="checkbox" name="regionTags" value="American" /> American</label>
-                    <label><input type="checkbox" name="regionTags" value="Asian" /> Asian</label>
-                    <label><input type="checkbox" name="regionTags" value="European" /> European</label>
-                    <label><input type="checkbox" name="regionTags" value="Mexican" /> Mexican</label>
+                    <label><input type="checkbox" name="regionTags" value="American" th:checked="${recipe.regionTags != null && recipe.regionTags.contains('American')}" /> American</label>
+                    <label><input type="checkbox" name="regionTags" value="Asian" th:checked="${recipe.regionTags != null && recipe.regionTags.contains('Asian')}" /> Asian</label>
+                    <label><input type="checkbox" name="regionTags" value="European" th:checked="${recipe.regionTags != null && recipe.regionTags.contains('European')}" /> European</label>
+                    <label><input type="checkbox" name="regionTags" value="Mexican" th:checked="${recipe.regionTags != null && recipe.regionTags.contains('Mexican')}" /> Mexican</label>
                   </div>
                   <div class="add-recipe-tag-group">
                     <span>Style</span>
-                    <label><input type="checkbox" name="styleTags" value="No cook" /> No cook</label>
-                    <label><input type="checkbox" name="styleTags" value="One pot" /> One pot</label>
-                    <label><input type="checkbox" name="styleTags" value="Budget" /> Budget</label>
+                    <label><input type="checkbox" name="styleTags" value="No cook" th:checked="${recipe.styleTags != null && recipe.styleTags.contains('No cook')}" /> No cook</label>
+                    <label><input type="checkbox" name="styleTags" value="One pot" th:checked="${recipe.styleTags != null && recipe.styleTags.contains('One pot')}" /> One pot</label>
+                    <label><input type="checkbox" name="styleTags" value="Budget" th:checked="${recipe.styleTags != null && recipe.styleTags.contains('Budget')}" /> Budget</label>
                   </div>
                   <div class="add-recipe-tag-group">
                     <span>Nutrition</span>
-                    <label><input type="checkbox" name="nutritionTags" value="Vegetarian" /> Vegetarian</label>
-                    <label><input type="checkbox" name="nutritionTags" value="Gluten-free" /> Gluten-free</label>
-                    <label><input type="checkbox" name="nutritionTags" value="Protein+" /> Protein+</label>
-                    <label><input type="checkbox" name="nutritionTags" value="Fibre+" /> Fibre+</label>
+                    <label><input type="checkbox" name="nutritionTags" value="Vegetarian" th:checked="${recipe.nutritionTags != null && recipe.nutritionTags.contains('Vegetarian')}" /> Vegetarian</label>
+                    <label><input type="checkbox" name="nutritionTags" value="Gluten-free" th:checked="${recipe.nutritionTags != null && recipe.nutritionTags.contains('Gluten-free')}" /> Gluten-free</label>
+                    <label><input type="checkbox" name="nutritionTags" value="Protein+" th:checked="${recipe.nutritionTags != null && recipe.nutritionTags.contains('Protein+')}" /> Protein+</label>
+                    <label><input type="checkbox" name="nutritionTags" value="Fibre+" th:checked="${recipe.nutritionTags != null && recipe.nutritionTags.contains('Fibre+')}" /> Fibre+</label>
                   </div>
                 </div>
               </div>
@@ -72,7 +79,7 @@
               <div class="add-recipe-col add-recipe-col--right">
                 <div class="add-recipe-field add-recipe-field--fill">
                   <label for="recipe-ingredients">Ingredients</label>
-                  <textarea id="recipe-ingredients" name="ingredients" rows="5" placeholder="List ingredients"></textarea>
+                  <textarea id="recipe-ingredients" name="ingredients" rows="5" placeholder="List ingredients" data-list="dash" th:text="${recipe.ingredients}"></textarea>
                 </div>
               </div>
             </div>
@@ -81,14 +88,14 @@
               <div class="add-recipe-col add-recipe-col--left">
                 <div class="add-recipe-field add-recipe-field--fill">
                   <label for="recipe-steps">Steps</label>
-                  <textarea id="recipe-steps" name="steps" rows="12" placeholder="Write the steps"></textarea>
+                  <textarea id="recipe-steps" name="steps" rows="12" placeholder="Write the steps" data-list="number" th:text="${recipe.steps}"></textarea>
                 </div>
               </div>
               <div class="add-recipe-divider" aria-hidden="true"></div>
               <div class="add-recipe-col add-recipe-col--right">
                 <div class="add-recipe-field add-recipe-field--fill">
                   <label for="recipe-notes">Instructions</label>
-                  <textarea id="recipe-notes" name="instructions" rows="12" placeholder="Write the instructions"></textarea>
+                  <textarea id="recipe-notes" name="instructions" rows="12" placeholder="Write the instructions" th:text="${recipe.instructions}"></textarea>
                 </div>
               </div>
             </div>
@@ -111,7 +118,7 @@
     </main>
 
     <div th:replace="~{fragments :: footer}"></div>
-    <script>
+    <script th:inline="javascript">
       (() => {
         const book = document.querySelector("[data-book]");
         if (!book) return;
@@ -124,6 +131,173 @@
         book.querySelectorAll("[data-prev-page]").forEach((btn) => {
           btn.addEventListener("click", () => book.classList.remove("is-page-two"));
         });
+
+        const form = document.getElementById("add-recipe-form");
+        const fileInput = document.getElementById("recipe-photo");
+        const fileTrigger = document.querySelector("[data-file-trigger]");
+        const fileName = document.querySelector("[data-file-name]");
+        const imagePathInput = document.querySelector("[data-image-path]");
+        const submitBtn = document.querySelector(".add-recipe-submit");
+        const csrfToken = form ? form.querySelector("input[name='_csrf']")?.value : null;
+        if (fileInput && fileTrigger && fileName) {
+          fileTrigger.addEventListener("click", () => fileInput.click());
+          const defaultName = fileName.textContent;
+          fileInput.addEventListener("change", () => {
+            if (!fileInput.files || fileInput.files.length === 0) {
+              fileName.textContent = defaultName;
+              return;
+            }
+
+            fileName.textContent = "Uploading...";
+            if (submitBtn) submitBtn.disabled = true;
+
+            const formData = new FormData();
+            formData.append("photo", fileInput.files[0]);
+
+            fetch("/recipes/upload-image", {
+              method: "POST",
+              body: formData,
+              headers: csrfToken ? { "X-CSRF-TOKEN": csrfToken } : {},
+            })
+              .then((res) => res.json())
+              .then((data) => {
+                if (data && data.ok && data.url) {
+                  if (imagePathInput) imagePathInput.value = data.url;
+                  fileName.textContent = fileInput.files[0].name;
+                } else {
+                  fileName.textContent = "Upload failed";
+                }
+              })
+              .catch(() => {
+                fileName.textContent = "Upload failed";
+              })
+              .finally(() => {
+                if (submitBtn) submitBtn.disabled = false;
+              });
+          });
+        }
+
+        if (form && fileInput) {
+          form.addEventListener("submit", (event) => {
+            if (fileInput.files && fileInput.files.length > 0 && !imagePathInput.value) {
+              event.preventDefault();
+              fileName.textContent = "Upload not finished";
+            }
+          });
+        }
+
+        if (form && fileInput) {
+          form.addEventListener("submit", () => {
+            if (!fileInput.files || fileInput.files.length === 0) {
+              fileInput.disabled = true;
+              form.removeAttribute("enctype");
+            }
+          });
+        }
+
+          const applyListBehavior = (textarea) => {
+            const mode = textarea.getAttribute("data-list");
+            if (!mode) return;
+
+          const prefixForIndex = (index) => (mode === "number" ? `${index}. ` : "- ");
+
+          const lastNumberedIndex = (value) => {
+            let last = 0;
+            value.split("\n").forEach((line) => {
+              const match = line.trim().match(/^(\d+)\.\s+/);
+              if (match) last = Math.max(last, parseInt(match[1], 10));
+            });
+            return last;
+          };
+
+          const normalizeStart = () => {
+            if (textarea.value.trim().length === 0) {
+              textarea.value = prefixForIndex(1);
+            }
+          };
+
+          textarea.addEventListener("focus", () => {
+            if (textarea.value.trim().length === 0) {
+              normalizeStart();
+            }
+          });
+
+          textarea.addEventListener("keydown", (event) => {
+            if (event.key !== "Enter") return;
+            if (event.shiftKey) {
+              return;
+            }
+            event.preventDefault();
+            const value = textarea.value;
+            const selectionStart = textarea.selectionStart;
+            const selectionEnd = textarea.selectionEnd;
+            const before = value.slice(0, selectionStart);
+            const after = value.slice(selectionEnd);
+            const nextIndex = mode === "number" ? lastNumberedIndex(before) + 1 : 1;
+            const insert = "\n" + prefixForIndex(nextIndex);
+            textarea.value = before + insert + after;
+            const newPos = before.length + insert.length;
+            textarea.selectionStart = newPos;
+            textarea.selectionEnd = newPos;
+          });
+
+          if (mode === "dash") {
+            const normalizeLines = () => {
+              const lines = textarea.value.split("\n");
+              const normalized = lines.map((line) => {
+                const trimmed = line.trim();
+                if (trimmed.length === 0) return "";
+                if (trimmed === "-") return "";
+                if (trimmed.startsWith("- ")) return trimmed;
+                return "- " + trimmed.replace(/^-+\\s*/, "");
+              });
+              textarea.value = normalized.join("\n");
+            };
+
+            textarea.addEventListener("keydown", (event) => {
+              if (event.key !== "Backspace") return;
+              if (textarea.selectionStart !== textarea.selectionEnd) return;
+
+              const value = textarea.value;
+              const pos = textarea.selectionStart;
+              const lineStart = value.lastIndexOf("\n", pos - 1) + 1;
+              const lineEnd = value.indexOf("\n", pos);
+              const end = lineEnd === -1 ? value.length : lineEnd;
+              const line = value.slice(lineStart, end);
+              const cursorInLine = pos - lineStart;
+
+              if (line.trim() === "-" && cursorInLine >= line.length) {
+                event.preventDefault();
+                const before = value.slice(0, lineStart);
+                const after = value.slice(end);
+                const newBefore = lineStart > 0 ? before.slice(0, -1) : before;
+                const newPos = newBefore.length;
+                textarea.value = newBefore + after;
+                textarea.selectionStart = newPos;
+                textarea.selectionEnd = newPos;
+                return;
+              }
+
+              if (line.startsWith("- ") && cursorInLine <= 2) {
+                event.preventDefault();
+                const newLine = line.slice(2);
+                textarea.value = value.slice(0, lineStart) + newLine + value.slice(end);
+                textarea.selectionStart = lineStart;
+                textarea.selectionEnd = lineStart;
+              }
+            });
+
+            textarea.addEventListener("paste", () => {
+              setTimeout(normalizeLines, 0);
+            });
+
+            textarea.addEventListener("blur", () => {
+              normalizeLines();
+            });
+          }
+        };
+
+        document.querySelectorAll("textarea[data-list]").forEach(applyListBehavior);
       })();
     </script>
   </body>

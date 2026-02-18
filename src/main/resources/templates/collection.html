@@ -1,0 +1,197 @@
+<!DOCTYPE html>
+<html lang="en" xmlns:th="http://www.thymeleaf.org">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <meta name="_csrf" th:content="${_csrf.token}" />
+    <meta name="_csrf_header" th:content="${_csrf.headerName}" />
+    <title>Collection</title>
+    <link rel="stylesheet" th:href="@{/css/style.css(v=63)}" href="/css/style.css?v=63" />
+  </head>
+  <body class="collection-page page-collection">
+    <div th:replace="~{fragments :: navbar}"></div>
+    <main class="page-content page-content--collection">
+      <section class="collection-shell">
+        <section class="collection-hero">
+          <div class="collection-hero-inner">
+            <div class="collection-hero-text">
+              <h1>Your Collection, Curated for Daily Cooking</h1>
+              <p class="collection-subtitle">
+                A growing collection of recipes tailored to your preferences, schedule, and
+                pantry. Save favorites, filter by mood, and build a week that feels easy.
+              </p>
+              <div class="collection-meta">
+                <div>
+                  <span class="collection-meta-label">Meals saved</span>
+                  <span class="collection-meta-value">128 recipes</span>
+                </div>
+                <div>
+                  <span class="collection-meta-label">Last updated</span>
+                  <span class="collection-meta-value">Today</span>
+                </div>
+              </div>
+            </div>
+            <div class="collection-hero-card">
+              <img class="collection-icon" src="/img/collection.png" alt="Collection illustration" />
+            </div>
+          </div>
+        </section>
+        <section class="collection-body">
+          <div class="collection-controls">
+            <div class="collection-search-row">
+              <div class="collection-search">
+                <input type="text" placeholder="Search recipes" aria-label="Search recipes" />
+                <button class="collection-search-btn" type="button">Search</button>
+              </div>
+            </div>
+            <div class="collection-toolbar">
+              <div class="collection-filters">
+                <button class="collection-filter is-active" type="button">All</button>
+                <button class="collection-filter" type="button">Breakfast</button>
+                <button class="collection-filter" type="button">Lunch</button>
+                <button class="collection-filter" type="button">Dinner</button>
+                <button class="collection-filter" type="button">Dessert</button>
+              </div>
+              <div class="collection-sort">
+                <span class="collection-sort-label">Sort by</span>
+                <div class="collection-select" data-select>
+                  <select aria-label="Sort recipes">
+                    <option selected>Recently saved</option>
+                    <option>Shortest time</option>
+                    <option>Alphabetical</option>
+                  </select>
+                  <button class="collection-select-trigger" type="button" aria-haspopup="listbox">Recently saved</button>
+                  <ul class="collection-select-menu" role="listbox">
+                    <li class="collection-select-option is-selected" role="option">Recently saved</li>
+                    <li class="collection-select-option" role="option">Shortest time</li>
+                    <li class="collection-select-option" role="option">Alphabetical</li>
+                  </ul>
+                </div>
+              </div>
+            </div>
+          </div>
+          <div class="collection-grid">
+            <article class="collection-card" th:each="recipe : ${favoriteRecipes}">
+              <button class="collection-favorite is-active" type="button" aria-label="Favorite recipe" aria-pressed="true"
+                      th:attr="data-recipe-id=${recipe.id}">
+                <svg viewBox="0 0 20 20" aria-hidden="true">
+                  <path d="M9.999 17.27l-1.45-1.32C4.4 12.36 2 10.28 2 7.5 2 5.5 3.5 4 5.5 4c1.54 0 3.04.99 3.57 2.36h1.87C11.46 4.99 12.96 4 14.5 4 16.5 4 18 5.5 18 7.5c0 2.78-2.4 4.86-6.55 8.45l-1.45 1.32z"/>
+                </svg>
+              </button>
+              <a class="collection-media" th:href="@{/recipes/{id}(id=${recipe.id})}"
+                 th:classappend="${recipe.imagePath != null ? '' : ' collection-media--citrus'}"
+                 th:style="${recipe.imagePath != null ? 'background-image: linear-gradient(120deg, rgba(41, 30, 24, 0.25), rgba(18, 14, 11, 0.45)), url(' + recipe.imagePath + ')' : ''}"
+                 aria-label="View recipe"></a>
+              <div class="collection-card-body">
+                <div>
+                  <h3><a th:href="@{/recipes/{id}(id=${recipe.id})}" th:text="${recipe.title}">Recipe title</a></h3>
+                  <p class="collection-card-note" th:text="${recipe.mealType + ' · ' + recipe.prepTime}">Meal · 0 min</p>
+                </div>
+                <p class="collection-card-desc" th:text="${recipe.shortDescription}">Short description.</p>
+                <div class="collection-tags">
+                  <span th:each="tag : ${recipe.tags}" th:text="${tag}">tag</span>
+                </div>
+                <div class="collection-card-actions">
+                  <button class="collection-action" type="button">+ groceries</button>
+                </div>
+              </div>
+            </article>
+            <p class="collection-empty" th:if="${#lists.isEmpty(favoriteRecipes)}">
+              Your collection is empty.
+            </p>
+          </div>
+        </section>
+      </section>
+    </main>
+    <section class="collection-modal" aria-hidden="true">
+      <div class="collection-modal-card">
+        <button class="collection-modal-close" type="button" aria-label="Close">&times;</button>
+        <h3>Recipe details</h3>
+        <p class="collection-modal-text">
+          Select a recipe to view ingredients, steps, and nutrition.
+        </p>
+      </div>
+    </section>
+    <div th:replace="~{fragments :: auth-modals}"></div>
+    <div th:replace="~{fragments :: footer}"></div>
+    <script>
+      (() => {
+        const filterButtons = document.querySelectorAll(".collection-filter");
+        filterButtons.forEach((btn) => {
+          btn.addEventListener("click", () => {
+            filterButtons.forEach((item) => item.classList.remove("is-active"));
+            btn.classList.add("is-active");
+          });
+        });
+
+        const csrfToken = document.querySelector("meta[name='_csrf']")?.getAttribute("content");
+        const csrfHeader = document.querySelector("meta[name='_csrf_header']")?.getAttribute("content");
+
+        const favoriteButtons = document.querySelectorAll(".collection-favorite");
+        favoriteButtons.forEach((btn) => {
+          btn.addEventListener("click", (event) => {
+            event.stopPropagation();
+            const recipeId = btn.getAttribute("data-recipe-id");
+            if (!recipeId) {
+              return;
+            }
+            fetch(`/recipes/${recipeId}/favorite`, {
+              method: "POST",
+              headers: csrfToken && csrfHeader ? { [csrfHeader]: csrfToken } : {},
+            })
+              .then((res) => {
+                if (res.status === 401) {
+                  window.location.href = "/#auth-login";
+                  return null;
+                }
+                return res.json();
+              })
+              .then((data) => {
+                if (!data || !data.ok) {
+                  return;
+                }
+                if (!data.favorited) {
+                  const card = btn.closest(".collection-card");
+                  if (card) {
+                    card.remove();
+                  }
+                }
+              });
+          });
+        });
+
+        const select = document.querySelector("[data-select]");
+        if (!select) return;
+        const trigger = select.querySelector(".collection-select-trigger");
+        const menu = select.querySelector(".collection-select-menu");
+        const options = Array.from(select.querySelectorAll(".collection-select-option"));
+        const nativeSelect = select.querySelector("select");
+
+        const closeMenu = () => {
+          select.classList.remove("is-open");
+        };
+
+        trigger.addEventListener("click", (event) => {
+          event.stopPropagation();
+          select.classList.toggle("is-open");
+        });
+
+        options.forEach((option, index) => {
+          option.addEventListener("click", () => {
+            options.forEach((opt) => opt.classList.remove("is-selected"));
+            option.classList.add("is-selected");
+            trigger.textContent = option.textContent;
+            if (nativeSelect) nativeSelect.selectedIndex = index;
+            closeMenu();
+          });
+        });
+
+        document.addEventListener("click", closeMenu);
+        document.addEventListener("keydown", (event) => {
+          if (event.key === "Escape") closeMenu();
+        });
+      })();
+    </script>
+  </body>
+</html>
+

@@ -2,6 +2,7 @@ package com.glodea.arhome.service;
 
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Set;
 
 import org.springframework.stereotype.Service;
 import org.springframework.util.StringUtils;
@@ -11,14 +12,17 @@ import com.glodea.arhome.dto.RecipeDto;
 import com.glodea.arhome.entity.Recipe;
 import com.glodea.arhome.entity.User;
 import com.glodea.arhome.repository.RecipeRepository;
+import com.glodea.arhome.repository.UserRepository;
 
 @Service
 public class RecipeServiceImpl implements RecipeService {
 
     private final RecipeRepository recipeRepository;
+    private final UserRepository userRepository;
 
-    public RecipeServiceImpl(RecipeRepository recipeRepository) {
+    public RecipeServiceImpl(RecipeRepository recipeRepository, UserRepository userRepository) {
         this.recipeRepository = recipeRepository;
+        this.userRepository = userRepository;
     }
 
     @Override
@@ -36,7 +40,7 @@ public class RecipeServiceImpl implements RecipeService {
         recipe.setIngredients(trimToNull(request.getIngredients()));
         recipe.setSteps(trimToNull(request.getSteps()));
         recipe.setInstructions(trimToNull(request.getInstructions()));
-        recipe.setImagePath(imagePath);
+        recipe.setImagePath(imagePath != null ? imagePath : trimToNull(request.getImagePath()));
         recipe.setRegionTags(safeList(request.getRegionTags()));
         recipe.setStyleTags(safeList(request.getStyleTags()));
         recipe.setNutritionTags(safeList(request.getNutritionTags()));
@@ -49,16 +53,116 @@ public class RecipeServiceImpl implements RecipeService {
         List<Recipe> recipes = recipeRepository.findByUserOrderByCreatedAtDesc(user);
         List<RecipeDto> result = new ArrayList<>();
         for (Recipe recipe : recipes) {
-            result.add(new RecipeDto(
-                recipe.getId(),
-                recipe.getTitle(),
-                recipe.getShortDescription(),
-                recipe.getPrepTime(),
-                recipe.getMealType(),
-                mergeTags(recipe)
-            ));
+            result.add(toDto(recipe));
         }
         return result;
+    }
+
+    @Override
+    public List<RecipeDto> getAllRecipes() {
+        List<Recipe> recipes = recipeRepository.findAllByOrderByCreatedAtDesc();
+        List<RecipeDto> result = new ArrayList<>();
+        for (Recipe recipe : recipes) {
+            result.add(toDto(recipe));
+        }
+        return result;
+    }
+
+    @Override
+    public Recipe getRecipeById(Long recipeId) {
+        return recipeRepository.findById(recipeId).orElseThrow();
+    }
+
+    @Override
+    public Set<Long> getFavoriteRecipeIds(User user) {
+        if (user == null || user.getFavoriteRecipes() == null) {
+            return java.util.Collections.emptySet();
+        }
+        return user.getFavoriteRecipes().stream()
+            .map(Recipe::getId)
+            .filter(id -> id != null)
+            .collect(java.util.stream.Collectors.toSet());
+    }
+
+    @Override
+    public List<RecipeDto> getFavoriteRecipesForUser(User user) {
+        if (user == null || user.getFavoriteRecipes() == null) {
+            return List.of();
+        }
+        List<Recipe> favorites = new ArrayList<>(user.getFavoriteRecipes());
+        favorites.sort((a, b) -> b.getCreatedAt().compareTo(a.getCreatedAt()));
+        List<RecipeDto> result = new ArrayList<>();
+        for (Recipe recipe : favorites) {
+            result.add(toDto(recipe));
+        }
+        return result;
+    }
+
+    @Override
+    public boolean toggleFavorite(User user, Long recipeId) {
+        if (user == null || recipeId == null) {
+            return false;
+        }
+        Recipe recipe = recipeRepository.findById(recipeId).orElseThrow();
+        if (recipe.getUser() != null && recipe.getUser().getId().equals(user.getId())) {
+            return false;
+        }
+        if (user.getFavoriteRecipes() == null) {
+            user.setFavoriteRecipes(new java.util.HashSet<>());
+        }
+        boolean removed = false;
+        Recipe existing = null;
+        for (Recipe fav : user.getFavoriteRecipes()) {
+            if (fav.getId() != null && fav.getId().equals(recipeId)) {
+                existing = fav;
+                break;
+            }
+        }
+        if (existing != null) {
+            user.getFavoriteRecipes().remove(existing);
+            removed = true;
+        } else {
+            user.getFavoriteRecipes().add(recipe);
+        }
+        userRepository.save(user);
+        return !removed;
+    }
+
+    @Override
+    public Recipe getRecipeForUser(User user, Long recipeId) {
+        return recipeRepository.findByIdAndUser(recipeId, user)
+            .orElseThrow();
+    }
+
+    @Override
+    public Recipe updateRecipe(User user, Long recipeId, RecipeCreateRequest request, String imagePath) {
+        Recipe recipe = recipeRepository.findByIdAndUser(recipeId, user)
+            .orElseThrow();
+
+        recipe.setTitle(request.getTitle().trim());
+        recipe.setShortDescription(trimToNull(request.getShortDescription()));
+        recipe.setPrepTime(request.getPrepTime().trim());
+        recipe.setMealType(request.getMealType().trim());
+        recipe.setIngredients(trimToNull(request.getIngredients()));
+        recipe.setSteps(trimToNull(request.getSteps()));
+        recipe.setInstructions(trimToNull(request.getInstructions()));
+        if (imagePath != null) {
+            recipe.setImagePath(imagePath);
+        } else if (trimToNull(request.getImagePath()) != null) {
+            recipe.setImagePath(trimToNull(request.getImagePath()));
+        }
+        recipe.setRegionTags(safeList(request.getRegionTags()));
+        recipe.setStyleTags(safeList(request.getStyleTags()));
+        recipe.setNutritionTags(safeList(request.getNutritionTags()));
+
+        return recipeRepository.save(recipe);
+    }
+
+    @Override
+    public void deleteRecipe(User user, Long recipeId) {
+        Recipe recipe = recipeRepository.findByIdAndUser(recipeId, user)
+            .orElseThrow();
+        recipeRepository.delete(recipe);
     }
 
     private List<String> mergeTags(Recipe recipe) {
@@ -73,6 +177,19 @@ public class RecipeServiceImpl implements RecipeService {
             tags.addAll(recipe.getNutritionTags());
         }
         return tags;
+    }
+
+    private RecipeDto toDto(Recipe recipe) {
+        return new RecipeDto(
+            recipe.getId(),
+            recipe.getTitle(),
+            recipe.getShortDescription(),
+            recipe.getPrepTime(),
+            recipe.getMealType(),
+            recipe.getImagePath(),
+            mergeTags(recipe),
+            recipe.getUser() != null ? recipe.getUser().getId() : null
+        );
     }
 
     private List<String> safeList(List<String> input) {

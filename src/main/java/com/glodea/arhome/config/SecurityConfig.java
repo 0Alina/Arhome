@@ -33,7 +33,7 @@ public class SecurityConfig {
     ) throws Exception {
         http
             .authorizeHttpRequests(auth -> auth
-                .requestMatchers("/css/**", "/img/**", "/", "/home", "/recipes", "/plans", "/cookbook", "/groceries", "/search", "/register", "/login").permitAll()
+                .requestMatchers("/css/**", "/img/**", "/", "/home", "/recipes/**", "/plans", "/collection", "/groceries", "/search", "/register", "/login").permitAll()
                 .anyRequest().authenticated()
             )
             .formLogin(form -> form

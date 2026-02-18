@@ -35,6 +35,22 @@ public class GlobalModelAttributes {
         return user != null ? user.getFullName() : null;
     }
 
+    @ModelAttribute("currentUserId")
+    public Long currentUserId() {
+        Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
+        if (authentication == null || !authentication.isAuthenticated()) {
+            return null;
+        }
+
+        String email = resolveEmail(authentication);
+        if (email == null || email.isBlank()) {
+            return null;
+        }
+
+        User user = userRepository.findByEmail(email).orElse(null);
+        return user != null ? user.getId() : null;
+    }
+
     private String resolveEmail(Authentication authentication) {
         Object principal = authentication.getPrincipal();
         if (principal instanceof CustomUserDetails) {
