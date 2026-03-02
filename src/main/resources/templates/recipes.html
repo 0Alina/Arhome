@@ -21,6 +21,12 @@
             </p>
             <form class="recipes-search" th:action="@{/recipes}" method="get">
               <input type="text" name="q" th:value="${searchQuery}" placeholder="Search by title or ingredients (e.g. tomato, onion)" aria-label="Search recipes or ingredients" />
+              <input type="hidden" name="mealType" th:each="value : ${selectedMealTypes}" th:value="${value}" />
+              <input type="hidden" name="region" th:each="value : ${selectedRegions}" th:value="${value}" />
+              <input type="hidden" name="by" th:each="value : ${selectedByCategories}" th:value="${value}" />
+              <input type="hidden" name="time" th:each="value : ${selectedTimeRanges}" th:value="${value}" />
+              <input type="hidden" name="style" th:each="value : ${selectedStyles}" th:value="${value}" />
+              <input type="hidden" name="nutrition" th:each="value : ${selectedNutritions}" th:value="${value}" />
               <button type="submit">Search</button>
             </form>
           </div>
@@ -33,45 +39,45 @@
           <aside class="recipes-filters" aria-label="Recipe filters">
             <div class="filters-group">
               <h3>Meal type</h3>
-              <button type="button">Breakfast</button>
-              <button type="button">Lunch</button>
-              <button type="button">Dinner</button>
-              <button type="button">Dessert</button>
+              <button type="button" data-param="mealType" data-value="Breakfast" th:classappend="${selectedMealTypes != null && selectedMealTypes.contains('Breakfast') ? ' is-active' : ''}">Breakfast</button>
+              <button type="button" data-param="mealType" data-value="Lunch" th:classappend="${selectedMealTypes != null && selectedMealTypes.contains('Lunch') ? ' is-active' : ''}">Lunch</button>
+              <button type="button" data-param="mealType" data-value="Dinner" th:classappend="${selectedMealTypes != null && selectedMealTypes.contains('Dinner') ? ' is-active' : ''}">Dinner</button>
+              <button type="button" data-param="mealType" data-value="Dessert" th:classappend="${selectedMealTypes != null && selectedMealTypes.contains('Dessert') ? ' is-active' : ''}">Dessert</button>
             </div>
             <div class="filters-group">
               <h3>Region</h3>
-              <button type="button">American</button>
-              <button type="button">Asian</button>
-              <button type="button">European</button>
-              <button type="button">Mexican</button>
+              <button type="button" data-param="region" data-value="American" th:classappend="${selectedRegions != null && selectedRegions.contains('American') ? ' is-active' : ''}">American</button>
+              <button type="button" data-param="region" data-value="Asian" th:classappend="${selectedRegions != null && selectedRegions.contains('Asian') ? ' is-active' : ''}">Asian</button>
+              <button type="button" data-param="region" data-value="European" th:classappend="${selectedRegions != null && selectedRegions.contains('European') ? ' is-active' : ''}">European</button>
+              <button type="button" data-param="region" data-value="Mexican" th:classappend="${selectedRegions != null && selectedRegions.contains('Mexican') ? ' is-active' : ''}">Mexican</button>
             </div>
             <div class="filters-group">
               <h3>By</h3>
-              <button type="button">Teen Kitchen</button>
-              <button type="button">Young &amp; Hungry</button>
-              <button type="button">Home Cooks</button>
-              <button type="button">Grandma's Classics</button>
+              <button type="button" data-param="by" data-value="Teen Kitchen" th:classappend="${selectedByCategories != null && selectedByCategories.contains('Teen Kitchen') ? ' is-active' : ''}">Teen Kitchen</button>
+              <button type="button" data-param="by" data-value="Young &amp; Hungry" th:classappend="${selectedByCategories != null && selectedByCategories.contains('Young &amp; Hungry') ? ' is-active' : ''}">Young &amp; Hungry</button>
+              <button type="button" data-param="by" data-value="Home Cooks" th:classappend="${selectedByCategories != null && selectedByCategories.contains('Home Cooks') ? ' is-active' : ''}">Home Cooks</button>
+              <button type="button" data-param="by" data-value="Grandma's Classics" th:classappend="${selectedByCategories != null && selectedByCategories.contains('Grandma''s Classics') ? ' is-active' : ''}">Grandma's Classics</button>
             </div>
             <div class="filters-group">
               <h3>Time</h3>
-              <button type="button">&lt; 15 min</button>
-              <button type="button">15 min · 30 min</button>
-              <button type="button">30 min · 1 h</button>
-              <button type="button">1 h · 2 h</button>
-              <button type="button">&gt; 2 h</button>
+              <button type="button" data-param="time" data-value="&lt; 15 min" th:classappend="${selectedTimeRanges != null && selectedTimeRanges.contains('< 15 min') ? ' is-active' : ''}">&lt; 15 min</button>
+              <button type="button" data-param="time" data-value="15 min · 30 min" th:classappend="${selectedTimeRanges != null && selectedTimeRanges.contains('15 min · 30 min') ? ' is-active' : ''}">15 min · 30 min</button>
+              <button type="button" data-param="time" data-value="30 min · 1 h" th:classappend="${selectedTimeRanges != null && selectedTimeRanges.contains('30 min · 1 h') ? ' is-active' : ''}">30 min · 1 h</button>
+              <button type="button" data-param="time" data-value="1 h · 2 h" th:classappend="${selectedTimeRanges != null && selectedTimeRanges.contains('1 h · 2 h') ? ' is-active' : ''}">1 h · 2 h</button>
+              <button type="button" data-param="time" data-value="> 2 h" th:classappend="${selectedTimeRanges != null && selectedTimeRanges.contains('> 2 h') ? ' is-active' : ''}">&gt; 2 h</button>
             </div>
             <div class="filters-group">
               <h3>Style</h3>
-              <button type="button">No cook</button>
-              <button type="button">One pot</button>
-              <button type="button">Budget</button>
+              <button type="button" data-param="style" data-value="No cook" th:classappend="${selectedStyles != null && selectedStyles.contains('No cook') ? ' is-active' : ''}">No cook</button>
+              <button type="button" data-param="style" data-value="One pot" th:classappend="${selectedStyles != null && selectedStyles.contains('One pot') ? ' is-active' : ''}">One pot</button>
+              <button type="button" data-param="style" data-value="Budget" th:classappend="${selectedStyles != null && selectedStyles.contains('Budget') ? ' is-active' : ''}">Budget</button>
             </div>
             <div class="filters-group">
               <h3>Nutrition</h3>
-              <button type="button">Vegetarian</button>
-              <button type="button">Gluten-free</button>
-              <button type="button">Protein+</button>
-              <button type="button">Fiber+</button>
+              <button type="button" data-param="nutrition" data-value="Vegetarian" th:classappend="${selectedNutritions != null && selectedNutritions.contains('Vegetarian') ? ' is-active' : ''}">Vegetarian</button>
+              <button type="button" data-param="nutrition" data-value="Gluten-free" th:classappend="${selectedNutritions != null && selectedNutritions.contains('Gluten-free') ? ' is-active' : ''}">Gluten-free</button>
+              <button type="button" data-param="nutrition" data-value="Protein+" th:classappend="${selectedNutritions != null && selectedNutritions.contains('Protein+') ? ' is-active' : ''}">Protein+</button>
+              <button type="button" data-param="nutrition" data-value="Fiber+" th:classappend="${selectedNutritions != null && selectedNutritions.contains('Fiber+') ? ' is-active' : ''}">Fiber+</button>
             </div>
           </aside>
 
@@ -159,12 +165,33 @@
           card.classList.add("recipes-card--link");
         });
 
-        const filterButtons = document.querySelectorAll(".filters-group button");
+        const filterButtons = document.querySelectorAll(".filters-group button[data-param][data-value]");
+        const baseUrl = "/recipes";
         filterButtons.forEach((btn) => {
-          btn.setAttribute("aria-pressed", "false");
+          btn.setAttribute("aria-pressed", btn.classList.contains("is-active") ? "true" : "false");
           btn.addEventListener("click", () => {
-            const isActive = btn.classList.toggle("is-active");
-            btn.setAttribute("aria-pressed", isActive ? "true" : "false");
+            const param = btn.getAttribute("data-param");
+            const value = btn.getAttribute("data-value");
+            if (!param || !value) {
+              return;
+            }
+
+            const url = new URL(window.location.href);
+            const currentValues = url.searchParams.getAll(param);
+            const alreadySelected = currentValues.includes(value);
+            const nextValues = alreadySelected
+              ? currentValues.filter((item) => item !== value)
+              : [...currentValues, value];
+
+            url.searchParams.delete(param);
+            nextValues.forEach((item) => url.searchParams.append(param, item));
+
+            const queryText = url.searchParams.get("q");
+            if (queryText !== null && queryText.trim() === "") {
+              url.searchParams.delete("q");
+            }
+
+            window.location.href = `${baseUrl}${url.search}`;
           });
         });
       })();

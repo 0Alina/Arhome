@@ -29,9 +29,37 @@ public class HomeController {
     }
 
     @GetMapping("/recipes")
-    public String recipes(@RequestParam(value = "q", required = false) String query, Model model) {
-        model.addAttribute("recipes", recipeService.searchRecipes(query));
+    public String recipes(@RequestParam(value = "q", required = false) String query,
+                          @RequestParam(value = "mealType", required = false) java.util.List<String> mealTypes,
+                          @RequestParam(value = "region", required = false) java.util.List<String> regions,
+                          @RequestParam(value = "by", required = false) java.util.List<String> byCategories,
+                          @RequestParam(value = "time", required = false) java.util.List<String> timeRanges,
+                          @RequestParam(value = "style", required = false) java.util.List<String> styles,
+                          @RequestParam(value = "nutrition", required = false) java.util.List<String> nutritions,
+                          Model model) {
+        java.util.List<String> selectedMealTypes = sanitizeFilterValues(mealTypes);
+        java.util.List<String> selectedRegions = sanitizeFilterValues(regions);
+        java.util.List<String> selectedByCategories = sanitizeFilterValues(byCategories);
+        java.util.List<String> selectedTimeRanges = sanitizeFilterValues(timeRanges);
+        java.util.List<String> selectedStyles = sanitizeFilterValues(styles);
+        java.util.List<String> selectedNutritions = sanitizeFilterValues(nutritions);
+
+        model.addAttribute("recipes", recipeService.searchRecipes(
+            query,
+            selectedMealTypes,
+            selectedRegions,
+            selectedByCategories,
+            selectedTimeRanges,
+            selectedStyles,
+            selectedNutritions
+        ));
         model.addAttribute("searchQuery", query == null ? "" : query.trim());
+        model.addAttribute("selectedMealTypes", selectedMealTypes);
+        model.addAttribute("selectedRegions", selectedRegions);
+        model.addAttribute("selectedByCategories", selectedByCategories);
+        model.addAttribute("selectedTimeRanges", selectedTimeRanges);
+        model.addAttribute("selectedStyles", selectedStyles);
+        model.addAttribute("selectedNutritions", selectedNutritions);
         User user = getCurrentUser();
         if (user != null) {
             model.addAttribute("favoriteRecipeIds", recipeService.getFavoriteRecipeIds(user));
@@ -92,6 +120,17 @@ public class HomeController {
         }
         String fallback = authentication.getName();
         return fallback != null ? fallback.trim().toLowerCase() : null;
+    }
+
+    private java.util.List<String> sanitizeFilterValues(java.util.List<String> values) {
+        if (values == null || values.isEmpty()) {
+            return java.util.List.of();
+        }
+        return values.stream()
+            .filter(org.springframework.util.StringUtils::hasText)
+            .map(String::trim)
+            .distinct()
+            .toList();
     }
 
 }

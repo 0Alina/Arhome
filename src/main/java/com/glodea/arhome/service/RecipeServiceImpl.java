@@ -70,38 +70,195 @@ public class RecipeServiceImpl implements RecipeService {
 
     @Override
     public List<RecipeDto> searchRecipes(String query) {
-        List<Recipe> recipes;
-        if (!StringUtils.hasText(query)) {
-            recipes = recipeRepository.findAllByOrderByCreatedAtDesc();
-        } else {
-            String normalizedQuery = query.trim();
-            List<String> terms = java.util.Arrays.stream(normalizedQuery.split(","))
-                .map(String::trim)
-                .filter(StringUtils::hasText)
-                .map(String::toLowerCase)
-                .toList();
+        return searchRecipes(query, List.of(), List.of(), List.of(), List.of(), List.of(), List.of());
+    }
 
-            if (terms.size() <= 1) {
-                recipes = recipeRepository.findByTitleContainingIgnoreCaseOrIngredientsContainingIgnoreCaseOrderByCreatedAtDesc(
-                    normalizedQuery,
-                    normalizedQuery
-                );
-            } else {
-                recipes = recipeRepository.findAllByOrderByCreatedAtDesc().stream()
-                    .filter(recipe -> {
-                        String title = recipe.getTitle() == null ? "" : recipe.getTitle().toLowerCase();
-                        String ingredients = recipe.getIngredients() == null ? "" : recipe.getIngredients().toLowerCase();
-                        return terms.stream().allMatch(term -> title.contains(term) || ingredients.contains(term));
-                    })
-                    .toList();
-            }
-        }
+    @Override
+    public List<RecipeDto> searchRecipes(String query,
+                                         List<String> mealTypes,
+                                         List<String> regions,
+                                         List<String> byCategories,
+                                         List<String> timeRanges,
+                                         List<String> styles,
+                                         List<String> nutritions) {
+        List<String> searchTerms = parseSearchTerms(query);
+        List<String> normalizedMealTypes = normalizeFilters(mealTypes);
+        List<String> normalizedRegions = normalizeFilters(regions);
+        List<String> normalizedByCategories = normalizeFilters(byCategories);
+        List<String> normalizedTimeRanges = normalizeFilters(timeRanges);
+        List<String> normalizedStyles = normalizeFilters(styles);
+        List<String> normalizedNutritions = normalizeFilters(nutritions);
+
+        List<Recipe> recipes = recipeRepository.findAllByOrderByCreatedAtDesc().stream()
+            .filter(recipe -> matchesSearchTerms(recipe, searchTerms))
+            .filter(recipe -> matchesSingleValue(recipe.getMealType(), normalizedMealTypes))
+            .filter(recipe -> matchesAnyTag(recipe.getRegionTags(), normalizedRegions))
+            .filter(recipe -> matchesByCategory(recipe, normalizedByCategories))
+            .filter(recipe -> matchesTimeRanges(recipe, normalizedTimeRanges))
+            .filter(recipe -> matchesAnyTag(recipe.getStyleTags(), normalizedStyles))
+            .filter(recipe -> matchesNutrition(recipe, normalizedNutritions))
+            .toList();
 
         List<RecipeDto> result = new ArrayList<>();
         for (Recipe recipe : recipes) {
             result.add(toDto(recipe));
         }
         return result;
+    }
+
+    private List<String> parseSearchTerms(String query) {
+        if (!StringUtils.hasText(query)) {
+            return List.of();
+        }
+        return java.util.Arrays.stream(query.trim().split(","))
+            .map(String::trim)
+            .filter(StringUtils::hasText)
+            .map(String::toLowerCase)
+            .distinct()
+            .toList();
+    }
+
+    private List<String> normalizeFilters(List<String> values) {
+        if (values == null || values.isEmpty()) {
+            return List.of();
+        }
+        return values.stream()
+            .filter(StringUtils::hasText)
+            .map(String::trim)
+            .map(String::toLowerCase)
+            .distinct()
+            .toList();
+    }
+
+    private boolean matchesSearchTerms(Recipe recipe, List<String> terms) {
+        if (terms.isEmpty()) {
+            return true;
+        }
+        String title = recipe.getTitle() == null ? "" : recipe.getTitle().toLowerCase();
+        String ingredients = recipe.getIngredients() == null ? "" : recipe.getIngredients().toLowerCase();
+        return terms.stream().allMatch(term -> title.contains(term) || ingredients.contains(term));
+    }
+
+    private boolean matchesSingleValue(String value, List<String> filters) {
+        if (filters.isEmpty()) {
+            return true;
+        }
+        if (!StringUtils.hasText(value)) {
+            return false;
+        }
+        String normalized = value.trim().toLowerCase();
+        return filters.contains(normalized);
+    }
+
+    private boolean matchesAnyTag(List<String> tags, List<String> filters) {
+        if (filters.isEmpty()) {
+            return true;
+        }
+        if (tags == null || tags.isEmpty()) {
+            return false;
+        }
+        java.util.Set<String> normalizedTags = tags.stream()
+            .filter(StringUtils::hasText)
+            .map(String::trim)
+            .map(String::toLowerCase)
+            .collect(java.util.stream.Collectors.toSet());
+        return filters.stream().anyMatch(normalizedTags::contains);
+    }
+
+    private boolean matchesByCategory(Recipe recipe, List<String> byFilters) {
+        if (byFilters.isEmpty()) {
+            return true;
+        }
+        String category = recipe.getUser() != null ? recipe.getUser().getCategory() : null;
+        if (!StringUtils.hasText(category)) {
+            return false;
+        }
+        String normalizedCategory = normalizeGenericText(category);
+        return byFilters.stream()
+            .map(this::normalizeGenericText)
+            .anyMatch(normalizedCategory::contains);
+    }
+
+    private boolean matchesTimeRanges(Recipe recipe, List<String> selectedRanges) {
+        if (selectedRanges.isEmpty()) {
+            return true;
+        }
+        Integer minutes = parsePrepTimeToMinutes(recipe.getPrepTime());
+        if (minutes == null) {
+            return false;
+        }
+        return selectedRanges.stream().anyMatch(range -> isMinutesInRange(minutes, range));
+    }
+
+    private Integer parsePrepTimeToMinutes(String prepTime) {
+        if (!StringUtils.hasText(prepTime)) {
+            return null;
+        }
+        String value = prepTime.trim().toLowerCase();
+        java.util.regex.Matcher hourMatcher = java.util.regex.Pattern.compile("(\\d+)\\s*h").matcher(value);
+        java.util.regex.Matcher minMatcher = java.util.regex.Pattern.compile("(\\d+)\\s*(min|m)").matcher(value);
+
+        int total = 0;
+        boolean matched = false;
+
+        if (hourMatcher.find()) {
+            total += Integer.parseInt(hourMatcher.group(1)) * 60;
+            matched = true;
+        }
+        if (minMatcher.find()) {
+            total += Integer.parseInt(minMatcher.group(1));
+            matched = true;
+        }
+        if (!matched) {
+            java.util.regex.Matcher numberMatcher = java.util.regex.Pattern.compile("(\\d+)").matcher(value);
+            if (numberMatcher.find()) {
+                total += Integer.parseInt(numberMatcher.group(1));
+                matched = true;
+            }
+        }
+
+        return matched ? total : null;
+    }
+
+    private boolean isMinutesInRange(int minutes, String range) {
+        return switch (range) {
+            case "< 15 min" -> minutes < 15;
+            case "15 min · 30 min" -> minutes >= 15 && minutes <= 30;
+            case "30 min · 1 h" -> minutes >= 30 && minutes <= 60;
+            case "1 h · 2 h" -> minutes >= 60 && minutes <= 120;
+            case "> 2 h" -> minutes > 120;
+            default -> false;
+        };
+    }
+
+    private boolean matchesNutrition(Recipe recipe, List<String> nutritionFilters) {
+        if (nutritionFilters.isEmpty()) {
+            return true;
+        }
+        if (recipe.getNutritionTags() == null || recipe.getNutritionTags().isEmpty()) {
+            return false;
+        }
+        java.util.Set<String> normalizedTags = recipe.getNutritionTags().stream()
+            .filter(StringUtils::hasText)
+            .map(String::trim)
+            .map(String::toLowerCase)
+            .map(this::normalizeNutritionValue)
+            .collect(java.util.stream.Collectors.toSet());
+
+        return nutritionFilters.stream()
+            .map(this::normalizeNutritionValue)
+            .anyMatch(normalizedTags::contains);
+    }
+
+    private String normalizeNutritionValue(String value) {
+        String normalized = value.replace("fibre", "fiber");
+        return normalized;
+    }
+
+    private String normalizeGenericText(String value) {
+        return value == null
+            ? ""
+            : value.trim().toLowerCase().replace('’', '\'');
     }
 
     @Override

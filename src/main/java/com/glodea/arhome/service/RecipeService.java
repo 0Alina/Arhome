@@ -16,6 +16,13 @@ public interface RecipeService {
     void deleteRecipe(User user, Long recipeId);
     List<RecipeDto> getAllRecipes();
     List<RecipeDto> searchRecipes(String query);
+    List<RecipeDto> searchRecipes(String query,
+                                  List<String> mealTypes,
+                                  List<String> regions,
+                                  List<String> byCategories,
+                                  List<String> timeRanges,
+                                  List<String> styles,
+                                  List<String> nutritions);
     Recipe getRecipeById(Long recipeId);
     Set<Long> getFavoriteRecipeIds(User user);
     List<RecipeDto> getFavoriteRecipesForUser(User user);
