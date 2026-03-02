@@ -41,30 +41,41 @@
             <form class="collection-search-row" th:action="@{/collection}" method="get">
               <div class="collection-search">
                 <input type="text" name="q" th:value="${collectionSearchQuery}" placeholder="Search recipes" aria-label="Search recipes" />
+                <input type="hidden" name="mealType" th:value="${collectionMealType}" />
+                <input type="hidden" name="sort" th:value="${collectionSort}" />
                 <button class="collection-search-btn" type="submit">Search</button>
               </div>
             </form>
             <div class="collection-toolbar">
               <div class="collection-filters">
-                <button class="collection-filter is-active" type="button">All</button>
-                <button class="collection-filter" type="button">Breakfast</button>
-                <button class="collection-filter" type="button">Lunch</button>
-                <button class="collection-filter" type="button">Dinner</button>
-                <button class="collection-filter" type="button">Dessert</button>
+                <button class="collection-filter" type="button" data-meal="All"
+                        th:classappend="${collectionMealType == null || collectionMealType == 'All' ? ' is-active' : ''}">All</button>
+                <button class="collection-filter" type="button" data-meal="Breakfast"
+                        th:classappend="${collectionMealType == 'Breakfast' ? ' is-active' : ''}">Breakfast</button>
+                <button class="collection-filter" type="button" data-meal="Lunch"
+                        th:classappend="${collectionMealType == 'Lunch' ? ' is-active' : ''}">Lunch</button>
+                <button class="collection-filter" type="button" data-meal="Dinner"
+                        th:classappend="${collectionMealType == 'Dinner' ? ' is-active' : ''}">Dinner</button>
+                <button class="collection-filter" type="button" data-meal="Dessert"
+                        th:classappend="${collectionMealType == 'Dessert' ? ' is-active' : ''}">Dessert</button>
               </div>
               <div class="collection-sort">
                 <span class="collection-sort-label">Sort by</span>
                 <div class="collection-select" data-select>
                   <select aria-label="Sort recipes">
-                    <option selected>Recently saved</option>
-                    <option>Shortest time</option>
-                    <option>Alphabetical</option>
+                    <option value="recent" th:selected="${collectionSort == 'recent'}">Recently saved</option>
+                    <option value="time" th:selected="${collectionSort == 'time'}">Shortest time</option>
+                    <option value="alpha" th:selected="${collectionSort == 'alpha'}">Alphabetical</option>
                   </select>
-                  <button class="collection-select-trigger" type="button" aria-haspopup="listbox">Recently saved</button>
+                  <button class="collection-select-trigger" type="button" aria-haspopup="listbox"
+                          th:text="${collectionSort == 'time' ? 'Shortest time' : (collectionSort == 'alpha' ? 'Alphabetical' : 'Recently saved')}">Recently saved</button>
                   <ul class="collection-select-menu" role="listbox">
-                    <li class="collection-select-option is-selected" role="option">Recently saved</li>
-                    <li class="collection-select-option" role="option">Shortest time</li>
-                    <li class="collection-select-option" role="option">Alphabetical</li>
+                    <li class="collection-select-option" role="option" data-sort="recent"
+                        th:classappend="${collectionSort == 'recent' ? ' is-selected' : ''}">Recently saved</li>
+                    <li class="collection-select-option" role="option" data-sort="time"
+                        th:classappend="${collectionSort == 'time' ? ' is-selected' : ''}">Shortest time</li>
+                    <li class="collection-select-option" role="option" data-sort="alpha"
+                        th:classappend="${collectionSort == 'alpha' ? ' is-selected' : ''}">Alphabetical</li>
                   </ul>
                 </div>
               </div>
@@ -116,11 +127,34 @@
     <div th:replace="~{fragments :: footer}"></div>
     <script>
       (() => {
-        const filterButtons = document.querySelectorAll(".collection-filter");
+        const buildCollectionUrl = (updates = {}) => {
+          const url = new URL(window.location.href);
+          const query = updates.q !== undefined ? updates.q : (url.searchParams.get("q") || "");
+          const mealType = updates.mealType !== undefined ? updates.mealType : (url.searchParams.get("mealType") || "All");
+          const sort = updates.sort !== undefined ? updates.sort : (url.searchParams.get("sort") || "recent");
+
+          url.searchParams.delete("q");
+          url.searchParams.delete("mealType");
+          url.searchParams.delete("sort");
+
+          if (query && query.trim().length > 0) {
+            url.searchParams.set("q", query.trim());
+          }
+          if (mealType && mealType !== "All") {
+            url.searchParams.set("mealType", mealType);
+          }
+          if (sort && sort !== "recent") {
+            url.searchParams.set("sort", sort);
+          }
+
+          return `${url.pathname}${url.search}`;
+        };
+
+        const filterButtons = document.querySelectorAll(".collection-filter[data-meal]");
         filterButtons.forEach((btn) => {
           btn.addEventListener("click", () => {
-            filterButtons.forEach((item) => item.classList.remove("is-active"));
-            btn.classList.add("is-active");
+            const selectedMeal = btn.getAttribute("data-meal") || "All";
+            window.location.href = buildCollectionUrl({ mealType: selectedMeal });
           });
         });
 
@@ -183,6 +217,8 @@
             trigger.textContent = option.textContent;
             if (nativeSelect) nativeSelect.selectedIndex = index;
             closeMenu();
+            const sort = option.getAttribute("data-sort") || "recent";
+            window.location.href = buildCollectionUrl({ sort });
           });
         });
 

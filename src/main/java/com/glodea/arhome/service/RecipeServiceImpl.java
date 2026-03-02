@@ -293,19 +293,45 @@ public class RecipeServiceImpl implements RecipeService {
 
     @Override
     public List<RecipeDto> searchFavoriteRecipesForUser(User user, String query) {
+        return searchFavoriteRecipesForUser(user, query, null, "recent");
+    }
+
+    @Override
+    public List<RecipeDto> searchFavoriteRecipesForUser(User user, String query, String mealType, String sort) {
         if (user == null || user.getFavoriteRecipes() == null) {
             return List.of();
         }
 
         List<String> searchTerms = parseSearchTerms(query);
+        boolean hasMealTypeFilter = StringUtils.hasText(mealType) && !"all".equalsIgnoreCase(mealType.trim());
+        String normalizedMealType = hasMealTypeFilter ? mealType.trim().toLowerCase() : "";
+        String normalizedSort = StringUtils.hasText(sort) ? sort.trim().toLowerCase() : "recent";
 
         List<Recipe> favorites = new ArrayList<>(user.getFavoriteRecipes()).stream()
             .filter(recipe -> matchesSearchTerms(recipe, searchTerms))
-            .sorted((a, b) -> b.getCreatedAt().compareTo(a.getCreatedAt()))
             .toList();
 
+        if (hasMealTypeFilter) {
+            favorites = favorites.stream()
+                .filter(recipe -> recipe.getMealType() != null && recipe.getMealType().trim().toLowerCase().equals(normalizedMealType))
+                .toList();
+        }
+
+        List<Recipe> sortedFavorites = new ArrayList<>(favorites);
+        switch (normalizedSort) {
+            case "time" -> sortedFavorites.sort(java.util.Comparator
+                .comparing((Recipe recipe) -> {
+                    Integer minutes = parsePrepTimeToMinutes(recipe.getPrepTime());
+                    return minutes != null ? minutes : Integer.MAX_VALUE;
+                })
+                .thenComparing(Recipe::getCreatedAt, java.util.Comparator.reverseOrder()));
+            case "alpha" -> sortedFavorites.sort(java.util.Comparator
+                .comparing((Recipe recipe) -> recipe.getTitle() == null ? "" : recipe.getTitle().toLowerCase()));
+            default -> sortedFavorites.sort((a, b) -> b.getCreatedAt().compareTo(a.getCreatedAt()));
+        }
+
         List<RecipeDto> result = new ArrayList<>();
-        for (Recipe recipe : favorites) {
+        for (Recipe recipe : sortedFavorites) {
             result.add(toDto(recipe));
         }
         return result;

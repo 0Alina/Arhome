@@ -27,5 +27,6 @@ public interface RecipeService {
     Set<Long> getFavoriteRecipeIds(User user);
     List<RecipeDto> getFavoriteRecipesForUser(User user);
     List<RecipeDto> searchFavoriteRecipesForUser(User user, String query);
+    List<RecipeDto> searchFavoriteRecipesForUser(User user, String query, String mealType, String sort);
     boolean toggleFavorite(User user, Long recipeId);
 }
