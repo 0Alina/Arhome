@@ -15,6 +15,7 @@ public interface RecipeService {
     Recipe updateRecipe(User user, Long recipeId, RecipeCreateRequest request, String imagePath);
     void deleteRecipe(User user, Long recipeId);
     List<RecipeDto> getAllRecipes();
+    List<RecipeDto> searchRecipes(String query);
     Recipe getRecipeById(Long recipeId);
     Set<Long> getFavoriteRecipeIds(User user);
     List<RecipeDto> getFavoriteRecipesForUser(User user);

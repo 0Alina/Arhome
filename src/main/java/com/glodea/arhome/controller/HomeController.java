@@ -6,6 +6,7 @@ import org.springframework.security.oauth2.core.user.OAuth2User;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
 import org.springframework.web.bind.annotation.GetMapping;
+import org.springframework.web.bind.annotation.RequestParam;
 
 import com.glodea.arhome.service.RecipeService;
 import com.glodea.arhome.repository.UserRepository;
@@ -28,8 +29,9 @@ public class HomeController {
     }
 
     @GetMapping("/recipes")
-    public String recipes(Model model) {
-        model.addAttribute("recipes", recipeService.getAllRecipes());
+    public String recipes(@RequestParam(value = "q", required = false) String query, Model model) {
+        model.addAttribute("recipes", recipeService.searchRecipes(query));
+        model.addAttribute("searchQuery", query == null ? "" : query.trim());
         User user = getCurrentUser();
         if (user != null) {
             model.addAttribute("favoriteRecipeIds", recipeService.getFavoriteRecipeIds(user));

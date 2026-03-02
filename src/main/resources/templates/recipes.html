@@ -19,10 +19,10 @@
             <p class="recipes-subtitle">
               Explore curated recipes, save the ones you love, and build a plan that fits your week.
             </p>
-            <div class="recipes-search">
-              <input type="text" placeholder="Search recipes or ingredients" aria-label="Search recipes or ingredients" />
-              <button type="button">Search</button>
-            </div>
+            <form class="recipes-search" th:action="@{/recipes}" method="get">
+              <input type="text" name="q" th:value="${searchQuery}" placeholder="Search by title or ingredients (e.g. tomato, onion)" aria-label="Search recipes or ingredients" />
+              <button type="submit">Search</button>
+            </form>
           </div>
           <div class="recipes-hero-card recipes-hero-card--image">
             <img src="/img/recipess.jpg" alt="Featured recipes" />
@@ -111,7 +111,7 @@
                 </div>
               </div>
             </article>
-            <p class="recipes-empty" th:if="${#lists.isEmpty(recipes)}">No recipes yet. Add your first one!</p>
+            <p class="recipes-empty" th:if="${#lists.isEmpty(recipes)}" th:text="${searchQuery != null && !#strings.isEmpty(searchQuery) ? 'No recipes found for: ' + searchQuery + '.' : 'No recipes yet. Add your first one!'}">No recipes yet. Add your first one!</p>
           </div>
         </div>
       </section>

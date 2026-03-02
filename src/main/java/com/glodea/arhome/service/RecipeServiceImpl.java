@@ -69,6 +69,42 @@ public class RecipeServiceImpl implements RecipeService {
     }
 
     @Override
+    public List<RecipeDto> searchRecipes(String query) {
+        List<Recipe> recipes;
+        if (!StringUtils.hasText(query)) {
+            recipes = recipeRepository.findAllByOrderByCreatedAtDesc();
+        } else {
+            String normalizedQuery = query.trim();
+            List<String> terms = java.util.Arrays.stream(normalizedQuery.split(","))
+                .map(String::trim)
+                .filter(StringUtils::hasText)
+                .map(String::toLowerCase)
+                .toList();
+
+            if (terms.size() <= 1) {
+                recipes = recipeRepository.findByTitleContainingIgnoreCaseOrIngredientsContainingIgnoreCaseOrderByCreatedAtDesc(
+                    normalizedQuery,
+                    normalizedQuery
+                );
+            } else {
+                recipes = recipeRepository.findAllByOrderByCreatedAtDesc().stream()
+                    .filter(recipe -> {
+                        String title = recipe.getTitle() == null ? "" : recipe.getTitle().toLowerCase();
+                        String ingredients = recipe.getIngredients() == null ? "" : recipe.getIngredients().toLowerCase();
+                        return terms.stream().allMatch(term -> title.contains(term) || ingredients.contains(term));
+                    })
+                    .toList();
+            }
+        }
+
+        List<RecipeDto> result = new ArrayList<>();
+        for (Recipe recipe : recipes) {
+            result.add(toDto(recipe));
+        }
+        return result;
+    }
+
+    @Override
     public Recipe getRecipeById(Long recipeId) {
         return recipeRepository.findById(recipeId).orElseThrow();
     }
