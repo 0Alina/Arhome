@@ -78,14 +78,16 @@ public class HomeController {
     }
 
     @GetMapping("/collection")
-    public String collection(Model model) {
+    public String collection(@RequestParam(value = "q", required = false) String query, Model model) {
         User user = getCurrentUser();
+        String normalizedQuery = query == null ? "" : query.trim();
         if (user != null) {
-            model.addAttribute("favoriteRecipes", recipeService.getFavoriteRecipesForUser(user));
+            model.addAttribute("favoriteRecipes", recipeService.searchFavoriteRecipesForUser(user, normalizedQuery));
             model.addAttribute("favoriteRecipeIds", recipeService.getFavoriteRecipeIds(user));
         } else {
             model.addAttribute("favoriteRecipes", java.util.List.of());
         }
+        model.addAttribute("collectionSearchQuery", normalizedQuery);
         return "collection";
     }
 

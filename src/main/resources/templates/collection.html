@@ -38,12 +38,12 @@
         </section>
         <section class="collection-body">
           <div class="collection-controls">
-            <div class="collection-search-row">
+            <form class="collection-search-row" th:action="@{/collection}" method="get">
               <div class="collection-search">
-                <input type="text" placeholder="Search recipes" aria-label="Search recipes" />
-                <button class="collection-search-btn" type="button">Search</button>
+                <input type="text" name="q" th:value="${collectionSearchQuery}" placeholder="Search recipes" aria-label="Search recipes" />
+                <button class="collection-search-btn" type="submit">Search</button>
               </div>
-            </div>
+            </form>
             <div class="collection-toolbar">
               <div class="collection-filters">
                 <button class="collection-filter is-active" type="button">All</button>

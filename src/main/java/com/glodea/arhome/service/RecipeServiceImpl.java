@@ -292,6 +292,26 @@ public class RecipeServiceImpl implements RecipeService {
     }
 
     @Override
+    public List<RecipeDto> searchFavoriteRecipesForUser(User user, String query) {
+        if (user == null || user.getFavoriteRecipes() == null) {
+            return List.of();
+        }
+
+        List<String> searchTerms = parseSearchTerms(query);
+
+        List<Recipe> favorites = new ArrayList<>(user.getFavoriteRecipes()).stream()
+            .filter(recipe -> matchesSearchTerms(recipe, searchTerms))
+            .sorted((a, b) -> b.getCreatedAt().compareTo(a.getCreatedAt()))
+            .toList();
+
+        List<RecipeDto> result = new ArrayList<>();
+        for (Recipe recipe : favorites) {
+            result.add(toDto(recipe));
+        }
+        return result;
+    }
+
+    @Override
     public boolean toggleFavorite(User user, Long recipeId) {
         if (user == null || recipeId == null) {
             return false;
