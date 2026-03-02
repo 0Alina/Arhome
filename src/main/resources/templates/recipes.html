@@ -126,49 +126,143 @@
     <div th:replace="~{fragments :: footer}"></div>
     <script>
       (() => {
-        const favorites = document.querySelectorAll(".recipes-favorite");
+        const FILTER_PARAM_NAMES = ["mealType", "region", "by", "time", "style", "nutrition"];
+        const baseUrl = "/recipes";
         const csrfToken = document.querySelector("meta[name='_csrf']")?.getAttribute("content");
         const csrfHeader = document.querySelector("meta[name='_csrf_header']")?.getAttribute("content");
-        const cards = document.querySelectorAll(".recipes-card");
-        favorites.forEach((btn) => {
-          btn.addEventListener("click", (event) => {
-            event.stopPropagation();
-            const recipeId = btn.getAttribute("data-recipe-id");
-            if (!recipeId) {
-              btn.classList.toggle("is-active");
-              btn.setAttribute("aria-pressed", btn.classList.contains("is-active") ? "true" : "false");
+        const searchForm = document.querySelector(".recipes-search");
+        const searchInput = searchForm?.querySelector("input[name='q']");
+        let recipesGrid = document.querySelector(".recipes-grid");
+        let currentRequestId = 0;
+
+        const wireGridInteractions = () => {
+          if (!recipesGrid) {
+            return;
+          }
+
+          const favorites = recipesGrid.querySelectorAll(".recipes-favorite");
+          const cards = recipesGrid.querySelectorAll(".recipes-card");
+
+          favorites.forEach((btn) => {
+            btn.addEventListener("click", (event) => {
+              event.stopPropagation();
+              const recipeId = btn.getAttribute("data-recipe-id");
+              if (!recipeId) {
+                btn.classList.toggle("is-active");
+                btn.setAttribute("aria-pressed", btn.classList.contains("is-active") ? "true" : "false");
+                return;
+              }
+
+              fetch(`/recipes/${recipeId}/favorite`, {
+                method: "POST",
+                headers: csrfToken && csrfHeader ? { [csrfHeader]: csrfToken } : {},
+              })
+                .then((res) => {
+                  if (res.status === 401) {
+                    window.location.href = "/#auth-login";
+                    return null;
+                  }
+                  return res.json();
+                })
+                .then((data) => {
+                  if (!data || !data.ok) {
+                    return;
+                  }
+                  btn.classList.toggle("is-active", !!data.favorited);
+                  btn.setAttribute("aria-pressed", data.favorited ? "true" : "false");
+                });
+            });
+          });
+
+          cards.forEach((card) => {
+            card.classList.add("recipes-card--link");
+          });
+        };
+
+        const getParamsFromLocation = () => new URLSearchParams(window.location.search);
+
+        const syncSearchHiddenFilters = (params) => {
+          if (!searchForm) {
+            return;
+          }
+          searchForm.querySelectorAll("input[data-filter-hidden='true']").forEach((input) => input.remove());
+
+          FILTER_PARAM_NAMES.forEach((paramName) => {
+            params.getAll(paramName).forEach((value) => {
+              const input = document.createElement("input");
+              input.type = "hidden";
+              input.name = paramName;
+              input.value = value;
+              input.setAttribute("data-filter-hidden", "true");
+              searchForm.appendChild(input);
+            });
+          });
+        };
+
+        const syncFilterButtons = (params) => {
+          const filterButtons = document.querySelectorAll(".filters-group button[data-param][data-value]");
+          filterButtons.forEach((btn) => {
+            const param = btn.getAttribute("data-param");
+            const value = btn.getAttribute("data-value");
+            if (!param || !value) {
               return;
             }
-
-            fetch(`/recipes/${recipeId}/favorite`, {
-              method: "POST",
-              headers: csrfToken && csrfHeader ? { [csrfHeader]: csrfToken } : {},
-            })
-              .then((res) => {
-                if (res.status === 401) {
-                  window.location.href = "/#auth-login";
-                  return null;
-                }
-                return res.json();
-              })
-              .then((data) => {
-                if (!data || !data.ok) {
-                  return;
-                }
-                btn.classList.toggle("is-active", !!data.favorited);
-                btn.setAttribute("aria-pressed", data.favorited ? "true" : "false");
-              });
+            const isActive = params.getAll(param).includes(value);
+            btn.classList.toggle("is-active", isActive);
+            btn.setAttribute("aria-pressed", isActive ? "true" : "false");
           });
-        });
+        };
 
-        cards.forEach((card) => {
-          card.classList.add("recipes-card--link");
-        });
+        const renderFromUrl = (params, pushHistory = true) => {
+          const requestId = ++currentRequestId;
+          const queryString = params.toString();
+          const nextUrl = `${baseUrl}${queryString ? `?${queryString}` : ""}`;
+
+          return fetch(nextUrl, { headers: { "X-Requested-With": "XMLHttpRequest" } })
+            .then((res) => {
+              if (!res.ok) {
+                throw new Error("Failed to refresh recipes");
+              }
+              return res.text();
+            })
+            .then((html) => {
+              if (requestId !== currentRequestId) {
+                return;
+              }
+
+              const parsed = new DOMParser().parseFromString(html, "text/html");
+              const newGrid = parsed.querySelector(".recipes-grid");
+              if (!newGrid || !recipesGrid) {
+                return;
+              }
+
+              recipesGrid.replaceWith(newGrid);
+              recipesGrid = newGrid;
+
+              if (pushHistory) {
+                history.pushState({}, "", nextUrl);
+              }
+
+              if (searchInput) {
+                searchInput.value = params.get("q") || "";
+              }
+
+              syncSearchHiddenFilters(params);
+              syncFilterButtons(params);
+              wireGridInteractions();
+            })
+            .catch(() => {
+              window.location.href = nextUrl;
+            });
+        };
+
+        wireGridInteractions();
 
         const filterButtons = document.querySelectorAll(".filters-group button[data-param][data-value]");
-        const baseUrl = "/recipes";
+        syncFilterButtons(getParamsFromLocation());
+        syncSearchHiddenFilters(getParamsFromLocation());
+
         filterButtons.forEach((btn) => {
-          btn.setAttribute("aria-pressed", btn.classList.contains("is-active") ? "true" : "false");
           btn.addEventListener("click", () => {
             const param = btn.getAttribute("data-param");
             const value = btn.getAttribute("data-value");
@@ -176,23 +270,44 @@
               return;
             }
 
-            const url = new URL(window.location.href);
-            const currentValues = url.searchParams.getAll(param);
+            const params = getParamsFromLocation();
+            const currentValues = params.getAll(param);
             const alreadySelected = currentValues.includes(value);
             const nextValues = alreadySelected
               ? currentValues.filter((item) => item !== value)
               : [...currentValues, value];
 
-            url.searchParams.delete(param);
-            nextValues.forEach((item) => url.searchParams.append(param, item));
+            params.delete(param);
+            nextValues.forEach((item) => params.append(param, item));
 
-            const queryText = url.searchParams.get("q");
+            const queryText = params.get("q");
             if (queryText !== null && queryText.trim() === "") {
-              url.searchParams.delete("q");
+              params.delete("q");
             }
 
-            window.location.href = `${baseUrl}${url.search}`;
+            renderFromUrl(params, true);
           });
+        });
+
+        if (searchForm) {
+          searchForm.addEventListener("submit", (event) => {
+            event.stopPropagation();
+            event.preventDefault();
+
+            const params = getParamsFromLocation();
+            const query = searchInput ? searchInput.value.trim() : "";
+            if (query.length > 0) {
+              params.set("q", query);
+            } else {
+              params.delete("q");
+            }
+
+            renderFromUrl(params, true);
+          });
+        }
+
+        window.addEventListener("popstate", () => {
+          renderFromUrl(getParamsFromLocation(), false);
         });
       })();
     </script>
