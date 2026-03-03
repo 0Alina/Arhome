@@ -11,11 +11,15 @@ import com.glodea.arhome.dto.RecipeCreateRequest;
 import com.glodea.arhome.dto.RecipeDto;
 import com.glodea.arhome.dto.RecipeIngredientInput;
 import com.glodea.arhome.entity.Ingredient;
+import com.glodea.arhome.entity.RecipeComment;
 import com.glodea.arhome.entity.Recipe;
 import com.glodea.arhome.entity.RecipeIngredient;
+import com.glodea.arhome.entity.RecipeRating;
 import com.glodea.arhome.entity.User;
 import com.glodea.arhome.repository.IngredientRepository;
+import com.glodea.arhome.repository.RecipeCommentRepository;
 import com.glodea.arhome.repository.RecipeRepository;
+import com.glodea.arhome.repository.RecipeRatingRepository;
 import com.glodea.arhome.repository.UserRepository;
 
 @Service
@@ -24,11 +28,19 @@ public class RecipeServiceImpl implements RecipeService {
     private final RecipeRepository recipeRepository;
     private final UserRepository userRepository;
     private final IngredientRepository ingredientRepository;
+    private final RecipeRatingRepository recipeRatingRepository;
+    private final RecipeCommentRepository recipeCommentRepository;
 
-    public RecipeServiceImpl(RecipeRepository recipeRepository, UserRepository userRepository, IngredientRepository ingredientRepository) {
+    public RecipeServiceImpl(RecipeRepository recipeRepository,
+                             UserRepository userRepository,
+                             IngredientRepository ingredientRepository,
+                             RecipeRatingRepository recipeRatingRepository,
+                             RecipeCommentRepository recipeCommentRepository) {
         this.recipeRepository = recipeRepository;
         this.userRepository = userRepository;
         this.ingredientRepository = ingredientRepository;
+        this.recipeRatingRepository = recipeRatingRepository;
+        this.recipeCommentRepository = recipeCommentRepository;
     }
 
     @Override
@@ -48,6 +60,81 @@ public class RecipeServiceImpl implements RecipeService {
             .map(String::trim)
             .distinct()
             .toList();
+    }
+
+    @Override
+    public void saveRecipeRating(User user, Long recipeId, double ratingValue) {
+        if (user == null || user.getId() == null || recipeId == null) {
+            return;
+        }
+
+        Recipe recipe = recipeRepository.findById(recipeId).orElseThrow();
+        double normalizedValue = normalizeRatingValue(ratingValue);
+
+        RecipeRating rating = recipeRatingRepository.findByRecipeIdAndUserId(recipeId, user.getId())
+            .orElseGet(() -> {
+                RecipeRating created = new RecipeRating();
+                created.setRecipe(recipe);
+                created.setUser(user);
+                created.setCreatedAt(java.time.Instant.now());
+                return created;
+            });
+
+        rating.setRatingValue(java.math.BigDecimal.valueOf(normalizedValue));
+        rating.setUpdatedAt(java.time.Instant.now());
+        recipeRatingRepository.save(rating);
+    }
+
+    @Override
+    public void saveRecipeComment(User user, Long recipeId, String commentText) {
+        if (user == null || user.getId() == null || recipeId == null || !StringUtils.hasText(commentText)) {
+            return;
+        }
+
+        Recipe recipe = recipeRepository.findById(recipeId).orElseThrow();
+        RecipeComment comment = new RecipeComment();
+        comment.setRecipe(recipe);
+        comment.setUser(user);
+        comment.setCommentText(commentText.trim());
+        comment.setCreatedAt(java.time.Instant.now());
+        recipeCommentRepository.save(comment);
+    }
+
+    @Override
+    public double getAverageRatingForRecipe(Long recipeId) {
+        if (recipeId == null) {
+            return 0.0d;
+        }
+        Double average = recipeRatingRepository.findAverageByRecipeId(recipeId);
+        if (average == null || Double.isNaN(average)) {
+            return 0.0d;
+        }
+        return Math.round(average * 10.0d) / 10.0d;
+    }
+
+    @Override
+    public long getRatingCountForRecipe(Long recipeId) {
+        if (recipeId == null) {
+            return 0L;
+        }
+        return recipeRatingRepository.countByRecipeId(recipeId);
+    }
+
+    @Override
+    public double getAverageRatingForUser(User user) {
+        if (user == null || user.getId() == null) {
+            return 0.0d;
+        }
+        Double average = recipeRatingRepository.findAverageByRecipeOwnerId(user.getId());
+        if (average == null || Double.isNaN(average)) {
+            return 0.0d;
+        }
+        return Math.round(average * 10.0d) / 10.0d;
+    }
+
+    private double normalizeRatingValue(double ratingValue) {
+        double clamped = Math.max(0.5d, Math.min(5.0d, ratingValue));
+        return Math.round(clamped * 2.0d) / 2.0d;
     }
 
     @Override

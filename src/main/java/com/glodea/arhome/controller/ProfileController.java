@@ -57,6 +57,7 @@ public class ProfileController {
         model.addAttribute("profileFullName", user.getFullName());
         model.addAttribute("profileEmail", user.getEmail());
         model.addAttribute("profileCategory", user.getCategory());
+        model.addAttribute("profileAverageRating", recipeService.getAverageRatingForUser(user));
         String category = normalizeCategory(user.getCategory());
         if (category != null && !category.equals(user.getCategory())) {
             user.setCategory(category);

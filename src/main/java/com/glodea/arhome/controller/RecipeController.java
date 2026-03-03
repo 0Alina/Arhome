@@ -11,6 +11,7 @@ import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.ResponseBody;
+import org.springframework.web.bind.annotation.RequestBody;
 
 import com.glodea.arhome.dto.RecipeCreateRequest;
 import com.glodea.arhome.dto.RecipeIngredientInput;
@@ -120,7 +121,54 @@ public class RecipeController {
         model.addAttribute("tags", mergeTags(recipe));
         model.addAttribute("authorName", recipe.getUser().getFullName());
         model.addAttribute("authorCategory", recipe.getUser().getCategory());
+        model.addAttribute("recipeAverageRating", recipeService.getAverageRatingForRecipe(id));
+        model.addAttribute("recipeRatingCount", recipeService.getRatingCountForRecipe(id));
         return "recipe-detail";
+    }
+
+    @PostMapping("/{id}/review")
+    @ResponseBody
+    public org.springframework.http.ResponseEntity<java.util.Map<String, Object>> submitReview(
+        @PathVariable("id") Long id,
+        @RequestBody java.util.Map<String, Object> payload
+    ) {
+        User user = getCurrentUser();
+        if (user == null) {
+            return org.springframework.http.ResponseEntity.status(401)
+                .body(java.util.Map.of("ok", false, "message", "Authentication required."));
+        }
+
+        String mode = payload.get("mode") != null ? payload.get("mode").toString().trim().toLowerCase() : "";
+
+        Double ratingValue = parseDouble(payload.get("rating"));
+        String commentText = payload.get("comment") != null ? payload.get("comment").toString().trim() : "";
+
+        if ("rating".equals(mode)) {
+            if (ratingValue == null) {
+                return org.springframework.http.ResponseEntity.badRequest()
+                    .body(java.util.Map.of("ok", false, "message", "Invalid rating value."));
+            }
+            recipeService.saveRecipeRating(user, id, ratingValue);
+        } else if ("comment".equals(mode)) {
+            if (commentText.isBlank()) {
+                return org.springframework.http.ResponseEntity.badRequest()
+                    .body(java.util.Map.of("ok", false, "message", "Comment is required."));
+            }
+            recipeService.saveRecipeComment(user, id, commentText);
+        } else {
+            if (ratingValue == null || commentText.isBlank()) {
+                return org.springframework.http.ResponseEntity.badRequest()
+                    .body(java.util.Map.of("ok", false, "message", "Both rating and comment are required."));
+            }
+            recipeService.saveRecipeRating(user, id, ratingValue);
+            recipeService.saveRecipeComment(user, id, commentText);
+        }
+
+        return org.springframework.http.ResponseEntity.ok(java.util.Map.of(
+            "ok", true,
+            "averageRating", recipeService.getAverageRatingForRecipe(id),
+            "ratingCount", recipeService.getRatingCountForRecipe(id)
+        ));
     }
 
     @PostMapping("/{id}/edit")
@@ -197,6 +245,17 @@ public class RecipeController {
             .map(String::trim)
             .filter(line -> !line.isBlank())
             .toList();
+    }
+
+    private Double parseDouble(Object value) {
+        if (value == null) {
+            return null;
+        }
+        try {
+            return Double.parseDouble(value.toString());
+        } catch (NumberFormatException ex) {
+            return null;
+        }
     }
 
     private List<RecipeIngredientInput> toIngredientInputs(Recipe recipe) {

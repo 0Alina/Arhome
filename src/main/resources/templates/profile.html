@@ -54,7 +54,7 @@
               <div class="profile-stat">
                 <div class="profile-stat-icon" aria-hidden="true">&#x2B50;</div>
                 <div>
-                  <span class="profile-stat-value">4.8</span>
+                  <span class="profile-stat-value" th:text="${#numbers.formatDecimal(profileAverageRating, 1, 1)}">0.0</span>
                   <span class="profile-stat-label">Average rating</span>
                 </div>
               </div>

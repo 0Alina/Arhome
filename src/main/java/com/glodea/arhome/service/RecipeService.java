@@ -29,5 +29,10 @@ public interface RecipeService {
     List<RecipeDto> searchFavoriteRecipesForUser(User user, String query);
     List<RecipeDto> searchFavoriteRecipesForUser(User user, String query, String mealType, String sort);
     List<String> suggestIngredientNames(String query);
+    void saveRecipeRating(User user, Long recipeId, double ratingValue);
+    void saveRecipeComment(User user, Long recipeId, String commentText);
+    double getAverageRatingForRecipe(Long recipeId);
+    long getRatingCountForRecipe(Long recipeId);
+    double getAverageRatingForUser(User user);
     boolean toggleFavorite(User user, Long recipeId);
 }

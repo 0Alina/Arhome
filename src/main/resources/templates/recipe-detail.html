@@ -57,8 +57,8 @@
                 <span class="recipe-rating-icon-wrap" aria-hidden="true">
                   <span class="recipe-rating-icon">⭐</span>
                 </span>
-                <span class="recipe-rating-value">4.8</span>
-                <span class="recipe-rating-count">128 ratings</span>
+                <span class="recipe-rating-value" data-rating-average th:text="${#numbers.formatDecimal(recipeAverageRating, 1, 1)}">0.0</span>
+                <span class="recipe-rating-count" data-rating-count th:text="${recipeRatingCount + ' ratings'}">0 ratings</span>
               </div>
               <p class="recipe-detail-author">
                 Cooked with love by <span th:text="${authorName}">Chef</span>
@@ -92,7 +92,7 @@
             <p class="recipe-serving-text" th:text="${recipe.instructions}">Serving instructions.</p>
           </section>
 
-          <section class="recipe-review-section" data-feedback>
+          <section class="recipe-review-section" data-feedback th:attr="data-recipe-id=${recipe.id}">
             <h2 class="recipe-review-title">Review</h2>
             <div class="recipe-feedback">
             <div class="recipe-feedback-actions">
@@ -128,16 +128,21 @@
     </main>
 
     <div th:replace="~{fragments :: footer}"></div>
-    <script>
+    <script th:inline="javascript">
       (() => {
         const feedback = document.querySelector("[data-feedback]");
         if (!feedback) return;
+        const recipeId = feedback.getAttribute("data-recipe-id");
+        const csrfToken = /*[[${_csrf.token}]]*/ "";
+        const csrfHeader = /*[[${_csrf.headerName}]]*/ "X-CSRF-TOKEN";
 
         const toggleButtons = Array.from(feedback.querySelectorAll("[data-toggle-panel]"));
         const panels = Array.from(feedback.querySelectorAll("[data-panel]"));
         const feedbackNote = feedback.querySelector("[data-feedback-note]");
         const commentInput = feedback.querySelector(".recipe-comment-input");
         const postButton = feedback.querySelector("[data-feedback-post]");
+        const summaryAverage = document.querySelector("[data-rating-average]");
+        const summaryCount = document.querySelector("[data-rating-count]");
         let activePanel = "rating";
 
         const activatePanel = (panelName) => {
@@ -222,12 +227,8 @@
 
         if (postButton) {
           postButton.addEventListener("click", () => {
-            if (activePanel === "rating") {
-              if (selectedRating <= 0) {
-                if (feedbackNote) feedbackNote.textContent = "Select a rating first.";
-                return;
-              }
-              if (feedbackNote) feedbackNote.textContent = `Rating posted: ${selectedRating} / 5`;
+            if (selectedRating <= 0) {
+              if (feedbackNote) feedbackNote.textContent = "Select a rating first.";
               return;
             }
 
@@ -240,8 +241,36 @@
               commentInput.focus();
               return;
             }
-            if (feedbackNote) feedbackNote.textContent = "Comment posted.";
-            commentInput.value = "";
+
+            postButton.disabled = true;
+            fetch(`/recipes/${recipeId}/review`, {
+              method: "POST",
+              headers: {
+                "Content-Type": "application/json",
+                [csrfHeader]: csrfToken,
+              },
+              body: JSON.stringify({ mode: "both", rating: selectedRating, comment }),
+            })
+              .then((res) => (res.ok ? res.json() : Promise.reject(new Error("Could not save review."))))
+              .then((data) => {
+                if (!data || !data.ok) {
+                  throw new Error((data && data.message) || "Could not save review.");
+                }
+                if (summaryAverage && typeof data.averageRating === "number") {
+                  summaryAverage.textContent = data.averageRating.toFixed(1);
+                }
+                if (summaryCount && typeof data.ratingCount === "number") {
+                  summaryCount.textContent = `${data.ratingCount} ratings`;
+                }
+                if (feedbackNote) feedbackNote.textContent = "Review posted (rating + comment).";
+                commentInput.value = "";
+              })
+              .catch((error) => {
+                if (feedbackNote) feedbackNote.textContent = error.message || "Could not save review.";
+              })
+              .finally(() => {
+                postButton.disabled = false;
+              });
           });
         }
 
