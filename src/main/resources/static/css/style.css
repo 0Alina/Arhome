@@ -2455,6 +2455,46 @@ a.recipes-media {
   font-weight: 600;
 }
 
+.recipe-rating-summary {
+  display: inline-flex;
+  align-items: center;
+  gap: 12px;
+  margin-top: 12px;
+  width: fit-content;
+  padding: 0;
+  border: 0;
+  background: transparent;
+}
+
+.recipe-rating-icon-wrap {
+  width: 38px;
+  height: 38px;
+  border-radius: 14px;
+  display: grid;
+  place-items: center;
+  background: rgba(255, 255, 255, 0.06);
+}
+
+.recipe-rating-icon {
+  font-size: 1.45rem;
+  line-height: 1;
+  filter: drop-shadow(0 1px 1px rgba(0, 0, 0, 0.35));
+}
+
+.recipe-rating-value {
+  color: #f0dfcf;
+  font-weight: 700;
+  font-size: 2rem;
+  line-height: 1;
+}
+
+.recipe-rating-count {
+  color: #d8b694;
+  font-size: 0.9rem;
+  align-self: flex-end;
+  margin-bottom: 3px;
+}
+
 .recipe-ingredients h2,
 .recipe-steps h2 {
   margin: 0 0 16px;
@@ -2542,6 +2582,175 @@ a.recipes-media {
   border: 1px solid rgba(201, 160, 122, 0.2);
   padding: 16px 18px;
   border-radius: 16px;
+}
+
+.recipe-review-section {
+  display: grid;
+  gap: 10px;
+}
+
+.recipe-feedback {
+  display: grid;
+  gap: 12px;
+  background: rgba(42, 30, 24, 0.42);
+  border: 1px solid rgba(201, 160, 122, 0.2);
+  border-radius: 18px;
+  padding: 16px;
+}
+
+.recipe-review-title {
+  margin: 0;
+  font-size: 1.6rem;
+  color: #b36b3e;
+}
+
+.recipe-feedback-actions {
+  display: flex;
+  gap: 10px;
+  flex-wrap: wrap;
+}
+
+.recipe-feedback-btn {
+  appearance: none;
+  border: 1px solid rgba(166, 108, 56, 0.75);
+  background: rgba(51, 34, 26, 0.92);
+  color: #e2b37a;
+  border-radius: 999px;
+  font-family: inherit;
+  font-size: 0.95rem;
+  font-weight: 700;
+  padding: 10px 16px;
+  cursor: pointer;
+  transition: background 0.2s ease, color 0.2s ease, border-color 0.2s ease;
+}
+
+.recipe-feedback-btn:hover,
+.recipe-feedback-btn:focus,
+.recipe-feedback-btn.is-active {
+  border-color: #e1b48e;
+  background: #6a3f2a;
+  color: #f3e7dc;
+}
+
+.recipe-feedback-panel {
+  display: none;
+  background: rgba(32, 22, 16, 0.78);
+  border: 1px solid rgba(201, 160, 122, 0.2);
+  border-radius: 14px;
+  padding: 14px;
+  gap: 10px;
+}
+
+.recipe-feedback-panel.is-active {
+  display: grid;
+}
+
+.recipe-feedback-panel[hidden] {
+  display: none !important;
+}
+
+.recipe-feedback-panel h3 {
+  margin: 0;
+  color: #f0dfcf;
+  font-size: 1.03rem;
+}
+
+.recipe-stars {
+  display: inline-flex;
+  gap: 6px;
+}
+
+.recipe-star {
+  --star-fill: 0%;
+  position: relative;
+  border: 0;
+  background: transparent;
+  padding: 0;
+  cursor: pointer;
+  line-height: 1;
+  transition: transform 0.15s ease;
+}
+
+.recipe-star-glyph {
+  display: inline-block;
+  font-size: 1.95rem;
+  line-height: 1;
+  opacity: 0.35;
+  filter: saturate(0.85);
+}
+
+.recipe-star::after {
+  content: "⭐";
+  position: absolute;
+  top: 0;
+  left: 0;
+  width: var(--star-fill);
+  overflow: hidden;
+  white-space: nowrap;
+  font-size: 1.95rem;
+  line-height: 1;
+  pointer-events: none;
+}
+
+.recipe-star:hover,
+.recipe-star:focus,
+.recipe-star.is-active {
+  transform: scale(1.05);
+  outline: none;
+}
+
+.recipe-feedback-note {
+  margin: 0;
+  color: #d8b694;
+  font-size: 0.9rem;
+}
+
+.recipe-comment-input {
+  width: 100%;
+  border-radius: 12px;
+  border: 1px solid rgba(106, 63, 42, 0.6);
+  background: #2a1e18;
+  color: #e6d7c7;
+  font-family: inherit;
+  font-size: 0.95rem;
+  padding: 10px 12px;
+  resize: vertical;
+  min-height: 92px;
+}
+
+.recipe-comment-input::placeholder {
+  color: rgba(230, 215, 199, 0.58);
+}
+
+.recipe-comment-input:focus {
+  outline: none;
+  border-color: rgba(166, 108, 56, 0.85);
+}
+
+.recipe-feedback-footer {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  flex-wrap: wrap;
+}
+
+.recipe-comment-post {
+  appearance: none;
+  border: 1px solid var(--accent-brown);
+  background: var(--accent-brown);
+  color: #f3e7dc;
+  border-radius: 999px;
+  font-family: inherit;
+  font-size: 0.92rem;
+  font-weight: 700;
+  padding: 9px 16px;
+  cursor: pointer;
+}
+
+.recipe-comment-post:hover,
+.recipe-comment-post:focus {
+  background: #8a5236;
+  border-color: #8a5236;
 }
 
 @media (max-width: 900px) {

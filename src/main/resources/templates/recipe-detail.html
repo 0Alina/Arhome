@@ -4,7 +4,7 @@
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
     <title th:text="${recipe.title}">Recipe</title>
-    <link rel="stylesheet" th:href="@{/css/style.css(v=63)}" href="/css/style.css?v=63" />
+    <link rel="stylesheet" th:href="@{/css/style.css(v=65)}" href="/css/style.css?v=65" />
   </head>
   <body class="page-recipes page-recipe-detail">
     <div th:replace="~{fragments :: navbar}"></div>
@@ -53,6 +53,13 @@
                       th:text="${authorCategory}">Category</span>
                 <span th:each="tag : ${tags}" th:text="${tag}">tag</span>
               </div>
+              <div class="recipe-rating-summary" aria-label="Recipe rating">
+                <span class="recipe-rating-icon-wrap" aria-hidden="true">
+                  <span class="recipe-rating-icon">⭐</span>
+                </span>
+                <span class="recipe-rating-value">4.8</span>
+                <span class="recipe-rating-count">128 ratings</span>
+              </div>
               <p class="recipe-detail-author">
                 Cooked with love by <span th:text="${authorName}">Chef</span>
               </p>
@@ -84,10 +91,163 @@
             <h2>Serving <span>Instructions</span></h2>
             <p class="recipe-serving-text" th:text="${recipe.instructions}">Serving instructions.</p>
           </section>
+
+          <section class="recipe-review-section" data-feedback>
+            <h2 class="recipe-review-title">Review</h2>
+            <div class="recipe-feedback">
+            <div class="recipe-feedback-actions">
+              <button class="recipe-feedback-btn is-active" type="button" data-toggle-panel="rating">Rate</button>
+              <button class="recipe-feedback-btn" type="button" data-toggle-panel="comment">Comment</button>
+            </div>
+
+            <div class="recipe-feedback-panel is-active" data-panel="rating">
+              <h3>Rate this recipe</h3>
+              <div class="recipe-stars" role="radiogroup" aria-label="Select a rating" data-star-row>
+                <button type="button" class="recipe-star" data-star-value="1" aria-label="Rate 1 out of 5"><span class="recipe-star-glyph">⭐</span></button>
+                <button type="button" class="recipe-star" data-star-value="2" aria-label="Rate 2 out of 5"><span class="recipe-star-glyph">⭐</span></button>
+                <button type="button" class="recipe-star" data-star-value="3" aria-label="Rate 3 out of 5"><span class="recipe-star-glyph">⭐</span></button>
+                <button type="button" class="recipe-star" data-star-value="4" aria-label="Rate 4 out of 5"><span class="recipe-star-glyph">⭐</span></button>
+                <button type="button" class="recipe-star" data-star-value="5" aria-label="Rate 5 out of 5"><span class="recipe-star-glyph">⭐</span></button>
+              </div>
+              <p class="recipe-feedback-note" data-rating-note>Select your rating (half stars supported)</p>
+            </div>
+
+            <div class="recipe-feedback-panel" data-panel="comment" hidden>
+              <h3>Leave a comment</h3>
+              <textarea class="recipe-comment-input" rows="4" placeholder="Write your comment..."></textarea>
+            </div>
+
+            <div class="recipe-feedback-footer">
+              <button class="recipe-comment-post" type="button" data-feedback-post>Post</button>
+              <span class="recipe-feedback-note" data-feedback-note></span>
+            </div>
+            </div>
+          </section>
         </div>
       </section>
     </main>
 
     <div th:replace="~{fragments :: footer}"></div>
+    <script>
+      (() => {
+        const feedback = document.querySelector("[data-feedback]");
+        if (!feedback) return;
+
+        const toggleButtons = Array.from(feedback.querySelectorAll("[data-toggle-panel]"));
+        const panels = Array.from(feedback.querySelectorAll("[data-panel]"));
+        const feedbackNote = feedback.querySelector("[data-feedback-note]");
+        const commentInput = feedback.querySelector(".recipe-comment-input");
+        const postButton = feedback.querySelector("[data-feedback-post]");
+        let activePanel = "rating";
+
+        const activatePanel = (panelName) => {
+          activePanel = panelName;
+          panels.forEach((panel) => {
+            const isActive = panel.getAttribute("data-panel") === panelName;
+            panel.classList.toggle("is-active", isActive);
+            panel.toggleAttribute("hidden", !isActive);
+          });
+          toggleButtons.forEach((button) => {
+            button.classList.toggle("is-active", button.getAttribute("data-toggle-panel") === panelName);
+          });
+          if (feedbackNote) feedbackNote.textContent = "";
+        };
+
+        toggleButtons.forEach((button) => {
+          button.addEventListener("click", () => {
+            const targetPanel = button.getAttribute("data-toggle-panel");
+            if (!targetPanel) return;
+            activatePanel(targetPanel);
+          });
+        });
+
+        const stars = Array.from(feedback.querySelectorAll("[data-star-value]"));
+        const ratingNote = feedback.querySelector("[data-rating-note]");
+        let selectedRating = 0;
+        let hoverRating = null;
+
+        const paintStars = (value) => {
+          stars.forEach((star, index) => {
+            const starIndex = index + 1;
+            let fill = 0;
+            if (value >= starIndex) {
+              fill = 100;
+            } else if (value >= starIndex - 0.5) {
+              fill = 50;
+            }
+            star.style.setProperty("--star-fill", `${fill}%`);
+            star.classList.toggle("is-active", fill > 0);
+          });
+        };
+
+        const ratingFromPointer = (event, starValue, starElement) => {
+          const rect = starElement.getBoundingClientRect();
+          const isLeftHalf = event.clientX - rect.left < rect.width / 2;
+          return Math.max(0.5, starValue - (isLeftHalf ? 0.5 : 0));
+        };
+
+        stars.forEach((star) => {
+          const value = Number.parseInt(star.getAttribute("data-star-value") || "0", 10);
+          star.addEventListener("mousemove", (event) => {
+            hoverRating = ratingFromPointer(event, value, star);
+            paintStars(hoverRating);
+          });
+          star.addEventListener("focus", () => {
+            hoverRating = value;
+            paintStars(value);
+          });
+          star.addEventListener("click", (event) => {
+            selectedRating = ratingFromPointer(event, value, star);
+            paintStars(selectedRating);
+            if (ratingNote) {
+              ratingNote.textContent = `You selected ${selectedRating} / 5`;
+            }
+          });
+        });
+
+        const starRow = feedback.querySelector("[data-star-row]");
+        if (starRow) {
+          starRow.addEventListener("mouseleave", () => {
+            hoverRating = null;
+            paintStars(selectedRating);
+          });
+          starRow.addEventListener("focusout", () => {
+            setTimeout(() => {
+              if (document.activeElement && starRow.contains(document.activeElement)) return;
+              hoverRating = null;
+              paintStars(selectedRating);
+            }, 0);
+          });
+        }
+
+        if (postButton) {
+          postButton.addEventListener("click", () => {
+            if (activePanel === "rating") {
+              if (selectedRating <= 0) {
+                if (feedbackNote) feedbackNote.textContent = "Select a rating first.";
+                return;
+              }
+              if (feedbackNote) feedbackNote.textContent = `Rating posted: ${selectedRating} / 5`;
+              return;
+            }
+
+            if (!(commentInput instanceof HTMLTextAreaElement)) {
+              return;
+            }
+            const comment = commentInput.value.trim();
+            if (!comment) {
+              if (feedbackNote) feedbackNote.textContent = "Write a comment first.";
+              commentInput.focus();
+              return;
+            }
+            if (feedbackNote) feedbackNote.textContent = "Comment posted.";
+            commentInput.value = "";
+          });
+        }
+
+        activatePanel("rating");
+        paintStars(0);
+      })();
+    </script>
   </body>
 </html>
