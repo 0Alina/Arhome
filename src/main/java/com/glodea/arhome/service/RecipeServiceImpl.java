@@ -32,6 +32,25 @@ public class RecipeServiceImpl implements RecipeService {
     }
 
     @Override
+    public List<String> suggestIngredientNames(String query) {
+        if (!StringUtils.hasText(query)) {
+            return List.of();
+        }
+
+        String normalized = query.trim();
+        if (normalized.length() < 2) {
+            return List.of();
+        }
+
+        return ingredientRepository.findTop12ByNameContainingIgnoreCaseOrderByNameAsc(normalized).stream()
+            .map(Ingredient::getName)
+            .filter(StringUtils::hasText)
+            .map(String::trim)
+            .distinct()
+            .toList();
+    }
+
+    @Override
     public Recipe createRecipe(User user, RecipeCreateRequest request, String imagePath) {
         if (!StringUtils.hasText(request.getTitle()) || !StringUtils.hasText(request.getPrepTime()) || !StringUtils.hasText(request.getMealType())) {
             throw new IllegalArgumentException("Missing required fields");

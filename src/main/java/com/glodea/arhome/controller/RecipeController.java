@@ -77,6 +77,12 @@ public class RecipeController {
         return java.util.Map.of("ok", true, "url", imagePath);
     }
 
+    @GetMapping("/ingredients/suggestions")
+    @ResponseBody
+    public List<String> ingredientSuggestions(@RequestParam(name = "q", required = false) String query) {
+        return recipeService.suggestIngredientNames(query);
+    }
+
     @GetMapping("/{id}/edit")
     public String editRecipe(@PathVariable("id") Long id, Model model) {
         User user = getCurrentUser();

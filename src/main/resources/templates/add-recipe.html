@@ -84,23 +84,47 @@
                       <input type="text"
                              th:name="|ingredientItems[${stat.index}].name|"
                              th:value="${item.name}"
+                         list="ingredient-suggestions"
                              placeholder="Ingredient"
                              required />
                       <input type="number"
                          inputmode="decimal"
+                           min="0"
+                           step="0.5"
                              th:name="|ingredientItems[${stat.index}].quantity|"
                              th:value="${item.quantity}"
                              placeholder="Qty"
                              required />
-                       <input type="text"
-                         th:name="|ingredientItems[${stat.index}].unit|"
-                         th:value="${item.unit}"
-                         placeholder="Unit"
-                         required />
+                      <div class="ingredient-unit-select" data-unit-select>
+                        <input type="hidden"
+                               data-unit-value
+                               th:name="|ingredientItems[${stat.index}].unit|"
+                               th:value="${item.unit}" />
+                        <button type="button"
+                                class="ingredient-unit-trigger"
+                                data-unit-trigger
+                          aria-expanded="false"
+                                th:text="${item.unit != null && !#strings.isEmpty(item.unit) ? item.unit : 'Unit'}">Unit</button>
+                        <div class="ingredient-unit-menu" data-unit-menu>
+                          <button type="button" class="ingredient-unit-option" data-unit-option data-value="pcs">pcs</button>
+                          <button type="button" class="ingredient-unit-option" data-unit-option data-value="pinch">pinch</button>
+                          <button type="button" class="ingredient-unit-option" data-unit-option data-value="tsp">tsp</button>
+                          <button type="button" class="ingredient-unit-option" data-unit-option data-value="tbsp">tbsp</button>
+                          <button type="button" class="ingredient-unit-option" data-unit-option data-value="cup">cup</button>
+                          <button type="button" class="ingredient-unit-option" data-unit-option data-value="l">l</button>
+                          <button type="button" class="ingredient-unit-option" data-unit-option data-value="ml">ml</button>
+                          <button type="button" class="ingredient-unit-option" data-unit-option data-value="mg">mg</button>
+                          <button type="button" class="ingredient-unit-option" data-unit-option data-value="g">g</button>
+                          <button type="button" class="ingredient-unit-option" data-unit-option data-value="kg">kg</button>
+                          <button type="button" class="ingredient-unit-option" data-unit-option data-value="oz">oz</button>
+                          <button type="button" class="ingredient-unit-option" data-unit-option data-value="lb">lb</button>
+                        </div>
+                      </div>
                       <button class="btn-secondary" type="button" data-ingredient-action
                               th:text="${stat.last ? 'Add' : 'Remove'}">Add</button>
                     </div>
                   </div>
+                  <datalist id="ingredient-suggestions"></datalist>
                 </div>
               </div>
             </div>
@@ -154,6 +178,10 @@
         });
 
         const form = document.getElementById("add-recipe-form");
+        const ingredientSuggestionsList = document.getElementById("ingredient-suggestions");
+        const ingredientSuggestionCache = new Map();
+        let ingredientSuggestTimer = null;
+        let ingredientSuggestAbortController = null;
         const fileInput = document.getElementById("recipe-photo");
         const fileTrigger = document.querySelector("[data-file-trigger]");
         const fileName = document.querySelector("[data-file-name]");
@@ -217,16 +245,125 @@
         }
 
         const ingredientRows = document.querySelector("[data-ingredient-rows]");
+        const renderIngredientSuggestions = (suggestions) => {
+          if (!ingredientSuggestionsList) return;
+          ingredientSuggestionsList.innerHTML = "";
+          suggestions.forEach((suggestion) => {
+            const option = document.createElement("option");
+            option.value = suggestion;
+            ingredientSuggestionsList.appendChild(option);
+          });
+        };
+
+        const requestIngredientSuggestions = (query) => {
+          if (!ingredientSuggestionsList) return;
+          const normalized = (query || "").trim().toLowerCase();
+
+          if (normalized.length < 2) {
+            renderIngredientSuggestions([]);
+            return;
+          }
+
+          if (ingredientSuggestionCache.has(normalized)) {
+            renderIngredientSuggestions(ingredientSuggestionCache.get(normalized) || []);
+            return;
+          }
+
+          if (ingredientSuggestAbortController) {
+            ingredientSuggestAbortController.abort();
+          }
+
+          ingredientSuggestAbortController = new AbortController();
+          fetch(`/recipes/ingredients/suggestions?q=${encodeURIComponent(normalized)}`, {
+            signal: ingredientSuggestAbortController.signal,
+          })
+            .then((res) => (res.ok ? res.json() : []))
+            .then((data) => {
+              const suggestions = Array.isArray(data) ? data.filter((value) => typeof value === "string") : [];
+              ingredientSuggestionCache.set(normalized, suggestions);
+              renderIngredientSuggestions(suggestions);
+            })
+            .catch((error) => {
+              if (error && error.name === "AbortError") {
+                return;
+              }
+              renderIngredientSuggestions([]);
+            });
+        };
         const reindexIngredientRows = () => {
           if (!ingredientRows) return;
           const rows = ingredientRows.querySelectorAll(".add-recipe-ingredient-row");
           rows.forEach((row, index) => {
             const nameInput = row.querySelector("input[placeholder='Ingredient']");
             const quantityInput = row.querySelector("input[placeholder='Qty']");
-            const unitInput = row.querySelector("input[placeholder='Unit']");
+            const unitInput = row.querySelector("input[data-unit-value]");
             if (nameInput) nameInput.name = `ingredientItems[${index}].name`;
             if (quantityInput) quantityInput.name = `ingredientItems[${index}].quantity`;
             if (unitInput) unitInput.name = `ingredientItems[${index}].unit`;
+          });
+        };
+
+        const syncCustomUnitState = (row) => {
+          const unitValueInput = row.querySelector("input[data-unit-value]");
+          const unitTrigger = row.querySelector("[data-unit-trigger]");
+          if (!unitValueInput || !unitTrigger) return;
+
+          const value = unitValueInput.value ? unitValueInput.value.trim() : "";
+          unitTrigger.textContent = value || "Unit";
+          unitTrigger.classList.toggle("is-empty", value.length === 0);
+
+          row.querySelectorAll("[data-unit-option]").forEach((optionButton) => {
+            if (!(optionButton instanceof HTMLButtonElement)) return;
+            optionButton.classList.toggle("is-selected", optionButton.dataset.value === value);
+          });
+        };
+
+        const closeUnitMenus = (except) => {
+          if (!ingredientRows) return;
+          ingredientRows.querySelectorAll("[data-unit-select].is-open").forEach((selectRoot) => {
+            if (except && selectRoot === except) return;
+            selectRoot.classList.remove("is-open");
+            const trigger = selectRoot.querySelector("[data-unit-trigger]");
+            if (trigger instanceof HTMLButtonElement) {
+              trigger.setAttribute("aria-expanded", "false");
+            }
+          });
+        };
+
+        const getIngredientRowState = (row) => {
+          const nameInput = row.querySelector("input[placeholder='Ingredient']");
+          const quantityInput = row.querySelector("input[placeholder='Qty']");
+          const unitInput = row.querySelector("input[data-unit-value]");
+
+          const nameValue = nameInput instanceof HTMLInputElement ? nameInput.value.trim() : "";
+          const quantityValue = quantityInput instanceof HTMLInputElement ? quantityInput.value.trim() : "";
+          const unitValue = unitInput instanceof HTMLInputElement ? unitInput.value.trim() : "";
+
+          const hasAny = nameValue.length > 0 || quantityValue.length > 0 || unitValue.length > 0;
+          const hasAll = nameValue.length > 0 && quantityValue.length > 0 && unitValue.length > 0;
+
+          return {
+            nameInput,
+            quantityInput,
+            unitInput,
+            hasAny,
+            hasAll,
+            missingName: nameValue.length === 0,
+            missingQuantity: quantityValue.length === 0,
+            missingUnit: unitValue.length === 0,
+          };
+        };
+
+        const syncIngredientRowRequirements = () => {
+          if (!ingredientRows) return;
+          ingredientRows.querySelectorAll(".add-recipe-ingredient-row").forEach((row) => {
+            const state = getIngredientRowState(row);
+            if (state.nameInput instanceof HTMLInputElement) {
+              state.nameInput.required = state.hasAny;
+            }
+            if (state.quantityInput instanceof HTMLInputElement) {
+              state.quantityInput.required = state.hasAny;
+            }
           });
         };
 
@@ -247,17 +384,141 @@
           row.className = "add-recipe-ingredient-row";
           row.innerHTML = `
             <input type="text" placeholder="Ingredient" required />
-            <input type="number" inputmode="decimal" placeholder="Qty" required />
-            <input type="text" placeholder="Unit" required />
+            <input type="number" inputmode="decimal" min="0" step="0.5" placeholder="Qty" required />
+            <div class="ingredient-unit-select" data-unit-select>
+              <input type="hidden" data-unit-value value="" />
+              <button type="button" class="ingredient-unit-trigger is-empty" data-unit-trigger aria-expanded="false">Unit</button>
+              <div class="ingredient-unit-menu" data-unit-menu>
+                <button type="button" class="ingredient-unit-option" data-unit-option data-value="pcs">pcs</button>
+                <button type="button" class="ingredient-unit-option" data-unit-option data-value="pinch">pinch</button>
+                <button type="button" class="ingredient-unit-option" data-unit-option data-value="tsp">tsp</button>
+                <button type="button" class="ingredient-unit-option" data-unit-option data-value="tbsp">tbsp</button>
+                <button type="button" class="ingredient-unit-option" data-unit-option data-value="cup">cup</button>
+                <button type="button" class="ingredient-unit-option" data-unit-option data-value="l">l</button>
+                <button type="button" class="ingredient-unit-option" data-unit-option data-value="ml">ml</button>
+                <button type="button" class="ingredient-unit-option" data-unit-option data-value="mg">mg</button>
+                <button type="button" class="ingredient-unit-option" data-unit-option data-value="g">g</button>
+                <button type="button" class="ingredient-unit-option" data-unit-option data-value="kg">kg</button>
+                <button type="button" class="ingredient-unit-option" data-unit-option data-value="oz">oz</button>
+                <button type="button" class="ingredient-unit-option" data-unit-option data-value="lb">lb</button>
+              </div>
+            </div>
             <button class="btn-secondary" type="button" data-ingredient-action data-action="add">Add</button>
           `;
+          const ingredientInput = row.querySelector("input[placeholder='Ingredient']");
+          if (ingredientInput && ingredientSuggestionsList) {
+            ingredientInput.setAttribute("list", "ingredient-suggestions");
+          }
           return row;
         };
 
         if (ingredientRows) {
+          const qtyArrowZoneWidth = 18;
+          const unitArrowZoneWidth = 20;
+
+          ingredientRows.addEventListener("pointermove", (event) => {
+            const target = event.target;
+            if (target instanceof HTMLInputElement) {
+              if (target.type !== "number" || target.placeholder !== "Qty") return;
+
+              const rect = target.getBoundingClientRect();
+              const onArrowZone = event.clientX >= rect.right - qtyArrowZoneWidth;
+              target.style.cursor = onArrowZone ? "pointer" : "text";
+              return;
+            }
+
+            if (!(target instanceof HTMLButtonElement) || !target.matches("[data-unit-trigger]")) return;
+            const rect = target.getBoundingClientRect();
+            const onArrowZone = event.clientX >= rect.right - unitArrowZoneWidth;
+            target.style.cursor = onArrowZone ? "pointer" : "default";
+          });
+
+          ingredientRows.addEventListener("pointerleave", (event) => {
+            const target = event.target;
+            if (target instanceof HTMLInputElement) {
+              if (target.type !== "number" || target.placeholder !== "Qty") return;
+              target.style.cursor = "text";
+              return;
+            }
+
+            if (!(target instanceof HTMLButtonElement) || !target.matches("[data-unit-trigger]")) return;
+            target.style.cursor = "default";
+          }, true);
+
+          ingredientRows.addEventListener("pointerdown", (event) => {
+            const target = event.target;
+            if (!(target instanceof HTMLInputElement)) return;
+            if (target.type !== "number" || target.placeholder !== "Qty") return;
+
+            const rect = target.getBoundingClientRect();
+            const clickedArrowZone = event.clientX >= rect.right - qtyArrowZoneWidth;
+            if (!clickedArrowZone) return;
+
+            event.preventDefault();
+
+            const clickedUpperHalf = event.clientY < rect.top + rect.height / 2;
+            if (clickedUpperHalf) {
+              target.stepUp();
+            } else {
+              target.stepDown();
+              if (!Number.isNaN(target.valueAsNumber) && target.valueAsNumber < 0) {
+                target.value = "0";
+              }
+            }
+
+            target.dispatchEvent(new Event("input", { bubbles: true }));
+            target.dispatchEvent(new Event("change", { bubbles: true }));
+          });
+
+          ingredientRows.addEventListener("input", (event) => {
+            const target = event.target;
+            if (target instanceof HTMLInputElement && target.placeholder === "Ingredient") {
+              if (ingredientSuggestTimer) {
+                clearTimeout(ingredientSuggestTimer);
+              }
+              ingredientSuggestTimer = window.setTimeout(() => {
+                requestIngredientSuggestions(target.value);
+              }, 180);
+            }
+
+            if (!(target instanceof HTMLInputElement)) return;
+            if (target.type !== "number" || target.placeholder !== "Qty") return;
+            if (target.value === "") return;
+
+            const value = Number.parseFloat(target.value);
+            if (!Number.isNaN(value) && value < 0) {
+              target.value = "0";
+            }
+          });
+
           ingredientRows.addEventListener("click", (event) => {
             const target = event.target;
             if (!(target instanceof HTMLElement)) return;
+
+            const unitOption = target.closest("[data-unit-option]");
+            if (unitOption instanceof HTMLButtonElement) {
+              const row = unitOption.closest(".add-recipe-ingredient-row");
+              if (!row) return;
+              const unitValueInput = row.querySelector("input[data-unit-value]");
+              if (unitValueInput) {
+                unitValueInput.value = unitOption.dataset.value || "";
+              }
+              syncCustomUnitState(row);
+              closeUnitMenus();
+              return;
+            }
+
+            const unitTrigger = target.closest("[data-unit-trigger]");
+            if (unitTrigger instanceof HTMLButtonElement) {
+              const selectRoot = unitTrigger.closest("[data-unit-select]");
+              if (!selectRoot) return;
+              const willOpen = !selectRoot.classList.contains("is-open");
+              closeUnitMenus(selectRoot);
+              selectRoot.classList.toggle("is-open", willOpen);
+              unitTrigger.setAttribute("aria-expanded", willOpen ? "true" : "false");
+              return;
+            }
+
             if (!target.matches("[data-ingredient-action]")) return;
 
             const row = target.closest(".add-recipe-ingredient-row");
@@ -268,6 +529,7 @@
               ingredientRows.appendChild(createIngredientRow());
               reindexIngredientRows();
               syncIngredientActionButtons();
+              syncIngredientRowRequirements();
               return;
             }
 
@@ -277,18 +539,85 @@
               row.querySelectorAll("input").forEach((input) => {
                 input.value = "";
               });
+              const unitInput = row.querySelector("input[data-unit-value]");
+              if (unitInput) {
+                unitInput.value = "";
+              }
+              syncCustomUnitState(row);
               syncIngredientActionButtons();
+              syncIngredientRowRequirements();
               return;
             }
 
             row.remove();
             reindexIngredientRows();
             syncIngredientActionButtons();
+            syncIngredientRowRequirements();
+          });
+
+          document.addEventListener("click", (event) => {
+            const target = event.target;
+            if (!(target instanceof Node)) return;
+            if (!ingredientRows.contains(target)) {
+              closeUnitMenus();
+            }
+          });
+        }
+
+        if (form && ingredientRows) {
+          form.addEventListener("submit", (event) => {
+            syncIngredientRowRequirements();
+
+            const rows = Array.from(ingredientRows.querySelectorAll(".add-recipe-ingredient-row"));
+            const rowStates = rows.map((row) => ({ row, state: getIngredientRowState(row) }));
+            const completeRowsCount = rowStates.filter(({ state }) => state.hasAll).length;
+            const invalidRow = rowStates.find(({ state }) => state.hasAny && !state.hasAll);
+
+            if (invalidRow) {
+              event.preventDefault();
+              const { row, state } = invalidRow;
+
+              if (state.missingName && state.nameInput instanceof HTMLInputElement) {
+                state.nameInput.focus();
+                return;
+              }
+
+              if (state.missingQuantity && state.quantityInput instanceof HTMLInputElement) {
+                state.quantityInput.focus();
+                return;
+              }
+
+              const trigger = row.querySelector("[data-unit-trigger]");
+              if (trigger instanceof HTMLButtonElement) {
+                trigger.focus();
+                const selectRoot = trigger.closest("[data-unit-select]");
+                if (selectRoot) {
+                  closeUnitMenus(selectRoot);
+                  selectRoot.classList.add("is-open");
+                  trigger.setAttribute("aria-expanded", "true");
+                }
+              }
+              return;
+            }
+
+            if (completeRowsCount === 0) {
+              event.preventDefault();
+              const firstRow = rows[0];
+              const firstNameInput = firstRow ? firstRow.querySelector("input[placeholder='Ingredient']") : null;
+              if (firstNameInput instanceof HTMLInputElement) {
+                firstNameInput.focus();
+              }
+              return;
+            }
           });
         }
 
         reindexIngredientRows();
         syncIngredientActionButtons();
+        if (ingredientRows) {
+          ingredientRows.querySelectorAll(".add-recipe-ingredient-row").forEach(syncCustomUnitState);
+          syncIngredientRowRequirements();
+        }
 
           const applyListBehavior = (textarea) => {
             const mode = textarea.getAttribute("data-list");
