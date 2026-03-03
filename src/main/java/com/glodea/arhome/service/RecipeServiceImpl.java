@@ -69,6 +69,10 @@ public class RecipeServiceImpl implements RecipeService {
         }
 
         Recipe recipe = recipeRepository.findById(recipeId).orElseThrow();
+        if (recipe.getUser() != null && recipe.getUser().getId() != null
+            && recipe.getUser().getId().equals(user.getId())) {
+            throw new IllegalArgumentException("You cannot rate your own recipe.");
+        }
         double normalizedValue = normalizeRatingValue(ratingValue);
 
         RecipeRating rating = recipeRatingRepository.findByRecipeIdAndUserId(recipeId, user.getId())

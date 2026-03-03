@@ -115,6 +115,12 @@ public class RecipeController {
     @GetMapping("/{id}")
     public String viewRecipe(@PathVariable("id") Long id, Model model) {
         Recipe recipe = recipeService.getRecipeById(id);
+        User currentUser = getCurrentUser();
+        boolean isOwnRecipe = currentUser != null
+            && currentUser.getId() != null
+            && recipe.getUser() != null
+            && recipe.getUser().getId() != null
+            && recipe.getUser().getId().equals(currentUser.getId());
         model.addAttribute("recipe", recipe);
         model.addAttribute("ingredientsLines", formatIngredientLines(recipe));
         model.addAttribute("stepsItems", parseSteps(recipe.getSteps()));
@@ -123,6 +129,7 @@ public class RecipeController {
         model.addAttribute("authorCategory", recipe.getUser().getCategory());
         model.addAttribute("recipeAverageRating", recipeService.getAverageRatingForRecipe(id));
         model.addAttribute("recipeRatingCount", recipeService.getRatingCountForRecipe(id));
+        model.addAttribute("isOwnRecipe", isOwnRecipe);
         return "recipe-detail";
     }
 
@@ -143,25 +150,30 @@ public class RecipeController {
         Double ratingValue = parseDouble(payload.get("rating"));
         String commentText = payload.get("comment") != null ? payload.get("comment").toString().trim() : "";
 
-        if ("rating".equals(mode)) {
-            if (ratingValue == null) {
-                return org.springframework.http.ResponseEntity.badRequest()
-                    .body(java.util.Map.of("ok", false, "message", "Invalid rating value."));
+        try {
+            if ("rating".equals(mode)) {
+                if (ratingValue == null) {
+                    return org.springframework.http.ResponseEntity.badRequest()
+                        .body(java.util.Map.of("ok", false, "message", "Invalid rating value."));
+                }
+                recipeService.saveRecipeRating(user, id, ratingValue);
+            } else if ("comment".equals(mode)) {
+                if (commentText.isBlank()) {
+                    return org.springframework.http.ResponseEntity.badRequest()
+                        .body(java.util.Map.of("ok", false, "message", "Comment is required."));
+                }
+                recipeService.saveRecipeComment(user, id, commentText);
+            } else {
+                if (ratingValue == null || commentText.isBlank()) {
+                    return org.springframework.http.ResponseEntity.badRequest()
+                        .body(java.util.Map.of("ok", false, "message", "Both rating and comment are required."));
+                }
+                recipeService.saveRecipeRating(user, id, ratingValue);
+                recipeService.saveRecipeComment(user, id, commentText);
             }
-            recipeService.saveRecipeRating(user, id, ratingValue);
-        } else if ("comment".equals(mode)) {
-            if (commentText.isBlank()) {
-                return org.springframework.http.ResponseEntity.badRequest()
-                    .body(java.util.Map.of("ok", false, "message", "Comment is required."));
-            }
-            recipeService.saveRecipeComment(user, id, commentText);
-        } else {
-            if (ratingValue == null || commentText.isBlank()) {
-                return org.springframework.http.ResponseEntity.badRequest()
-                    .body(java.util.Map.of("ok", false, "message", "Both rating and comment are required."));
-            }
-            recipeService.saveRecipeRating(user, id, ratingValue);
-            recipeService.saveRecipeComment(user, id, commentText);
+        } catch (IllegalArgumentException ex) {
+            return org.springframework.http.ResponseEntity.badRequest()
+                .body(java.util.Map.of("ok", false, "message", ex.getMessage()));
         }
 
         return org.springframework.http.ResponseEntity.ok(java.util.Map.of(

@@ -92,9 +92,9 @@
             <p class="recipe-serving-text" th:text="${recipe.instructions}">Serving instructions.</p>
           </section>
 
-          <section class="recipe-review-section" data-feedback th:attr="data-recipe-id=${recipe.id}">
+          <section class="recipe-review-section">
             <h2 class="recipe-review-title">Review</h2>
-            <div class="recipe-feedback">
+            <div class="recipe-feedback" th:if="${!isOwnRecipe}" data-feedback th:attr="data-recipe-id=${recipe.id}">
             <div class="recipe-feedback-actions">
               <button class="recipe-feedback-btn is-active" type="button" data-toggle-panel="rating">Rate</button>
               <button class="recipe-feedback-btn" type="button" data-toggle-panel="comment">Comment</button>
