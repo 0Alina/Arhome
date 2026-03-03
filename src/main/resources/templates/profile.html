@@ -94,7 +94,13 @@
                  aria-label="View recipe"></a>
               <div class="recipes-body">
                 <div>
-                  <h3><a th:href="@{/recipes/{id}(id=${recipe.id})}" th:text="${recipe.title}">Recipe title</a></h3>
+                  <div class="recipes-title-row">
+                    <h3><a th:href="@{/recipes/{id}(id=${recipe.id})}" th:text="${recipe.title}">Recipe title</a></h3>
+                    <span class="recipes-card-rating" th:title="${recipe.ratingCount + ' ratings'}">
+                      <span aria-hidden="true">⭐</span>
+                      <span th:text="${#numbers.formatDecimal(recipe.averageRating, 1, 1)}">0.0</span>
+                    </span>
+                  </div>
                   <p class="recipes-note" th:text="${recipe.mealType + ' · ' + recipe.prepTime}">Meal · 0 min</p>
                   <p class="recipes-desc" th:text="${recipe.shortDescription}">Short description.</p>
                 </div>

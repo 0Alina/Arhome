@@ -13,11 +13,22 @@ public class RecipeDto {
     private String imagePath;
     private List<String> tags = new ArrayList<>();
     private Long ownerId;
+    private double averageRating;
+    private long ratingCount;
 
     public RecipeDto() {
     }
 
-    public RecipeDto(Long id, String title, String shortDescription, String prepTime, String mealType, String imagePath, List<String> tags, Long ownerId) {
+    public RecipeDto(Long id,
+                     String title,
+                     String shortDescription,
+                     String prepTime,
+                     String mealType,
+                     String imagePath,
+                     List<String> tags,
+                     Long ownerId,
+                     double averageRating,
+                     long ratingCount) {
         this.id = id;
         this.title = title;
         this.shortDescription = shortDescription;
@@ -26,6 +37,8 @@ public class RecipeDto {
         this.imagePath = imagePath;
         this.tags = tags;
         this.ownerId = ownerId;
+        this.averageRating = averageRating;
+        this.ratingCount = ratingCount;
     }
 
     public Long getId() {
@@ -90,5 +103,21 @@ public class RecipeDto {
 
     public void setOwnerId(Long ownerId) {
         this.ownerId = ownerId;
+    }
+
+    public double getAverageRating() {
+        return averageRating;
+    }
+
+    public void setAverageRating(double averageRating) {
+        this.averageRating = averageRating;
+    }
+
+    public long getRatingCount() {
+        return ratingCount;
+    }
+
+    public void setRatingCount(long ratingCount) {
+        this.ratingCount = ratingCount;
     }
 }

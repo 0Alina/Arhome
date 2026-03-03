@@ -631,6 +631,8 @@ public class RecipeServiceImpl implements RecipeService {
     }
 
     private RecipeDto toDto(Recipe recipe) {
+        double averageRating = getAverageRatingForRecipe(recipe.getId());
+        long ratingCount = getRatingCountForRecipe(recipe.getId());
         return new RecipeDto(
             recipe.getId(),
             recipe.getTitle(),
@@ -639,7 +641,9 @@ public class RecipeServiceImpl implements RecipeService {
             recipe.getMealType(),
             recipe.getImagePath(),
             mergeTags(recipe),
-            recipe.getUser() != null ? recipe.getUser().getId() : null
+            recipe.getUser() != null ? recipe.getUser().getId() : null,
+            averageRating,
+            ratingCount
         );
     }
 

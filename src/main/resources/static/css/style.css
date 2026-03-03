@@ -2281,10 +2281,35 @@ a.recipes-media {
   gap: 12px;
 }
 
+.recipes-title-row {
+  display: flex;
+  align-items: baseline;
+  justify-content: space-between;
+  gap: 10px;
+}
+
 .recipes-body h3 {
   margin: 10px 0 8px;
   font-size: 1.1rem;
   color: #ead8c7;
+}
+
+.recipes-title-row h3 {
+  margin: 10px 0 8px;
+  flex: 1 1 auto;
+  min-width: 0;
+}
+
+.recipes-card-rating {
+  display: inline-flex;
+  align-items: center;
+  gap: 4px;
+  color: #e2b37a;
+  font-size: 0.9rem;
+  font-weight: 700;
+  white-space: nowrap;
+  line-height: 1;
+  margin-top: 11px;
 }
 
 .recipes-body h3 a {
