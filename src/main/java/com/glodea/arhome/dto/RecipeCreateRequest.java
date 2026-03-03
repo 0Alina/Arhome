@@ -10,6 +10,7 @@ public class RecipeCreateRequest {
     private String prepTime;
     private String mealType;
     private String ingredients;
+    private List<RecipeIngredientInput> ingredientItems = new ArrayList<>();
     private String steps;
     private String instructions;
     private String imagePath;
@@ -55,6 +56,14 @@ public class RecipeCreateRequest {
 
     public void setIngredients(String ingredients) {
         this.ingredients = ingredients;
+    }
+
+    public List<RecipeIngredientInput> getIngredientItems() {
+        return ingredientItems;
+    }
+
+    public void setIngredientItems(List<RecipeIngredientInput> ingredientItems) {
+        this.ingredientItems = ingredientItems;
     }
 
     public String getSteps() {

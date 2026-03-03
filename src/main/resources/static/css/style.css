@@ -1902,6 +1902,90 @@ a.collection-media {
   gap: 12px;
 }
 
+.add-recipe-ingredients {
+  display: grid;
+  gap: 10px;
+  align-content: start;
+  align-items: start;
+  grid-auto-rows: max-content;
+}
+
+.add-recipe-ingredient-row {
+  display: grid;
+  grid-template-columns: minmax(0, 1fr) 60px 60px auto;
+  gap: 10px;
+  align-items: center;
+  width: 100%;
+}
+
+.add-recipe-ingredient-row input[name$='.quantity'] {
+  min-width: 60px;
+  padding-right: 10px;
+  -moz-appearance: textfield;
+}
+
+.add-recipe-ingredient-row input[name$='.quantity']::-webkit-outer-spin-button,
+.add-recipe-ingredient-row input[name$='.quantity']::-webkit-inner-spin-button {
+  -webkit-appearance: none;
+  margin: 0;
+}
+
+.add-recipe-ingredient-row input[name$='.unit'] {
+  min-width: 60px;
+}
+
+.add-recipe-ingredient-row .btn-secondary {
+  white-space: nowrap;
+  padding: 10px 16px;
+  width: auto;
+  justify-self: start;
+}
+
+.add-recipe-ingredient-row [data-ingredient-action] {
+  min-width: 88px;
+  font-weight: 700;
+  transition: background 0.2s ease, border-color 0.2s ease, color 0.2s ease;
+}
+
+.add-recipe-ingredient-row [data-ingredient-action][data-action="add"] {
+  background: var(--accent-brown);
+  border-color: var(--accent-brown);
+  color: #f3e7dc;
+}
+
+.add-recipe-ingredient-row [data-ingredient-action][data-action="add"]:hover,
+.add-recipe-ingredient-row [data-ingredient-action][data-action="add"]:focus {
+  background: #8a5236;
+  border-color: #8a5236;
+}
+
+.add-recipe-ingredient-row [data-ingredient-action][data-action="remove"] {
+  background: #2a1e18;
+  border-color: #3c2a22;
+  color: #e6d7c7;
+}
+
+.add-recipe-ingredient-row [data-ingredient-action][data-action="remove"]:hover,
+.add-recipe-ingredient-row [data-ingredient-action][data-action="remove"]:focus {
+  border-color: rgba(166, 108, 56, 0.75);
+  color: #f0dfcf;
+}
+
+[data-add-ingredient] {
+  justify-self: start;
+  width: auto;
+}
+
+@media (max-width: 880px) {
+  .add-recipe-ingredient-row {
+    grid-template-columns: 1fr;
+  }
+
+  .add-recipe-ingredient-row .btn-secondary {
+    justify-self: start;
+  }
+}
+
 .add-recipe-book-nav {
   position: absolute;
   inset: 0;

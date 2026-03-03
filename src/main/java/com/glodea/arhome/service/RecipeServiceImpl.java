@@ -9,8 +9,12 @@ import org.springframework.util.StringUtils;
 
 import com.glodea.arhome.dto.RecipeCreateRequest;
 import com.glodea.arhome.dto.RecipeDto;
+import com.glodea.arhome.dto.RecipeIngredientInput;
+import com.glodea.arhome.entity.Ingredient;
 import com.glodea.arhome.entity.Recipe;
+import com.glodea.arhome.entity.RecipeIngredient;
 import com.glodea.arhome.entity.User;
+import com.glodea.arhome.repository.IngredientRepository;
 import com.glodea.arhome.repository.RecipeRepository;
 import com.glodea.arhome.repository.UserRepository;
 
@@ -19,10 +23,12 @@ public class RecipeServiceImpl implements RecipeService {
 
     private final RecipeRepository recipeRepository;
     private final UserRepository userRepository;
+    private final IngredientRepository ingredientRepository;
 
-    public RecipeServiceImpl(RecipeRepository recipeRepository, UserRepository userRepository) {
+    public RecipeServiceImpl(RecipeRepository recipeRepository, UserRepository userRepository, IngredientRepository ingredientRepository) {
         this.recipeRepository = recipeRepository;
         this.userRepository = userRepository;
+        this.ingredientRepository = ingredientRepository;
     }
 
     @Override
@@ -37,13 +43,13 @@ public class RecipeServiceImpl implements RecipeService {
         recipe.setShortDescription(trimToNull(request.getShortDescription()));
         recipe.setPrepTime(request.getPrepTime().trim());
         recipe.setMealType(request.getMealType().trim());
-        recipe.setIngredients(trimToNull(request.getIngredients()));
         recipe.setSteps(trimToNull(request.getSteps()));
         recipe.setInstructions(trimToNull(request.getInstructions()));
         recipe.setImagePath(imagePath != null ? imagePath : trimToNull(request.getImagePath()));
         recipe.setRegionTags(safeList(request.getRegionTags()));
         recipe.setStyleTags(safeList(request.getStyleTags()));
         recipe.setNutritionTags(safeList(request.getNutritionTags()));
+        applyStructuredIngredients(recipe, request);
 
         return recipeRepository.save(recipe);
     }
@@ -136,7 +142,20 @@ public class RecipeServiceImpl implements RecipeService {
         }
         String title = recipe.getTitle() == null ? "" : recipe.getTitle().toLowerCase();
         String ingredients = recipe.getIngredients() == null ? "" : recipe.getIngredients().toLowerCase();
-        return terms.stream().allMatch(term -> title.contains(term) || ingredients.contains(term));
+        List<String> structuredIngredientNames = recipe.getRecipeIngredients() == null
+            ? List.of()
+            : recipe.getRecipeIngredients().stream()
+                .map(RecipeIngredient::getIngredient)
+                .filter(java.util.Objects::nonNull)
+                .map(Ingredient::getName)
+                .filter(StringUtils::hasText)
+                .map(String::toLowerCase)
+                .toList();
+        return terms.stream().allMatch(term ->
+            title.contains(term)
+                || ingredients.contains(term)
+                || structuredIngredientNames.stream().anyMatch(name -> name.contains(term))
+        );
     }
 
     private boolean matchesSingleValue(String value, List<String> filters) {
@@ -382,7 +401,6 @@ public class RecipeServiceImpl implements RecipeService {
         recipe.setShortDescription(trimToNull(request.getShortDescription()));
         recipe.setPrepTime(request.getPrepTime().trim());
         recipe.setMealType(request.getMealType().trim());
-        recipe.setIngredients(trimToNull(request.getIngredients()));
         recipe.setSteps(trimToNull(request.getSteps()));
         recipe.setInstructions(trimToNull(request.getInstructions()));
         if (imagePath != null) {
@@ -393,8 +411,92 @@ public class RecipeServiceImpl implements RecipeService {
         recipe.setRegionTags(safeList(request.getRegionTags()));
         recipe.setStyleTags(safeList(request.getStyleTags()));
         recipe.setNutritionTags(safeList(request.getNutritionTags()));
+        applyStructuredIngredients(recipe, request);
 
         return recipeRepository.save(recipe);
+    }
+
+    private void applyStructuredIngredients(Recipe recipe, RecipeCreateRequest request) {
+        List<RecipeIngredientInput> inputs = request.getIngredientItems() == null ? List.of() : request.getIngredientItems();
+        List<RecipeIngredient> structuredIngredients = new ArrayList<>();
+
+        int index = 0;
+        for (RecipeIngredientInput input : inputs) {
+            if (input == null || !StringUtils.hasText(input.getName())) {
+                continue;
+            }
+            if (!StringUtils.hasText(input.getQuantity()) || !StringUtils.hasText(input.getUnit())) {
+                continue;
+            }
+
+            java.math.BigDecimal quantity = parseQuantity(input.getQuantity());
+            if (quantity == null || quantity.compareTo(java.math.BigDecimal.ZERO) <= 0) {
+                continue;
+            }
+
+            String ingredientName = normalizeIngredientName(input.getName());
+            if (!StringUtils.hasText(ingredientName)) {
+                continue;
+            }
+
+            Ingredient ingredient = ingredientRepository.findByNameIgnoreCase(ingredientName)
+                .orElseGet(() -> {
+                    Ingredient created = new Ingredient();
+                    created.setName(ingredientName);
+                    return ingredientRepository.save(created);
+                });
+
+            RecipeIngredient recipeIngredient = new RecipeIngredient();
+            recipeIngredient.setRecipe(recipe);
+            recipeIngredient.setIngredient(ingredient);
+            recipeIngredient.setQuantity(quantity);
+            recipeIngredient.setUnit(input.getUnit().trim());
+            recipeIngredient.setPositionIndex(index++);
+            structuredIngredients.add(recipeIngredient);
+        }
+
+        if (recipe.getRecipeIngredients() == null) {
+            recipe.setRecipeIngredients(new ArrayList<>());
+        }
+        recipe.getRecipeIngredients().clear();
+        recipe.getRecipeIngredients().addAll(structuredIngredients);
+        recipe.setIngredients(buildLegacyIngredientsText(structuredIngredients));
+    }
+
+    private java.math.BigDecimal parseQuantity(String rawValue) {
+        if (!StringUtils.hasText(rawValue)) {
+            return null;
+        }
+        String normalized = rawValue.trim().replace(',', '.');
+        try {
+            return new java.math.BigDecimal(normalized);
+        } catch (NumberFormatException ex) {
+            return null;
+        }
+    }
+
+    private String normalizeIngredientName(String rawName) {
+        if (!StringUtils.hasText(rawName)) {
+            return null;
+        }
+        String trimmed = rawName.trim().toLowerCase();
+        if (trimmed.isEmpty()) {
+            return null;
+        }
+        return Character.toUpperCase(trimmed.charAt(0)) + trimmed.substring(1);
+    }
+
+    private String buildLegacyIngredientsText(List<RecipeIngredient> items) {
+        if (items == null || items.isEmpty()) {
+            return null;
+        }
+        return items.stream()
+            .map(item -> item.getQuantity().stripTrailingZeros().toPlainString()
+                + " "
+                + item.getUnit()
+                + " "
+                + item.getIngredient().getName())
+            .collect(java.util.stream.Collectors.joining("\n"));
     }
 
     @Override

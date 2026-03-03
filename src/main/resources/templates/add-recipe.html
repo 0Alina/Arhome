@@ -78,8 +78,29 @@
               <div class="add-recipe-divider" aria-hidden="true"></div>
               <div class="add-recipe-col add-recipe-col--right">
                 <div class="add-recipe-field add-recipe-field--fill">
-                  <label for="recipe-ingredients">Ingredients</label>
-                  <textarea id="recipe-ingredients" name="ingredients" rows="5" placeholder="List ingredients" data-list="dash" th:text="${recipe.ingredients}"></textarea>
+                  <label>Ingredients</label>
+                  <div class="add-recipe-ingredients" data-ingredient-rows>
+                    <div class="add-recipe-ingredient-row" th:each="item, stat : ${recipe.ingredientItems}">
+                      <input type="text"
+                             th:name="|ingredientItems[${stat.index}].name|"
+                             th:value="${item.name}"
+                             placeholder="Ingredient"
+                             required />
+                      <input type="number"
+                         inputmode="decimal"
+                             th:name="|ingredientItems[${stat.index}].quantity|"
+                             th:value="${item.quantity}"
+                             placeholder="Qty"
+                             required />
+                       <input type="text"
+                         th:name="|ingredientItems[${stat.index}].unit|"
+                         th:value="${item.unit}"
+                         placeholder="Unit"
+                         required />
+                      <button class="btn-secondary" type="button" data-ingredient-action
+                              th:text="${stat.last ? 'Add' : 'Remove'}">Add</button>
+                    </div>
+                  </div>
                 </div>
               </div>
             </div>
@@ -194,6 +215,80 @@
             }
           });
         }
+
+        const ingredientRows = document.querySelector("[data-ingredient-rows]");
+        const reindexIngredientRows = () => {
+          if (!ingredientRows) return;
+          const rows = ingredientRows.querySelectorAll(".add-recipe-ingredient-row");
+          rows.forEach((row, index) => {
+            const nameInput = row.querySelector("input[placeholder='Ingredient']");
+            const quantityInput = row.querySelector("input[placeholder='Qty']");
+            const unitInput = row.querySelector("input[placeholder='Unit']");
+            if (nameInput) nameInput.name = `ingredientItems[${index}].name`;
+            if (quantityInput) quantityInput.name = `ingredientItems[${index}].quantity`;
+            if (unitInput) unitInput.name = `ingredientItems[${index}].unit`;
+          });
+        };
+
+        const syncIngredientActionButtons = () => {
+          if (!ingredientRows) return;
+          const rows = Array.from(ingredientRows.querySelectorAll(".add-recipe-ingredient-row"));
+          rows.forEach((row, index) => {
+            const actionButton = row.querySelector("[data-ingredient-action]");
+            if (!actionButton) return;
+            const isLast = index === rows.length - 1;
+            actionButton.textContent = isLast ? "Add" : "Remove";
+            actionButton.setAttribute("data-action", isLast ? "add" : "remove");
+          });
+        };
+
+        const createIngredientRow = () => {
+          const row = document.createElement("div");
+          row.className = "add-recipe-ingredient-row";
+          row.innerHTML = `
+            <input type="text" placeholder="Ingredient" required />
+            <input type="number" inputmode="decimal" placeholder="Qty" required />
+            <input type="text" placeholder="Unit" required />
+            <button class="btn-secondary" type="button" data-ingredient-action data-action="add">Add</button>
+          `;
+          return row;
+        };
+
+        if (ingredientRows) {
+          ingredientRows.addEventListener("click", (event) => {
+            const target = event.target;
+            if (!(target instanceof HTMLElement)) return;
+            if (!target.matches("[data-ingredient-action]")) return;
+
+            const row = target.closest(".add-recipe-ingredient-row");
+            if (!row) return;
+            const action = target.getAttribute("data-action");
+
+            if (action === "add") {
+              ingredientRows.appendChild(createIngredientRow());
+              reindexIngredientRows();
+              syncIngredientActionButtons();
+              return;
+            }
+
+            const rows = ingredientRows.querySelectorAll(".add-recipe-ingredient-row");
+
+            if (rows.length <= 1) {
+              row.querySelectorAll("input").forEach((input) => {
+                input.value = "";
+              });
+              syncIngredientActionButtons();
+              return;
+            }
+
+            row.remove();
+            reindexIngredientRows();
+            syncIngredientActionButtons();
+          });
+        }
+
+        reindexIngredientRows();
+        syncIngredientActionButtons();
 
           const applyListBehavior = (textarea) => {
             const mode = textarea.getAttribute("data-list");

@@ -13,6 +13,8 @@ import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.ResponseBody;
 
 import com.glodea.arhome.dto.RecipeCreateRequest;
+import com.glodea.arhome.dto.RecipeIngredientInput;
+import com.glodea.arhome.entity.RecipeIngredient;
 import com.glodea.arhome.entity.Recipe;
 import com.glodea.arhome.entity.User;
 import com.glodea.arhome.repository.UserRepository;
@@ -43,7 +45,9 @@ public class RecipeController {
 
     @GetMapping("/add")
     public String addRecipe(Model model) {
-        model.addAttribute("recipe", new RecipeCreateRequest());
+        RecipeCreateRequest request = new RecipeCreateRequest();
+        request.setIngredientItems(List.of(new RecipeIngredientInput("", "", "")));
+        model.addAttribute("recipe", request);
         model.addAttribute("formAction", "/recipes/add");
         model.addAttribute("pageTitle", "Add Recipe");
         return "add-recipe";
@@ -86,7 +90,7 @@ public class RecipeController {
         request.setShortDescription(recipe.getShortDescription());
         request.setPrepTime(recipe.getPrepTime());
         request.setMealType(recipe.getMealType());
-        request.setIngredients(recipe.getIngredients());
+        request.setIngredientItems(toIngredientInputs(recipe));
         request.setSteps(recipe.getSteps());
         request.setInstructions(recipe.getInstructions());
         request.setRegionTags(recipe.getRegionTags() != null ? recipe.getRegionTags() : List.of());
@@ -105,7 +109,7 @@ public class RecipeController {
     public String viewRecipe(@PathVariable("id") Long id, Model model) {
         Recipe recipe = recipeService.getRecipeById(id);
         model.addAttribute("recipe", recipe);
-        model.addAttribute("ingredientsLines", splitLines(recipe.getIngredients()));
+        model.addAttribute("ingredientsLines", formatIngredientLines(recipe));
         model.addAttribute("stepsItems", parseSteps(recipe.getSteps()));
         model.addAttribute("tags", mergeTags(recipe));
         model.addAttribute("authorName", recipe.getUser().getFullName());
@@ -187,6 +191,59 @@ public class RecipeController {
             .map(String::trim)
             .filter(line -> !line.isBlank())
             .toList();
+    }
+
+    private List<RecipeIngredientInput> toIngredientInputs(Recipe recipe) {
+        if (recipe.getRecipeIngredients() != null && !recipe.getRecipeIngredients().isEmpty()) {
+            return recipe.getRecipeIngredients().stream()
+                .sorted(java.util.Comparator.comparing(RecipeIngredient::getPositionIndex, java.util.Comparator.nullsLast(java.util.Comparator.naturalOrder())))
+                .map(item -> new RecipeIngredientInput(
+                    item.getIngredient() != null ? item.getIngredient().getName() : "",
+                    item.getQuantity() != null ? item.getQuantity().stripTrailingZeros().toPlainString() : "",
+                    item.getUnit()
+                ))
+                .toList();
+        }
+
+        List<RecipeIngredientInput> legacy = splitLines(recipe.getIngredients()).stream()
+            .map(this::parseLegacyIngredientLine)
+            .toList();
+
+        return legacy.isEmpty() ? List.of(new RecipeIngredientInput("", "", "")) : legacy;
+    }
+
+    private RecipeIngredientInput parseLegacyIngredientLine(String line) {
+        if (line == null || line.isBlank()) {
+            return new RecipeIngredientInput("", "", "");
+        }
+        java.util.regex.Matcher matcher = java.util.regex.Pattern
+            .compile("^([0-9]+(?:[\\.,][0-9]+)?)\\s+([^\\s]+)\\s+(.+)$")
+            .matcher(line.trim());
+        if (matcher.matches()) {
+            return new RecipeIngredientInput(
+                matcher.group(3).trim(),
+                matcher.group(1).replace(',', '.'),
+                matcher.group(2).trim()
+            );
+        }
+        return new RecipeIngredientInput(line.trim(), "", "");
+    }
+
+    private List<String> formatIngredientLines(Recipe recipe) {
+        if (recipe.getRecipeIngredients() != null && !recipe.getRecipeIngredients().isEmpty()) {
+            return recipe.getRecipeIngredients().stream()
+                .sorted(java.util.Comparator.comparing(RecipeIngredient::getPositionIndex, java.util.Comparator.nullsLast(java.util.Comparator.naturalOrder())))
+                .map(item -> {
+                    String quantity = item.getQuantity() != null ? item.getQuantity().stripTrailingZeros().toPlainString() : "";
+                    String unit = item.getUnit() != null ? item.getUnit().trim() : "";
+                    String ingredientName = item.getIngredient() != null ? item.getIngredient().getName() : "";
+                    return (quantity + " " + unit + " " + ingredientName).trim();
+                })
+                .filter(line -> !line.isBlank())
+                .toList();
+        }
+
+        return splitLines(recipe.getIngredients());
     }
 
     private List<java.util.Map<String, Object>> parseSteps(String value) {
