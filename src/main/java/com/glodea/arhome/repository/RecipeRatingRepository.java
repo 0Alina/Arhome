@@ -13,7 +13,8 @@ public interface RecipeRatingRepository extends JpaRepository<RecipeRating, Long
 
     Optional<RecipeRating> findByRecipeIdAndUserId(Long recipeId, Long userId);
 
-    List<RecipeRating> findByRecipeId(Long recipeId);
+    @Query("select r from RecipeRating r join fetch r.user where r.recipe.id = :recipeId")
+    List<RecipeRating> findByRecipeId(@Param("recipeId") Long recipeId);
 
     long countByRecipeId(Long recipeId);
 

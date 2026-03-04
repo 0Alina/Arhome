@@ -2835,9 +2835,9 @@ a.recipes-media {
 
 .recipe-user-review--illustrated .recipe-user-review-cap {
   position: absolute;
-  top: 26%;
-  left: 22%;
-  transform: rotate(11deg);
+  top: 30%;
+  left: 35%;
+  transform: rotate(16deg);
   transform-origin: left center;
   width: 52%;
   margin: 0;

@@ -407,10 +407,7 @@ public class RecipeController {
                 String name = author != null && author.getFullName() != null && !author.getFullName().isBlank()
                     ? author.getFullName()
                     : "Anonymous";
-                String category = author != null ? author.getCategory() : null;
-                if (category == null || category.isBlank() || "Unselected".equalsIgnoreCase(category)) {
-                    category = "young&hungry";
-                }
+                String category = normalizeReviewCategory(author != null ? author.getCategory() : null);
 
                 RecipeRating rating = author != null && author.getId() != null
                     ? ratingsByUser.get(author.getId())
@@ -427,10 +424,22 @@ public class RecipeController {
 
     private String toStars(RecipeRating rating) {
         if (rating == null || rating.getRatingValue() == null) {
-            return "☆☆☆☆☆";
+            return "";
         }
         int rounded = (int) Math.round(rating.getRatingValue().doubleValue());
         int stars = Math.max(0, Math.min(5, rounded));
-        return "★".repeat(stars) + "☆".repeat(5 - stars);
+        return "⭐".repeat(stars);
+    }
+
+    private String normalizeReviewCategory(String rawCategory) {
+        if (rawCategory == null || rawCategory.isBlank() || "Unselected".equalsIgnoreCase(rawCategory)) {
+            return "young&hungry";
+        }
+
+        String normalized = rawCategory.trim().toLowerCase();
+        normalized = normalized.replaceAll("\\s*\\(.*\\)\\s*$", "");
+        normalized = normalized.replaceAll("\\s*&\\s*", "&");
+        normalized = normalized.replaceAll("\\s+", "");
+        return normalized.isBlank() ? "young&hungry" : normalized;
     }
 }
