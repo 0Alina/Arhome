@@ -123,9 +123,9 @@
             </div>
             </div>
 
-            <p class="recipe-feedback-note" th:if="${reviewItems == null || #lists.isEmpty(reviewItems)}">No reviews yet.</p>
+            <p class="recipe-feedback-note" data-no-reviews th:if="${reviewItems == null || #lists.isEmpty(reviewItems)}">No reviews yet.</p>
 
-            <div class="recipe-reviews-list" th:if="${reviewItems != null && !#lists.isEmpty(reviewItems)}">
+            <div class="recipe-reviews-list" data-review-list th:if="${reviewItems != null && !#lists.isEmpty(reviewItems)}">
               <article class="recipe-user-review recipe-user-review--illustrated" th:each="review : ${reviewItems}">
                 <div class="recipe-user-review-cap">
                   <div class="recipe-user-review-meta">
@@ -160,7 +160,56 @@
         const postButton = feedback.querySelector("[data-feedback-post]");
         const summaryAverage = document.querySelector("[data-rating-average]");
         const summaryCount = document.querySelector("[data-rating-count]");
+        const reviewSection = document.querySelector(".recipe-review-section");
+        const noReviewsNote = document.querySelector("[data-no-reviews]");
         let activePanel = "rating";
+
+        const escapeHtml = (value) =>
+          (value || "")
+            .replaceAll("&", "&amp;")
+            .replaceAll("<", "&lt;")
+            .replaceAll(">", "&gt;")
+            .replaceAll('"', "&quot;")
+            .replaceAll("'", "&#39;");
+
+        const ensureReviewList = () => {
+          let list = document.querySelector("[data-review-list]");
+          if (list) return list;
+          if (!reviewSection) return null;
+          list = document.createElement("div");
+          list.className = "recipe-reviews-list";
+          list.setAttribute("data-review-list", "");
+          if (noReviewsNote && noReviewsNote.parentNode === reviewSection) {
+            reviewSection.insertBefore(list, noReviewsNote.nextSibling);
+          } else {
+            reviewSection.appendChild(list);
+          }
+          return list;
+        };
+
+        const prependReviewCard = (reviewItem) => {
+          if (!reviewItem) return;
+          const list = ensureReviewList();
+          if (!list) return;
+          const article = document.createElement("article");
+          article.className = "recipe-user-review recipe-user-review--illustrated";
+          article.innerHTML = `
+            <div class="recipe-user-review-cap">
+              <div class="recipe-user-review-meta">
+                <span class="recipe-user-review-name">${escapeHtml(reviewItem.userName || "Anonymous")}</span>
+                <span class="recipe-user-review-category">${escapeHtml(reviewItem.userCategory || "young&hungry")}</span>
+                <span class="recipe-user-review-stars">${escapeHtml(reviewItem.starText || "")}</span>
+              </div>
+            </div>
+            <div class="recipe-user-review-body">
+              <p>${escapeHtml(reviewItem.commentText || "")}</p>
+            </div>
+          `;
+          list.prepend(article);
+          if (noReviewsNote) {
+            noReviewsNote.remove();
+          }
+        };
 
         const activatePanel = (panelName) => {
           activePanel = panelName;
@@ -279,8 +328,14 @@
                 if (summaryCount && typeof data.ratingCount === "number") {
                   summaryCount.textContent = `${data.ratingCount} ratings`;
                 }
+                if (data.reviewItem && typeof data.reviewItem === "object") {
+                  prependReviewCard(data.reviewItem);
+                }
                 if (feedbackNote) feedbackNote.textContent = "Review posted (rating + comment).";
                 commentInput.value = "";
+                selectedRating = 0;
+                hoverRating = null;
+                paintStars(0);
               })
               .catch((error) => {
                 if (feedbackNote) feedbackNote.textContent = error.message || "Could not save review.";

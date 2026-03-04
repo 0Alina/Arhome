@@ -187,11 +187,17 @@ public class RecipeController {
                 .body(java.util.Map.of("ok", false, "message", ex.getMessage()));
         }
 
-        return org.springframework.http.ResponseEntity.ok(java.util.Map.of(
-            "ok", true,
-            "averageRating", recipeService.getAverageRatingForRecipe(id),
-            "ratingCount", recipeService.getRatingCountForRecipe(id)
-        ));
+        java.util.Map<String, Object> response = new java.util.HashMap<>();
+        response.put("ok", true);
+        response.put("averageRating", recipeService.getAverageRatingForRecipe(id));
+        response.put("ratingCount", recipeService.getRatingCountForRecipe(id));
+
+        if (!commentText.isBlank()) {
+            RecipeRating rating = recipeRatingRepository.findByRecipeIdAndUserId(id, user.getId()).orElse(null);
+            response.put("reviewItem", buildReviewItem(user, commentText, rating));
+        }
+
+        return org.springframework.http.ResponseEntity.ok(response);
     }
 
     @PostMapping("/{id}/edit")
@@ -402,24 +408,26 @@ public class RecipeController {
 
         return comments.stream()
             .map(comment -> {
-                java.util.Map<String, Object> item = new java.util.HashMap<>();
                 User author = comment.getUser();
-                String name = author != null && author.getFullName() != null && !author.getFullName().isBlank()
-                    ? author.getFullName()
-                    : "Anonymous";
-                String category = normalizeReviewCategory(author != null ? author.getCategory() : null);
-
                 RecipeRating rating = author != null && author.getId() != null
                     ? ratingsByUser.get(author.getId())
                     : null;
-
-                item.put("userName", name);
-                item.put("userCategory", category);
-                item.put("starText", toStars(rating));
-                item.put("commentText", comment.getCommentText());
-                return item;
+                return buildReviewItem(author, comment.getCommentText(), rating);
             })
             .toList();
+    }
+
+    private java.util.Map<String, Object> buildReviewItem(User author, String commentText, RecipeRating rating) {
+        java.util.Map<String, Object> item = new java.util.HashMap<>();
+        String name = author != null && author.getFullName() != null && !author.getFullName().isBlank()
+            ? author.getFullName()
+            : "Anonymous";
+        String category = normalizeReviewCategory(author != null ? author.getCategory() : null);
+        item.put("userName", name);
+        item.put("userCategory", category);
+        item.put("starText", toStars(rating));
+        item.put("commentText", commentText != null ? commentText : "");
+        return item;
     }
 
     private String toStars(RecipeRating rating) {
