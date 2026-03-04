@@ -1,5 +1,6 @@
 package com.glodea.arhome.repository;
 
+import java.util.List;
 import java.util.Optional;
 
 import org.springframework.data.jpa.repository.JpaRepository;
@@ -11,6 +12,8 @@ import com.glodea.arhome.entity.RecipeRating;
 public interface RecipeRatingRepository extends JpaRepository<RecipeRating, Long> {
 
     Optional<RecipeRating> findByRecipeIdAndUserId(Long recipeId, Long userId);
+
+    List<RecipeRating> findByRecipeId(Long recipeId);
 
     long countByRecipeId(Long recipeId);
 

@@ -2778,6 +2778,203 @@ a.recipes-media {
   border-color: #8a5236;
 }
 
+.recipe-reviews-list {
+  display: grid;
+  grid-template-columns: repeat(4, minmax(0, 1fr));
+  gap: 16px;
+}
+
+.recipe-user-review {
+  position: relative;
+  border-radius: 18px;
+  border: 1px solid rgba(201, 160, 122, 0.24);
+  background:
+    radial-gradient(circle at 50% 8%, rgba(210, 192, 178, 0.16), transparent 34%),
+    linear-gradient(180deg, rgba(55, 39, 30, 0.88) 0%, rgba(45, 30, 22, 0.88) 40%, rgba(39, 27, 20, 0.9) 100%);
+  overflow: hidden;
+  padding: 14px 14px 18px;
+}
+
+.recipe-user-review--illustrated {
+  border: 0;
+  padding: 0;
+  min-height: 0;
+  border-radius: 28px !important;
+  overflow: hidden;
+  background: #eadcc6 url('/img/review.png?v=4') center / 100% 100% no-repeat !important;
+  aspect-ratio: 31 / 36;
+  width: 100%;
+}
+
+.recipe-user-review::before {
+  content: "";
+  position: absolute;
+  left: 50%;
+  top: 52px;
+  transform: translateX(-50%);
+  width: 82%;
+  height: 12px;
+  border-radius: 999px;
+  background: rgba(166, 153, 145, 0.7);
+}
+
+.recipe-user-review--illustrated::before {
+  display: none;
+}
+
+.recipe-user-review-cap {
+  position: relative;
+  margin: 0 auto 14px;
+  width: min(92%, 560px);
+  border-radius: 999px 999px 20px 20px;
+  padding: 12px 18px;
+  background: linear-gradient(180deg, rgba(185, 172, 164, 0.95), rgba(150, 141, 136, 0.92));
+  border: 1px solid rgba(122, 112, 107, 0.65);
+  box-shadow: inset 0 -7px 12px rgba(88, 82, 78, 0.35);
+}
+
+.recipe-user-review--illustrated .recipe-user-review-cap {
+  position: absolute;
+  top: 26%;
+  left: 22%;
+  transform: rotate(11deg);
+  transform-origin: left center;
+  width: 52%;
+  margin: 0;
+  background: transparent;
+  border: 0;
+  box-shadow: none;
+  padding: 0;
+}
+
+.recipe-user-review-meta {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 10px;
+}
+
+.recipe-user-review--illustrated .recipe-user-review-meta {
+  display: grid;
+  gap: 1px;
+  justify-items: center;
+  align-items: center;
+  text-align: center;
+  width: 100%;
+}
+
+.recipe-user-review-name {
+  color: #2d2119;
+  font-weight: 700;
+  font-size: 0.98rem;
+}
+
+.recipe-user-review--illustrated .recipe-user-review-name {
+  color: #2a1d15;
+  text-shadow: 0 1px 0 rgba(255, 255, 255, 0.15);
+  font-size: 0.78rem;
+  font-weight: 800;
+  line-height: 1.05;
+  width: 100%;
+  text-align: center;
+  white-space: normal;
+  overflow-wrap: anywhere;
+}
+
+.recipe-user-review-category {
+  color: rgba(59, 44, 36, 0.84);
+  font-size: 0.65rem;
+  font-style: italic;
+  font-weight: 500;
+  line-height: 1;
+  white-space: nowrap;
+}
+
+.recipe-user-review--illustrated .recipe-user-review-category {
+  transform: translateY(1px);
+  width: 100%;
+  text-align: center;
+  white-space: normal;
+  overflow-wrap: anywhere;
+}
+
+.recipe-user-review-stars {
+  color: #f5c84f;
+  letter-spacing: 1px;
+  font-size: 0.95rem;
+}
+
+.recipe-user-review--illustrated .recipe-user-review-stars {
+  display: block;
+  font-size: 0.82rem;
+  letter-spacing: 0;
+  transform: translateY(5px);
+  width: 100%;
+  justify-self: center;
+  text-align: center;
+}
+
+.recipe-user-review-body {
+  position: relative;
+  margin: 0 auto;
+  width: min(88%, 560px);
+  min-height: 108px;
+  border-radius: 14px;
+  background: rgba(31, 22, 17, 0.55);
+  border: 1px dashed rgba(201, 160, 122, 0.3);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  text-align: center;
+  padding: 14px 16px;
+}
+
+.recipe-user-review--illustrated .recipe-user-review-body {
+  position: absolute;
+  left: 50%;
+  top: 64%;
+  transform: translateX(-50%);
+  width: 58%;
+  min-height: 24%;
+  border: 0;
+  border-radius: 0;
+  background: transparent;
+  padding: 2px 4px;
+}
+
+.recipe-user-review-body p {
+  margin: 0;
+  color: #e6d7c7;
+  line-height: 1.6;
+  font-size: 0.95rem;
+}
+
+.recipe-user-review--illustrated .recipe-user-review-body p {
+  color: #2f221a;
+  line-height: 1.2;
+  font-size: 0.67rem;
+  font-weight: 600;
+  font-style: italic;
+}
+
+@media (max-width: 1080px) {
+  .recipe-reviews-list {
+    grid-template-columns: repeat(3, minmax(0, 1fr));
+  }
+}
+
+@media (max-width: 900px) {
+  .recipe-reviews-list {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+  }
+}
+
+@media (max-width: 720px) {
+  .recipe-reviews-list {
+    grid-template-columns: 1fr;
+  }
+}
+
 @media (max-width: 900px) {
   .recipe-detail-header {
     grid-template-columns: 1fr;

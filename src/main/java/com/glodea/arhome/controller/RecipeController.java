@@ -16,8 +16,12 @@ import org.springframework.web.bind.annotation.RequestBody;
 import com.glodea.arhome.dto.RecipeCreateRequest;
 import com.glodea.arhome.dto.RecipeIngredientInput;
 import com.glodea.arhome.entity.RecipeIngredient;
+import com.glodea.arhome.entity.RecipeComment;
 import com.glodea.arhome.entity.Recipe;
+import com.glodea.arhome.entity.RecipeRating;
 import com.glodea.arhome.entity.User;
+import com.glodea.arhome.repository.RecipeCommentRepository;
+import com.glodea.arhome.repository.RecipeRatingRepository;
 import com.glodea.arhome.repository.UserRepository;
 import com.glodea.arhome.service.CloudinaryService;
 import com.glodea.arhome.service.RecipeService;
@@ -32,15 +36,21 @@ public class RecipeController {
 
     private final RecipeService recipeService;
     private final UserRepository userRepository;
+    private final RecipeCommentRepository recipeCommentRepository;
+    private final RecipeRatingRepository recipeRatingRepository;
     private final CloudinaryService cloudinaryService;
 
     public RecipeController(
         RecipeService recipeService,
         UserRepository userRepository,
+        RecipeCommentRepository recipeCommentRepository,
+        RecipeRatingRepository recipeRatingRepository,
         CloudinaryService cloudinaryService
     ) {
         this.recipeService = recipeService;
         this.userRepository = userRepository;
+        this.recipeCommentRepository = recipeCommentRepository;
+        this.recipeRatingRepository = recipeRatingRepository;
         this.cloudinaryService = cloudinaryService;
     }
 
@@ -129,6 +139,7 @@ public class RecipeController {
         model.addAttribute("authorCategory", recipe.getUser().getCategory());
         model.addAttribute("recipeAverageRating", recipeService.getAverageRatingForRecipe(id));
         model.addAttribute("recipeRatingCount", recipeService.getRatingCountForRecipe(id));
+        model.addAttribute("reviewItems", buildReviewItems(id));
         model.addAttribute("isOwnRecipe", isOwnRecipe);
         return "recipe-detail";
     }
@@ -368,5 +379,58 @@ public class RecipeController {
             tags.addAll(recipe.getNutritionTags());
         }
         return tags;
+    }
+
+    private List<java.util.Map<String, Object>> buildReviewItems(Long recipeId) {
+        if (recipeId == null) {
+            return List.of();
+        }
+
+        List<RecipeComment> comments = recipeCommentRepository.findByRecipeIdOrderByCreatedAtDesc(recipeId);
+        if (comments.isEmpty()) {
+            return List.of();
+        }
+
+        java.util.Map<Long, RecipeRating> ratingsByUser = recipeRatingRepository.findByRecipeId(recipeId)
+            .stream()
+            .filter(rating -> rating.getUser() != null && rating.getUser().getId() != null)
+            .collect(java.util.stream.Collectors.toMap(
+                rating -> rating.getUser().getId(),
+                rating -> rating,
+                (left, right) -> right
+            ));
+
+        return comments.stream()
+            .map(comment -> {
+                java.util.Map<String, Object> item = new java.util.HashMap<>();
+                User author = comment.getUser();
+                String name = author != null && author.getFullName() != null && !author.getFullName().isBlank()
+                    ? author.getFullName()
+                    : "Anonymous";
+                String category = author != null ? author.getCategory() : null;
+                if (category == null || category.isBlank() || "Unselected".equalsIgnoreCase(category)) {
+                    category = "young&hungry";
+                }
+
+                RecipeRating rating = author != null && author.getId() != null
+                    ? ratingsByUser.get(author.getId())
+                    : null;
+
+                item.put("userName", name);
+                item.put("userCategory", category);
+                item.put("starText", toStars(rating));
+                item.put("commentText", comment.getCommentText());
+                return item;
+            })
+            .toList();
+    }
+
+    private String toStars(RecipeRating rating) {
+        if (rating == null || rating.getRatingValue() == null) {
+            return "☆☆☆☆☆";
+        }
+        int rounded = (int) Math.round(rating.getRatingValue().doubleValue());
+        int stars = Math.max(0, Math.min(5, rounded));
+        return "★".repeat(stars) + "☆".repeat(5 - stars);
     }
 }
