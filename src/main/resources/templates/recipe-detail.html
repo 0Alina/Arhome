@@ -123,59 +123,7 @@
             </div>
             </div>
 
-            <div class="recipe-reviews-list" th:if="${reviewItems == null || #lists.isEmpty(reviewItems)}">
-              <article class="recipe-user-review recipe-user-review--illustrated">
-                <div class="recipe-user-review-cap">
-                  <div class="recipe-user-review-meta">
-                    <span class="recipe-user-review-name">Maria Popescu</span>
-                    <span class="recipe-user-review-category">young&hungry</span>
-                    <span class="recipe-user-review-stars" aria-label="4 stars">⭐⭐⭐⭐</span>
-                  </div>
-                </div>
-                <div class="recipe-user-review-body">
-                  <p>Very balanced flavor and easy to follow steps. I reduced sugar a little and it still turned out amazing.</p>
-                </div>
-              </article>
-
-              <article class="recipe-user-review recipe-user-review--illustrated">
-                <div class="recipe-user-review-cap">
-                  <div class="recipe-user-review-meta">
-                    <span class="recipe-user-review-name">Andrei Ionescu</span>
-                    <span class="recipe-user-review-category">young&hungry</span>
-                    <span class="recipe-user-review-stars" aria-label="5 stars">⭐⭐⭐⭐⭐</span>
-                  </div>
-                </div>
-                <div class="recipe-user-review-body">
-                  <p>Made this for dinner and everyone loved it. The texture and aroma were perfect, definitely repeating.</p>
-                </div>
-              </article>
-
-              <article class="recipe-user-review recipe-user-review--illustrated">
-                <div class="recipe-user-review-cap">
-                  <div class="recipe-user-review-meta">
-                    <span class="recipe-user-review-name">Ioana Georgescu</span>
-                    <span class="recipe-user-review-category">young&hungry</span>
-                    <span class="recipe-user-review-stars" aria-label="4 stars">⭐⭐⭐⭐</span>
-                  </div>
-                </div>
-                <div class="recipe-user-review-body">
-                  <p>Quick recipe, clear steps and super tasty result. I will make it again this weekend.</p>
-                </div>
-              </article>
-
-              <article class="recipe-user-review recipe-user-review--illustrated">
-                <div class="recipe-user-review-cap">
-                  <div class="recipe-user-review-meta">
-                    <span class="recipe-user-review-name">Radu Dumitrescu</span>
-                    <span class="recipe-user-review-category">young&hungry</span>
-                    <span class="recipe-user-review-stars" aria-label="5 stars">⭐⭐⭐⭐⭐</span>
-                  </div>
-                </div>
-                <div class="recipe-user-review-body">
-                  <p>Great balance of flavor and texture, and the timing was exactly right on first try.</p>
-                </div>
-              </article>
-            </div>
+            <p class="recipe-feedback-note" th:if="${reviewItems == null || #lists.isEmpty(reviewItems)}">No reviews yet.</p>
 
             <div class="recipe-reviews-list" th:if="${reviewItems != null && !#lists.isEmpty(reviewItems)}">
               <article class="recipe-user-review recipe-user-review--illustrated" th:each="review : ${reviewItems}">
