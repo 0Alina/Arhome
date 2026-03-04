@@ -8,6 +8,8 @@ import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.ModelAttribute;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PostMapping;
+import org.springframework.web.bind.annotation.PutMapping;
+import org.springframework.web.bind.annotation.DeleteMapping;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.ResponseBody;
@@ -194,10 +196,89 @@ public class RecipeController {
 
         if (!commentText.isBlank()) {
             RecipeRating rating = recipeRatingRepository.findByRecipeIdAndUserId(id, user.getId()).orElse(null);
-            response.put("reviewItem", buildReviewItem(user, commentText, rating));
+            Long latestCommentId = recipeCommentRepository.findTopByRecipeIdAndUserIdOrderByCreatedAtDesc(id, user.getId())
+                .map(RecipeComment::getId)
+                .orElse(null);
+            response.put("reviewItem", buildReviewItem(user, commentText, rating, user.getId(), latestCommentId));
         }
 
         return org.springframework.http.ResponseEntity.ok(response);
+    }
+
+    @PutMapping("/{id}/review/{commentId}")
+    @ResponseBody
+    public org.springframework.http.ResponseEntity<java.util.Map<String, Object>> updateOwnReviewComment(
+        @PathVariable("id") Long recipeId,
+        @PathVariable("commentId") Long commentId,
+        @RequestBody java.util.Map<String, Object> payload
+    ) {
+        User user = getCurrentUser();
+        if (user == null || user.getId() == null) {
+            return org.springframework.http.ResponseEntity.status(401)
+                .body(java.util.Map.of("ok", false, "message", "Authentication required."));
+        }
+
+        String commentText = payload.get("comment") != null ? payload.get("comment").toString().trim() : "";
+        Double ratingValue = parseDouble(payload.get("rating"));
+        if (commentText.isBlank()) {
+            return org.springframework.http.ResponseEntity.badRequest()
+                .body(java.util.Map.of("ok", false, "message", "Comment is required."));
+        }
+
+        RecipeComment comment = recipeCommentRepository.findByIdAndRecipeId(commentId, recipeId).orElse(null);
+        if (comment == null) {
+            return org.springframework.http.ResponseEntity.status(404)
+                .body(java.util.Map.of("ok", false, "message", "Review not found."));
+        }
+
+        Long ownerId = comment.getUser() != null ? comment.getUser().getId() : null;
+        if (ownerId == null || !ownerId.equals(user.getId())) {
+            return org.springframework.http.ResponseEntity.status(403)
+                .body(java.util.Map.of("ok", false, "message", "You can edit only your own review."));
+        }
+
+        comment.setCommentText(commentText);
+        recipeCommentRepository.save(comment);
+
+        if (ratingValue != null) {
+            recipeService.saveRecipeRating(user, recipeId, ratingValue);
+        }
+
+        RecipeRating rating = recipeRatingRepository.findByRecipeIdAndUserId(recipeId, user.getId()).orElse(null);
+        java.util.Map<String, Object> response = new java.util.HashMap<>();
+        response.put("ok", true);
+        response.put("reviewItem", buildReviewItem(user, commentText, rating, user.getId(), comment.getId()));
+        response.put("averageRating", recipeService.getAverageRatingForRecipe(recipeId));
+        response.put("ratingCount", recipeService.getRatingCountForRecipe(recipeId));
+        return org.springframework.http.ResponseEntity.ok(response);
+    }
+
+    @DeleteMapping("/{id}/review/{commentId}")
+    @ResponseBody
+    public org.springframework.http.ResponseEntity<java.util.Map<String, Object>> deleteOwnReviewComment(
+        @PathVariable("id") Long recipeId,
+        @PathVariable("commentId") Long commentId
+    ) {
+        User user = getCurrentUser();
+        if (user == null || user.getId() == null) {
+            return org.springframework.http.ResponseEntity.status(401)
+                .body(java.util.Map.of("ok", false, "message", "Authentication required."));
+        }
+
+        RecipeComment comment = recipeCommentRepository.findByIdAndRecipeId(commentId, recipeId).orElse(null);
+        if (comment == null) {
+            return org.springframework.http.ResponseEntity.status(404)
+                .body(java.util.Map.of("ok", false, "message", "Review not found."));
+        }
+
+        Long ownerId = comment.getUser() != null ? comment.getUser().getId() : null;
+        if (ownerId == null || !ownerId.equals(user.getId())) {
+            return org.springframework.http.ResponseEntity.status(403)
+                .body(java.util.Map.of("ok", false, "message", "You can delete only your own review."));
+        }
+
+        recipeCommentRepository.delete(comment);
+        return org.springframework.http.ResponseEntity.ok(java.util.Map.of("ok", true, "deletedCommentId", commentId));
     }
 
     @PostMapping("/{id}/edit")
@@ -415,7 +496,7 @@ public class RecipeController {
                 RecipeRating rating = author != null && author.getId() != null
                     ? ratingsByUser.get(author.getId())
                     : null;
-                return buildReviewItem(author, comment.getCommentText(), rating);
+                return buildReviewItem(author, comment.getCommentText(), rating, currentUserId, comment.getId());
             })
             .toList();
     }
@@ -447,8 +528,15 @@ public class RecipeController {
         return ordered;
     }
 
-    private java.util.Map<String, Object> buildReviewItem(User author, String commentText, RecipeRating rating) {
+    private java.util.Map<String, Object> buildReviewItem(
+        User author,
+        String commentText,
+        RecipeRating rating,
+        Long currentUserId,
+        Long commentId
+    ) {
         java.util.Map<String, Object> item = new java.util.HashMap<>();
+        Long authorId = author != null ? author.getId() : null;
         String name = author != null && author.getFullName() != null && !author.getFullName().isBlank()
             ? author.getFullName()
             : "Anonymous";
@@ -457,6 +545,8 @@ public class RecipeController {
         item.put("userCategory", category);
         item.put("starText", toStars(rating));
         item.put("commentText", commentText != null ? commentText : "");
+        item.put("commentId", commentId);
+        item.put("ownReview", currentUserId != null && authorId != null && currentUserId.equals(authorId));
         return item;
     }
 

@@ -2822,6 +2822,58 @@ a.recipes-media {
   display: none;
 }
 
+.recipe-review-actions {
+  position: absolute;
+  top: 14px;
+  left: 14px;
+  z-index: 2;
+  display: flex;
+  align-items: center;
+  gap: 6px;
+}
+
+.recipe-review-action {
+  width: 36px;
+  height: 36px;
+  border-radius: 999px;
+  border: 1px solid rgba(166, 108, 56, 0.75);
+  background: rgba(166, 127, 88, 0.92);
+  padding: 0;
+  display: grid;
+  place-items: center;
+  cursor: pointer;
+}
+
+.recipe-review-action svg {
+  width: 20px;
+  height: 20px;
+  display: block;
+  fill: none;
+  stroke: currentColor;
+  stroke-width: 1.7;
+  stroke-linecap: round;
+  stroke-linejoin: round;
+}
+
+.recipe-review-action--edit {
+  color: #e2b37a;
+}
+
+.recipe-review-action--delete {
+  border-color: rgba(152, 64, 58, 0.8);
+  color: #9f2f2a;
+}
+
+.recipe-review-action--delete svg {
+  width: 18px;
+  height: 18px;
+}
+
+.recipe-review-action:hover,
+.recipe-review-action:focus {
+  border-color: #e1b48e;
+}
+
 .recipe-user-review-cap {
   position: relative;
   margin: 0 auto 14px;

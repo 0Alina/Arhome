@@ -126,7 +126,20 @@
             <p class="recipe-feedback-note" data-no-reviews th:if="${reviewItems == null || #lists.isEmpty(reviewItems)}">No reviews yet.</p>
 
             <div class="recipe-reviews-list" data-review-list th:if="${reviewItems != null && !#lists.isEmpty(reviewItems)}">
-              <article class="recipe-user-review recipe-user-review--illustrated" th:each="review : ${reviewItems}">
+              <article class="recipe-user-review recipe-user-review--illustrated" th:each="review : ${reviewItems}" th:attr="data-comment-id=${review.commentId}">
+                <div class="recipe-review-actions" th:if="${review.ownReview}">
+                  <button type="button" class="recipe-review-action recipe-review-action--edit" data-review-edit aria-label="Edit review">
+                    <svg viewBox="0 0 24 24" aria-hidden="true">
+                      <path d="M4 20l3.8-.8L19 8l-3-3L4.8 16.2 4 20z" />
+                      <path d="M14.5 6.5l3 3" />
+                    </svg>
+                  </button>
+                  <button type="button" class="recipe-review-action recipe-review-action--delete" data-review-delete aria-label="Delete review">
+                    <svg viewBox="0 0 24 24" aria-hidden="true">
+                      <path d="m14.74 9-.346 9m-4.788 0L9.26 9m9.968-3.21c.342.052.682.107 1.022.166m-1.022-.165L18.16 19.673a2.25 2.25 0 0 1-2.244 2.077H8.084a2.25 2.25 0 0 1-2.244-2.077L4.772 5.79m14.456 0a48.108 48.108 0 0 0-3.478-.397m-12 .562c.34-.059.68-.114 1.022-.165m0 0a48.11 48.11 0 0 1 3.478-.397m7.5 0v-.916c0-1.18-.91-2.164-2.09-2.201a51.964 51.964 0 0 0-3.32 0c-1.18.037-2.09 1.022-2.09 2.201v.916m7.5 0a48.667 48.667 0 0 0-7.5 0" />
+                    </svg>
+                  </button>
+                </div>
                 <div class="recipe-user-review-cap">
                   <div class="recipe-user-review-meta">
                     <span class="recipe-user-review-name" th:text="${review.userName}">User Name</span>
@@ -161,8 +174,10 @@
         const summaryAverage = document.querySelector("[data-rating-average]");
         const summaryCount = document.querySelector("[data-rating-count]");
         const reviewSection = document.querySelector(".recipe-review-section");
-        const noReviewsNote = document.querySelector("[data-no-reviews]");
+        const noReviewsNote = () => document.querySelector("[data-no-reviews]");
         let activePanel = "rating";
+        let editingCommentId = null;
+        let editingArticle = null;
 
         const escapeHtml = (value) =>
           (value || "")
@@ -179,12 +194,34 @@
           list = document.createElement("div");
           list.className = "recipe-reviews-list";
           list.setAttribute("data-review-list", "");
-          if (noReviewsNote && noReviewsNote.parentNode === reviewSection) {
-            reviewSection.insertBefore(list, noReviewsNote.nextSibling);
+          const note = noReviewsNote();
+          if (note && note.parentNode === reviewSection) {
+            reviewSection.insertBefore(list, note.nextSibling);
           } else {
             reviewSection.appendChild(list);
           }
           return list;
+        };
+
+        const ownActionsHtml = (reviewItem) => {
+          if (!reviewItem || !reviewItem.ownReview) {
+            return "";
+          }
+          return `
+            <div class="recipe-review-actions">
+              <button type="button" class="recipe-review-action recipe-review-action--edit" data-review-edit aria-label="Edit review">
+                <svg viewBox="0 0 24 24" aria-hidden="true">
+                  <path d="M4 20l3.8-.8L19 8l-3-3L4.8 16.2 4 20z" />
+                  <path d="M14.5 6.5l3 3" />
+                </svg>
+              </button>
+              <button type="button" class="recipe-review-action recipe-review-action--delete" data-review-delete aria-label="Delete review">
+                <svg viewBox="0 0 24 24" aria-hidden="true">
+                  <path d="m14.74 9-.346 9m-4.788 0L9.26 9m9.968-3.21c.342.052.682.107 1.022.166m-1.022-.165L18.16 19.673a2.25 2.25 0 0 1-2.244 2.077H8.084a2.25 2.25 0 0 1-2.244-2.077L4.772 5.79m14.456 0a48.108 48.108 0 0 0-3.478-.397m-12 .562c.34-.059.68-.114 1.022-.165m0 0a48.11 48.11 0 0 1 3.478-.397m7.5 0v-.916c0-1.18-.91-2.164-2.09-2.201a51.964 51.964 0 0 0-3.32 0c-1.18.037-2.09 1.022-2.09 2.201v.916m7.5 0a48.667 48.667 0 0 0-7.5 0" />
+                </svg>
+              </button>
+            </div>
+          `;
         };
 
         const prependReviewCard = (reviewItem) => {
@@ -193,11 +230,15 @@
           if (!list) return;
           const article = document.createElement("article");
           article.className = "recipe-user-review recipe-user-review--illustrated";
+          if (reviewItem.commentId) {
+            article.setAttribute("data-comment-id", String(reviewItem.commentId));
+          }
           article.innerHTML = `
+            ${ownActionsHtml(reviewItem)}
             <div class="recipe-user-review-cap">
               <div class="recipe-user-review-meta">
                 <span class="recipe-user-review-name">${escapeHtml(reviewItem.userName || "Anonymous")}</span>
-                <span class="recipe-user-review-category">${escapeHtml(reviewItem.userCategory || "young&hungry")}</span>
+                <span class="recipe-user-review-category">${escapeHtml(reviewItem.userCategory || "Young & Hungry")}</span>
                 <span class="recipe-user-review-stars">${escapeHtml(reviewItem.starText || "")}</span>
               </div>
             </div>
@@ -206,10 +247,96 @@
             </div>
           `;
           list.prepend(article);
-          if (noReviewsNote) {
-            noReviewsNote.remove();
+          const note = noReviewsNote();
+          if (note) {
+            note.remove();
           }
         };
+
+        const updateReviewCard = (article, reviewItem) => {
+          if (!(article instanceof HTMLElement) || !reviewItem) return;
+          const textNode = article.querySelector(".recipe-user-review-body p");
+          const starsNode = article.querySelector(".recipe-user-review-stars");
+          if (textNode) {
+            textNode.textContent = reviewItem.commentText || "";
+          }
+          if (starsNode) {
+            starsNode.textContent = reviewItem.starText || "";
+          }
+        };
+
+        const ensureNoReviewsMessage = () => {
+          const list = document.querySelector("[data-review-list]");
+          const hasCards = !!(list && list.querySelector(".recipe-user-review--illustrated"));
+          if (hasCards) {
+            const existing = noReviewsNote();
+            if (existing) existing.remove();
+            return;
+          }
+          if (noReviewsNote() || !reviewSection) return;
+          const note = document.createElement("p");
+          note.className = "recipe-feedback-note";
+          note.setAttribute("data-no-reviews", "");
+          note.textContent = "No reviews yet.";
+          reviewSection.appendChild(note);
+        };
+
+        if (reviewSection) {
+          reviewSection.addEventListener("click", (event) => {
+            const target = event.target;
+            if (!(target instanceof Element)) return;
+
+            const editButton = target.closest("[data-review-edit]");
+            const deleteButton = target.closest("[data-review-delete]");
+            if (!editButton && !deleteButton) return;
+
+            const article = target.closest("[data-comment-id]");
+            if (!(article instanceof HTMLElement)) return;
+            const commentId = article.getAttribute("data-comment-id");
+            if (!commentId) return;
+
+            if (editButton) {
+              const textNode = article.querySelector(".recipe-user-review-body p");
+              if (!(textNode instanceof HTMLElement) || !(commentInput instanceof HTMLTextAreaElement)) return;
+
+              const starsNode = article.querySelector(".recipe-user-review-stars");
+              const starsText = (starsNode && starsNode.textContent ? starsNode.textContent : "").trim();
+              const starCount = Math.max(0, Math.min(5, (starsText.match(/⭐/g) || []).length));
+
+              editingCommentId = commentId;
+              editingArticle = article;
+              commentInput.value = (textNode.textContent || "").trim();
+              selectedRating = starCount > 0 ? starCount : selectedRating;
+              hoverRating = null;
+              paintStars(selectedRating);
+              activatePanel("comment");
+              commentInput.focus();
+              return;
+            }
+
+            fetch(`/recipes/${recipeId}/review/${commentId}`, {
+              method: "DELETE",
+              headers: {
+                [csrfHeader]: csrfToken,
+              },
+            })
+              .then((res) => (res.ok ? res.json() : Promise.reject(new Error("Could not delete review."))))
+              .then((data) => {
+                if (!data || !data.ok) {
+                  throw new Error((data && data.message) || "Could not delete review.");
+                }
+                article.remove();
+                ensureNoReviewsMessage();
+                if (editingCommentId && String(editingCommentId) === String(commentId)) {
+                  editingCommentId = null;
+                  editingArticle = null;
+                }
+              })
+              .catch((error) => {
+                console.error(error);
+              });
+          });
+        }
 
         const activatePanel = (panelName) => {
           activePanel = panelName;
@@ -309,13 +436,22 @@
             }
 
             postButton.disabled = true;
-            fetch(`/recipes/${recipeId}/review`, {
-              method: "POST",
+            const isEditing = !!editingCommentId;
+            const endpoint = isEditing
+              ? `/recipes/${recipeId}/review/${editingCommentId}`
+              : `/recipes/${recipeId}/review`;
+            const method = isEditing ? "PUT" : "POST";
+            const body = isEditing
+              ? JSON.stringify({ rating: selectedRating, comment })
+              : JSON.stringify({ mode: "both", rating: selectedRating, comment });
+
+            fetch(endpoint, {
+              method,
               headers: {
                 "Content-Type": "application/json",
                 [csrfHeader]: csrfToken,
               },
-              body: JSON.stringify({ mode: "both", rating: selectedRating, comment }),
+              body,
             })
               .then((res) => (res.ok ? res.json() : Promise.reject(new Error("Could not save review."))))
               .then((data) => {
@@ -329,13 +465,18 @@
                   summaryCount.textContent = `${data.ratingCount} ratings`;
                 }
                 if (data.reviewItem && typeof data.reviewItem === "object") {
-                  prependReviewCard(data.reviewItem);
+                  if (editingCommentId && editingArticle) {
+                    updateReviewCard(editingArticle, data.reviewItem);
+                  } else {
+                    prependReviewCard(data.reviewItem);
+                  }
                 }
-                if (feedbackNote) feedbackNote.textContent = "Review posted (rating + comment).";
                 commentInput.value = "";
                 selectedRating = 0;
                 hoverRating = null;
                 paintStars(0);
+                editingCommentId = null;
+                editingArticle = null;
               })
               .catch((error) => {
                 if (feedbackNote) feedbackNote.textContent = error.message || "Could not save review.";
