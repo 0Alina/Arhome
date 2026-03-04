@@ -471,13 +471,48 @@ public class RecipeController {
 
     private String normalizeReviewCategory(String rawCategory) {
         if (rawCategory == null || rawCategory.isBlank() || "Unselected".equalsIgnoreCase(rawCategory)) {
-            return "young&hungry";
+            return "Young & Hungry";
         }
 
         String normalized = rawCategory.trim().toLowerCase();
         normalized = normalized.replaceAll("\\s*\\(.*\\)\\s*$", "");
-        normalized = normalized.replaceAll("\\s*&\\s*", "&");
-        normalized = normalized.replaceAll("\\s+", "");
-        return normalized.isBlank() ? "young&hungry" : normalized;
+        normalized = normalized.replaceAll("\\s*&\\s*", " & ");
+        normalized = normalized.replaceAll("[_-]+", " ");
+        normalized = normalized.replaceAll("\\s+", " ").trim();
+
+        if (normalized.isBlank()) {
+            return "Young & Hungry";
+        }
+
+        String compact = normalized.replace(" ", "");
+        return switch (compact) {
+            case "young&hungry" -> "Young & Hungry";
+            case "grandma'sclassics", "grandmasclassics" -> "Grandma's Classics";
+            case "homecooks" -> "Home Cooks";
+            default -> toTitleCase(normalized);
+        };
+    }
+
+    private String toTitleCase(String value) {
+        if (value == null || value.isBlank()) {
+            return "";
+        }
+
+        StringBuilder builder = new StringBuilder(value.length());
+        boolean capitalizeNext = true;
+        for (char ch : value.toCharArray()) {
+            if (Character.isLetter(ch)) {
+                if (capitalizeNext) {
+                    builder.append(Character.toUpperCase(ch));
+                    capitalizeNext = false;
+                } else {
+                    builder.append(Character.toLowerCase(ch));
+                }
+            } else {
+                builder.append(ch);
+                capitalizeNext = ch == ' ' || ch == '&' || ch == '\'';
+            }
+        }
+        return builder.toString().trim();
     }
 }
