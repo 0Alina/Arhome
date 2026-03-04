@@ -139,7 +139,7 @@ public class RecipeController {
         model.addAttribute("authorCategory", recipe.getUser().getCategory());
         model.addAttribute("recipeAverageRating", recipeService.getAverageRatingForRecipe(id));
         model.addAttribute("recipeRatingCount", recipeService.getRatingCountForRecipe(id));
-        model.addAttribute("reviewItems", buildReviewItems(id));
+        model.addAttribute("reviewItems", buildReviewItems(id, currentUser != null ? currentUser.getId() : null));
         model.addAttribute("isOwnRecipe", isOwnRecipe);
         return "recipe-detail";
     }
@@ -387,12 +387,15 @@ public class RecipeController {
         return tags;
     }
 
-    private List<java.util.Map<String, Object>> buildReviewItems(Long recipeId) {
+    private List<java.util.Map<String, Object>> buildReviewItems(Long recipeId, Long currentUserId) {
         if (recipeId == null) {
             return List.of();
         }
 
-        List<RecipeComment> comments = recipeCommentRepository.findByRecipeIdOrderByCreatedAtDesc(recipeId);
+        List<RecipeComment> comments = prioritizeOwnComments(
+            recipeCommentRepository.findByRecipeIdOrderByCreatedAtDesc(recipeId),
+            currentUserId
+        );
         if (comments.isEmpty()) {
             return List.of();
         }
@@ -415,6 +418,33 @@ public class RecipeController {
                 return buildReviewItem(author, comment.getCommentText(), rating);
             })
             .toList();
+    }
+
+    private List<RecipeComment> prioritizeOwnComments(List<RecipeComment> comments, Long currentUserId) {
+        if (comments == null || comments.isEmpty() || currentUserId == null) {
+            return comments != null ? comments : List.of();
+        }
+
+        List<RecipeComment> ownComments = new java.util.ArrayList<>();
+        List<RecipeComment> otherComments = new java.util.ArrayList<>();
+
+        for (RecipeComment comment : comments) {
+            Long authorId = comment != null && comment.getUser() != null ? comment.getUser().getId() : null;
+            if (authorId != null && authorId.equals(currentUserId)) {
+                ownComments.add(comment);
+            } else {
+                otherComments.add(comment);
+            }
+        }
+
+        if (ownComments.isEmpty()) {
+            return comments;
+        }
+
+        List<RecipeComment> ordered = new java.util.ArrayList<>(comments.size());
+        ordered.addAll(ownComments);
+        ordered.addAll(otherComments);
+        return ordered;
     }
 
     private java.util.Map<String, Object> buildReviewItem(User author, String commentText, RecipeRating rating) {
