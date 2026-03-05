@@ -58,8 +58,8 @@
                 <p><strong>Best for:</strong> vegetarian / flexitarian diets</p>
                 <p><strong>Focus:</strong> plant protein &amp; whole foods</p>
               </article>
-              <button class="diet-type-cta" type="button">Personalize your own diet</button>
             </div>
+            <button class="diet-type-cta" type="button" data-open-plans-customize>Personalize your own diet</button>
           </article>
           <article class="plans-panel plans-panel--narrow">
             <h2>Diet Details</h2>
@@ -70,6 +70,117 @@
         </div>
       </section>
     </main>
+
+    <div class="plans-customize-modal" data-plans-modal aria-hidden="true">
+      <button class="plans-customize-backdrop" type="button" data-plans-close aria-label="Close"></button>
+      <section class="plans-customize-card" role="dialog" aria-modal="true" aria-labelledby="plans-customize-title">
+        <header class="plans-customize-header">
+          <h2 id="plans-customize-title">Personalize your own diet</h2>
+          <button class="plans-customize-close" type="button" data-plans-close aria-label="Close">x</button>
+        </header>
+
+        <nav class="plans-customize-tabs" aria-label="Personalization sections">
+          <button type="button" class="plans-tab is-active" data-plans-tab="goal">Goal</button>
+          <button type="button" class="plans-tab" data-plans-tab="restrictions">Restrictions</button>
+          <button type="button" class="plans-tab" data-plans-tab="preferences">Preferences</button>
+          <button type="button" class="plans-tab" data-plans-tab="lifestyle">Lifestyle</button>
+        </nav>
+
+        <div class="plans-tab-panels">
+          <section class="plans-tab-panel is-active" data-plans-panel="goal">
+            <p class="plans-panel-intro">What would you like to achieve?</p>
+            <div class="plans-goal-grid">
+              <label class="plans-choice-card plans-choice-card--photo plans-choice-card--weight"><input type="checkbox" name="goal" value="Lose weight" /><span>Lose weight</span></label>
+              <label class="plans-choice-card plans-choice-card--photo plans-choice-card--muscle"><input type="checkbox" name="goal" value="Build muscle" /><span>Build muscle</span></label>
+              <label class="plans-choice-card plans-choice-card--photo plans-choice-card--balanced"><input type="checkbox" name="goal" value="Eat a balanced diet" /><span>Eat a balanced diet</span></label>
+              <label class="plans-choice-card plans-choice-card--photo plans-choice-card--protein"><input type="checkbox" name="goal" value="Eat more protein" /><span>Eat more protein</span></label>
+              <label class="plans-choice-card plans-choice-card--photo plans-choice-card--fiber"><input type="checkbox" name="goal" value="Eat more fiber" /><span>Eat more fiber</span></label>
+              <label class="plans-choice-card plans-choice-card--photo plans-choice-card--carbs"><input type="checkbox" name="goal" value="Reduce carbs" /><span>Reduce carbs</span></label>
+            </div>
+          </section>
+
+          <section class="plans-tab-panel" data-plans-panel="restrictions" hidden>
+            <p class="plans-panel-intro">Foods you need to avoid</p>
+            <div class="plans-two-col-grid">
+              <article class="plans-box">
+                <h3>Food allergies</h3>
+                <label><input type="checkbox" name="allergy" value="Nuts" /> Nuts</label>
+                <label><input type="checkbox" name="allergy" value="Dairy" /> Dairy</label>
+                <label><input type="checkbox" name="allergy" value="Gluten" /> Gluten</label>
+                <label><input type="checkbox" name="allergy" value="Eggs" /> Eggs</label>
+                <label><input type="checkbox" name="allergy" value="Shellfish" /> Shellfish</label>
+                <label><input type="checkbox" name="allergy" value="Soy" /> Soy</label>
+              </article>
+              <article class="plans-box">
+                <h3>Dietary preferences</h3>
+                <label><input type="checkbox" name="dietaryPreference" value="Vegetarian" /> Vegetarian</label>
+                <label><input type="checkbox" name="dietaryPreference" value="Vegan" /> Vegan</label>
+                <label><input type="checkbox" name="dietaryPreference" value="Gluten-free" /> Gluten-free</label>
+                <label><input type="checkbox" name="dietaryPreference" value="Lactose-free" /> Lactose-free</label>
+              </article>
+            </div>
+          </section>
+
+          <section class="plans-tab-panel" data-plans-panel="preferences" hidden>
+            <p class="plans-panel-intro">Your food preferences</p>
+            <div class="plans-two-col-grid">
+              <article class="plans-box">
+                <h3>Foods you enjoy</h3>
+                <div class="plans-food-list" data-food-list="enjoy"></div>
+                <div class="plans-food-add-row">
+                  <input type="text" data-food-input="enjoy" placeholder="Add food" />
+                  <button type="button" data-food-add="enjoy">Add food</button>
+                </div>
+              </article>
+              <article class="plans-box">
+                <h3>Foods you'd like to avoid</h3>
+                <div class="plans-food-list" data-food-list="avoid"></div>
+                <div class="plans-food-add-row">
+                  <input type="text" data-food-input="avoid" placeholder="Add food" />
+                  <button type="button" data-food-add="avoid">Add food</button>
+                </div>
+              </article>
+            </div>
+          </section>
+
+          <section class="plans-tab-panel" data-plans-panel="lifestyle" hidden>
+            <p class="plans-panel-intro">Your cooking habits</p>
+            <div class="plans-lifestyle-grid">
+              <article class="plans-box">
+                <h3>REGION</h3>
+                <label><input type="checkbox" name="region" value="American" /> American</label>
+                <label><input type="checkbox" name="region" value="Asian" /> Asian</label>
+                <label><input type="checkbox" name="region" value="European" /> European</label>
+                <label><input type="checkbox" name="region" value="Mexican" /> Mexican</label>
+              </article>
+              <article class="plans-box">
+                <h3>TIME</h3>
+                <label><input type="checkbox" name="time" value="< 15 min" /> &lt; 15 min</label>
+                <label><input type="checkbox" name="time" value="15 min - 30 min" /> 15 min - 30 min</label>
+                <label><input type="checkbox" name="time" value="30 min - 1h" /> 30 min - 1h</label>
+                <label><input type="checkbox" name="time" value="> 2h" /> &gt; 2h</label>
+              </article>
+              <article class="plans-box">
+                <h3>INCLUDE STYLE</h3>
+                <label><input type="checkbox" name="style" value="No cook" /> No cook</label>
+                <label><input type="checkbox" name="style" value="One pot" /> One pot</label>
+                <label><input type="checkbox" name="style" value="Budget" /> Budget</label>
+              </article>
+              <article class="plans-box">
+                <h3>MEALS PER DAY</h3>
+                <label><input type="checkbox" name="mealsPerDay" value="3 meals" /> 3 meals</label>
+                <label><input type="checkbox" name="mealsPerDay" value="4 meals" /> 4 meals</label>
+                <label><input type="checkbox" name="mealsPerDay" value="5 meals" /> 5 meals</label>
+              </article>
+            </div>
+            <div class="plans-create-diet-row">
+              <button type="button" class="plans-create-diet-btn" data-create-diet>Create diet</button>
+            </div>
+          </section>
+        </div>
+      </section>
+    </div>
+
     <div th:replace="~{fragments :: auth-modals}"></div>
     <div th:replace="~{fragments :: footer}"></div>
     <script>
@@ -208,6 +319,90 @@
               "Emphasizes fiber and micronutrients, with plant-based protein sources.",
           },
         };
+
+        const personalizeOpen = document.querySelector("[data-open-plans-customize]");
+        const personalizeModal = document.querySelector("[data-plans-modal]");
+        const personalizeCloseButtons = document.querySelectorAll("[data-plans-close]");
+        const tabButtons = document.querySelectorAll("[data-plans-tab]");
+        const tabPanels = document.querySelectorAll("[data-plans-panel]");
+        const foodAddButtons = document.querySelectorAll("[data-food-add]");
+        const createDietButton = document.querySelector("[data-create-diet]");
+
+        const setTab = (tabName) => {
+          tabButtons.forEach((btn) => {
+            const active = btn.getAttribute("data-plans-tab") === tabName;
+            btn.classList.toggle("is-active", active);
+          });
+          tabPanels.forEach((panel) => {
+            const active = panel.getAttribute("data-plans-panel") === tabName;
+            panel.classList.toggle("is-active", active);
+            panel.toggleAttribute("hidden", !active);
+          });
+        };
+
+        const openModal = () => {
+          if (!personalizeModal) return;
+          personalizeModal.setAttribute("aria-hidden", "false");
+          document.body.classList.add("plans-modal-open");
+        };
+
+        const closeModal = () => {
+          if (!personalizeModal) return;
+          personalizeModal.setAttribute("aria-hidden", "true");
+          document.body.classList.remove("plans-modal-open");
+        };
+
+        const addFoodItem = (kind) => {
+          const input = document.querySelector(`[data-food-input="${kind}"]`);
+          const list = document.querySelector(`[data-food-list="${kind}"]`);
+          if (!(input instanceof HTMLInputElement) || !(list instanceof HTMLElement)) return;
+          const value = input.value.trim();
+          if (!value) return;
+          const item = document.createElement("span");
+          item.className = "plans-food-chip";
+          item.textContent = value;
+          list.appendChild(item);
+          input.value = "";
+          input.focus();
+        };
+
+        if (personalizeOpen) {
+          personalizeOpen.addEventListener("click", openModal);
+        }
+        personalizeCloseButtons.forEach((button) => {
+          button.addEventListener("click", closeModal);
+        });
+        document.addEventListener("keydown", (event) => {
+          if (event.key === "Escape" && personalizeModal?.getAttribute("aria-hidden") === "false") {
+            closeModal();
+          }
+        });
+        tabButtons.forEach((button) => {
+          button.addEventListener("click", () => {
+            const targetTab = button.getAttribute("data-plans-tab");
+            if (!targetTab) return;
+            setTab(targetTab);
+          });
+        });
+        foodAddButtons.forEach((button) => {
+          button.addEventListener("click", () => {
+            const kind = button.getAttribute("data-food-add");
+            if (!kind) return;
+            addFoodItem(kind);
+          });
+        });
+        if (createDietButton) {
+          createDietButton.addEventListener("click", closeModal);
+        }
+        document.querySelectorAll("[data-food-input]").forEach((input) => {
+          input.addEventListener("keydown", (event) => {
+            if (event.key !== "Enter") return;
+            event.preventDefault();
+            const kind = input.getAttribute("data-food-input");
+            if (!kind) return;
+            addFoodItem(kind);
+          });
+        });
 
         const renderList = (items, className = "") =>
           `<ul class="diet-details-list ${className}">${items
