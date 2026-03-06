@@ -96,10 +96,16 @@ public class RecipeServiceImpl implements RecipeService {
         }
 
         Recipe recipe = recipeRepository.findById(recipeId).orElseThrow();
-        RecipeComment comment = new RecipeComment();
-        comment.setRecipe(recipe);
-        comment.setUser(user);
+        RecipeComment comment = recipeCommentRepository.findTopByRecipeIdAndUserIdOrderByCreatedAtDesc(recipeId, user.getId())
+            .orElseGet(() -> {
+                RecipeComment created = new RecipeComment();
+                created.setRecipe(recipe);
+                created.setUser(user);
+                return created;
+            });
         comment.setCommentText(commentText.trim());
+
+        // Keep ordering consistent: the latest user review stays the one that gets displayed first.
         comment.setCreatedAt(java.time.Instant.now());
         recipeCommentRepository.save(comment);
     }

@@ -142,6 +142,10 @@ public class RecipeController {
         model.addAttribute("recipeAverageRating", recipeService.getAverageRatingForRecipe(id));
         model.addAttribute("recipeRatingCount", recipeService.getRatingCountForRecipe(id));
         model.addAttribute("reviewItems", buildReviewItems(id, currentUser != null ? currentUser.getId() : null));
+        boolean hasCurrentUserReview = currentUser != null
+            && currentUser.getId() != null
+            && recipeCommentRepository.findTopByRecipeIdAndUserIdOrderByCreatedAtDesc(id, currentUser.getId()).isPresent();
+        model.addAttribute("hasCurrentUserReview", hasCurrentUserReview);
         model.addAttribute("isOwnRecipe", isOwnRecipe);
         return "recipe-detail";
     }
@@ -175,11 +179,19 @@ public class RecipeController {
                     return org.springframework.http.ResponseEntity.badRequest()
                         .body(java.util.Map.of("ok", false, "message", "Comment is required."));
                 }
+                if (recipeCommentRepository.findTopByRecipeIdAndUserIdOrderByCreatedAtDesc(id, user.getId()).isPresent()) {
+                    return org.springframework.http.ResponseEntity.status(409)
+                        .body(java.util.Map.of("ok", false, "message", "You already reviewed this recipe. Edit your existing review instead."));
+                }
                 recipeService.saveRecipeComment(user, id, commentText);
             } else {
                 if (ratingValue == null || commentText.isBlank()) {
                     return org.springframework.http.ResponseEntity.badRequest()
                         .body(java.util.Map.of("ok", false, "message", "Both rating and comment are required."));
+                }
+                if (recipeCommentRepository.findTopByRecipeIdAndUserIdOrderByCreatedAtDesc(id, user.getId()).isPresent()) {
+                    return org.springframework.http.ResponseEntity.status(409)
+                        .body(java.util.Map.of("ok", false, "message", "You already reviewed this recipe. Edit your existing review instead."));
                 }
                 recipeService.saveRecipeRating(user, id, ratingValue);
                 recipeService.saveRecipeComment(user, id, commentText);
@@ -474,7 +486,7 @@ public class RecipeController {
         }
 
         List<RecipeComment> comments = prioritizeOwnComments(
-            recipeCommentRepository.findByRecipeIdOrderByCreatedAtDesc(recipeId),
+            keepLatestCommentPerUser(recipeCommentRepository.findByRecipeIdOrderByCreatedAtDesc(recipeId)),
             currentUserId
         );
         if (comments.isEmpty()) {
@@ -526,6 +538,28 @@ public class RecipeController {
         ordered.addAll(ownComments);
         ordered.addAll(otherComments);
         return ordered;
+    }
+
+    private List<RecipeComment> keepLatestCommentPerUser(List<RecipeComment> comments) {
+        if (comments == null || comments.isEmpty()) {
+            return comments != null ? comments : List.of();
+        }
+
+        java.util.Set<Long> seenUserIds = new java.util.HashSet<>();
+        List<RecipeComment> unique = new java.util.ArrayList<>();
+
+        for (RecipeComment comment : comments) {
+            Long userId = comment != null && comment.getUser() != null ? comment.getUser().getId() : null;
+            if (userId == null) {
+                unique.add(comment);
+                continue;
+            }
+            if (seenUserIds.add(userId)) {
+                unique.add(comment);
+            }
+        }
+
+        return unique;
     }
 
     private java.util.Map<String, Object> buildReviewItem(

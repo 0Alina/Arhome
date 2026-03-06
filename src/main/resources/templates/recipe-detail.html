@@ -94,7 +94,7 @@
 
           <section class="recipe-review-section">
             <h2 class="recipe-review-title">Review</h2>
-            <div class="recipe-feedback" th:if="${!isOwnRecipe}" data-feedback th:attr="data-recipe-id=${recipe.id}">
+            <div class="recipe-feedback" th:if="${!isOwnRecipe}" th:classappend="${hasCurrentUserReview} ? ' is-locked' : ''" data-feedback th:attr="data-recipe-id=${recipe.id}, hidden=${hasCurrentUserReview} ? 'hidden' : null">
             <div class="recipe-feedback-actions">
               <button class="recipe-feedback-btn is-active" type="button" data-toggle-panel="rating">Rate</button>
               <button class="recipe-feedback-btn" type="button" data-toggle-panel="comment">Comment</button>
@@ -122,6 +122,8 @@
               <span class="recipe-feedback-note" data-feedback-note></span>
             </div>
             </div>
+
+            <p class="recipe-feedback-note recipe-feedback-lock-note" data-review-lock-note th:if="${!isOwnRecipe}" th:attr="hidden=${hasCurrentUserReview} ? null : 'hidden'">You already reviewed this recipe. Edit your existing review instead.</p>
 
             <p class="recipe-feedback-note" data-no-reviews th:if="${reviewItems == null || #lists.isEmpty(reviewItems)}">No reviews yet.</p>
 
@@ -174,10 +176,22 @@
         const summaryAverage = document.querySelector("[data-rating-average]");
         const summaryCount = document.querySelector("[data-rating-count]");
         const reviewSection = document.querySelector(".recipe-review-section");
+        const lockNote = reviewSection ? reviewSection.querySelector("[data-review-lock-note]") : null;
         const noReviewsNote = () => document.querySelector("[data-no-reviews]");
         let activePanel = "rating";
         let editingCommentId = null;
         let editingArticle = null;
+
+        const setLockState = (locked) => {
+          feedback.classList.toggle("is-locked", !!locked);
+          feedback.toggleAttribute("hidden", !!locked);
+          if (lockNote instanceof HTMLElement) {
+            lockNote.toggleAttribute("hidden", !locked);
+          }
+          if (feedbackNote && locked) {
+            feedbackNote.textContent = "";
+          }
+        };
 
         const escapeHtml = (value) =>
           (value || "")
@@ -299,6 +313,8 @@
               const textNode = article.querySelector(".recipe-user-review-body p");
               if (!(textNode instanceof HTMLElement) || !(commentInput instanceof HTMLTextAreaElement)) return;
 
+              setLockState(false);
+
               const starsNode = article.querySelector(".recipe-user-review-stars");
               const starsText = (starsNode && starsNode.textContent ? starsNode.textContent : "").trim();
               const starCount = Math.max(0, Math.min(5, (starsText.match(/⭐/g) || []).length));
@@ -327,6 +343,7 @@
                 }
                 article.remove();
                 ensureNoReviewsMessage();
+                setLockState(false);
                 if (editingCommentId && String(editingCommentId) === String(commentId)) {
                   editingCommentId = null;
                   editingArticle = null;
@@ -453,7 +470,13 @@
               },
               body,
             })
-              .then((res) => (res.ok ? res.json() : Promise.reject(new Error("Could not save review."))))
+              .then(async (res) => {
+                const data = await res.json().catch(() => null);
+                if (!res.ok) {
+                  throw new Error((data && data.message) || "Could not save review.");
+                }
+                return data;
+              })
               .then((data) => {
                 if (!data || !data.ok) {
                   throw new Error((data && data.message) || "Could not save review.");
@@ -467,8 +490,18 @@
                 if (data.reviewItem && typeof data.reviewItem === "object") {
                   if (editingCommentId && editingArticle) {
                     updateReviewCard(editingArticle, data.reviewItem);
+                    setLockState(true);
                   } else {
-                    prependReviewCard(data.reviewItem);
+                    const existingCard = data.reviewItem.commentId
+                      ? document.querySelector(`[data-comment-id="${data.reviewItem.commentId}"]`)
+                      : null;
+                    if (existingCard instanceof HTMLElement) {
+                      updateReviewCard(existingCard, data.reviewItem);
+                      setLockState(true);
+                    } else {
+                      prependReviewCard(data.reviewItem);
+                      setLockState(true);
+                    }
                   }
                 }
                 commentInput.value = "";

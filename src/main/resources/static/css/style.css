@@ -208,7 +208,7 @@ body.page-profile .nav-user {
 }
 
 .collection-page .site-nav {
-  background: #2f1a0f;
+  background: #2b1b13;
 }
 
 .hero {
@@ -2730,6 +2730,22 @@ a.recipes-media {
   font-size: 0.9rem;
 }
 
+.recipe-feedback.is-locked {
+  display: none;
+}
+
+.recipe-feedback-lock-note {
+  margin-top: 8px;
+  margin-bottom: 14px;
+  padding: 0;
+  border: 0;
+  background: transparent;
+  color: #e2b37a;
+  font-size: 1rem;
+  font-style: italic;
+  font-weight: 700;
+}
+
 .recipe-comment-input {
   width: 100%;
   border-radius: 12px;
@@ -3895,8 +3911,6 @@ body {
   display: grid;
   grid-template-columns: repeat(3, minmax(0, 1fr));
   gap: 16px;
-  flex: 1;
-  align-content: start;
 }
 
 .diet-type-card {
@@ -3937,9 +3951,11 @@ body {
 }
 
 .diet-type-cta {
+  grid-column: 1 / -1;
+  justify-self: center;
   border: 0;
-  border-radius: 18px;
-  padding: 18px 20px;
+  border-radius: 14px;
+  padding: 14px 24px;
   background: #6f4330;
   color: #231510;
   font-weight: 700;
@@ -3948,8 +3964,8 @@ body {
   cursor: pointer;
   text-align: center;
   box-shadow: 0 12px 24px rgba(60, 36, 20, 0.25);
-  margin-top: 16px;
-  align-self: stretch;
+  border: 1px solid rgba(255, 255, 255, 0.08);
+  width: min(360px, calc(100% - 24px));
 }
 
 .diet-type-cta:hover,
@@ -4315,6 +4331,10 @@ body.plans-modal-open {
     grid-template-columns: repeat(2, minmax(0, 1fr));
   }
 
+  .diet-type-cta {
+    width: min(340px, calc(100% - 20px));
+  }
+
   .plans-goal-grid {
     grid-template-columns: repeat(2, minmax(0, 1fr));
   }
@@ -4331,6 +4351,10 @@ body.plans-modal-open {
 
   .diet-types-grid {
     grid-template-columns: 1fr;
+  }
+
+  .diet-type-cta {
+    width: min(300px, calc(100% - 16px));
   }
 
   .plans-customize-card {
