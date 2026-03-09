@@ -4,7 +4,7 @@
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
     <title>Plans</title>
-    <link rel="stylesheet" th:href="@{/css/style.css(v=63)}" href="/css/style.css?v=63" />
+    <link rel="stylesheet" th:href="@{/css/style.css(v=94)}" href="/css/style.css?v=94" />
   </head>
   <body class="page-plans">
     <div th:replace="~{fragments :: navbar}"></div>
@@ -18,7 +18,18 @@
           </div>
         </div>
 
-        <div class="plans-panels">
+        <section class="plans-entry-selector" data-plans-entry>
+          <button class="plans-entry-card" type="button" data-open-section="diets">
+            <span class="plans-entry-card-title">Diets</span>
+            <span class="plans-entry-card-subtitle">Browse diet types and details</span>
+          </button>
+          <button class="plans-entry-card" type="button" data-open-section="week-plans">
+            <span class="plans-entry-card-title">Week Plans</span>
+            <span class="plans-entry-card-subtitle">Coming next: your weekly planner</span>
+          </button>
+        </section>
+
+        <div class="plans-panels" data-diets-view hidden>
           <article class="plans-panel plans-panel--wide">
             <h2>Diet Types</h2>
             <div class="diet-types-grid">
@@ -68,6 +79,11 @@
             </div>
           </article>
         </div>
+
+        <section class="plans-week-placeholder" data-week-plans hidden>
+          <h2>Week Plans</h2>
+          <p>This section is next on the roadmap. For now, choose <strong>Diets</strong> to continue.</p>
+        </section>
       </section>
     </main>
 
@@ -185,9 +201,36 @@
     <div th:replace="~{fragments :: footer}"></div>
     <script>
       (() => {
+        const entrySelector = document.querySelector("[data-plans-entry]");
+        const dietsView = document.querySelector("[data-diets-view]");
+        const weekPlansView = document.querySelector("[data-week-plans]");
+        const sectionButtons = document.querySelectorAll("[data-open-section]");
+
+        const setMainSection = (sectionName) => {
+          sectionButtons.forEach((button) => {
+            const active = button.getAttribute("data-open-section") === sectionName;
+            button.classList.toggle("is-active", active);
+            button.setAttribute("aria-pressed", active ? "true" : "false");
+          });
+          if (dietsView) {
+            dietsView.hidden = sectionName !== "diets";
+          }
+          if (weekPlansView) {
+            weekPlansView.hidden = sectionName !== "week-plans";
+          }
+        };
+
+        setMainSection("diets");
+        sectionButtons.forEach((button) => {
+          button.addEventListener("click", () => {
+            const sectionName = button.getAttribute("data-open-section");
+            if (!sectionName) return;
+            setMainSection(sectionName);
+          });
+        });
+
         const detailCard = document.querySelector("[data-diet-details]");
         const dietCards = document.querySelectorAll(".diet-type-card");
-        if (!detailCard || dietCards.length === 0) return;
 
         const details = {
           "high-protein": {
@@ -432,17 +475,19 @@
           </div>
         `;
 
-        dietCards.forEach((card) => {
-          card.addEventListener("click", () => {
-            dietCards.forEach((item) => item.classList.remove("is-active"));
-            card.classList.add("is-active");
-            const key = card.dataset.diet;
-            const data = details[key];
-            detailCard.innerHTML = data
-              ? renderDetails(data)
-              : "<p class=\"diet-details-placeholder\">Details coming soon.</p>";
+        if (detailCard && dietCards.length > 0) {
+          dietCards.forEach((card) => {
+            card.addEventListener("click", () => {
+              dietCards.forEach((item) => item.classList.remove("is-active"));
+              card.classList.add("is-active");
+              const key = card.dataset.diet;
+              const data = details[key];
+              detailCard.innerHTML = data
+                ? renderDetails(data)
+                : "<p class=\"diet-details-placeholder\">Details coming soon.</p>";
+            });
           });
-        });
+        }
       })();
     </script>
   </body>

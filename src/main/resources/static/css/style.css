@@ -3835,9 +3835,9 @@ body {
 .plans-shell {
   max-width: 1200px;
   margin: 0 auto;
-  padding: 32px 64px 90px;
+  padding: 16px 64px 90px;
   display: grid;
-  gap: 28px;
+  gap: 16px;
 }
 
 .plans-hero-card {
@@ -3853,7 +3853,7 @@ body {
   background-size: cover;
   background-repeat: no-repeat;
   box-shadow: 0 24px 40px rgba(24, 18, 12, 0.45);
-  min-height: 360px;
+  min-height: 300px;
 }
 
 .plans-hero-content {
@@ -3876,6 +3876,138 @@ body {
   color: #d0bca9;
   font-size: 1.05rem;
   text-align: center;
+}
+
+.plans-info-banner {
+  width: min(1080px, 100%);
+  margin: 0 auto;
+  padding: 12px 16px;
+  border-radius: 14px;
+  border: 1px solid rgba(38, 140, 255, 0.55);
+  background: linear-gradient(120deg, rgba(7, 48, 93, 0.95), rgba(9, 35, 66, 0.97));
+  box-shadow: 0 16px 26px rgba(3, 16, 33, 0.52);
+  display: flex;
+  align-items: center;
+  gap: 12px;
+}
+
+.plans-info-icon {
+  width: 40px;
+  height: 40px;
+  border-radius: 11px;
+  display: block;
+  position: relative;
+  background: linear-gradient(165deg, #2bb2ff, #1492f3);
+  border: 0;
+  color: transparent;
+  font-size: 0;
+  flex: 0 0 auto;
+}
+
+.plans-info-icon::before {
+  content: "";
+  position: absolute;
+  inset: 7px;
+  border-radius: 999px;
+  border: 2px solid #eef8ff;
+}
+
+.plans-info-icon::after {
+  content: "i";
+  position: absolute;
+  left: 50%;
+  top: 50%;
+  transform: translate(-50%, -52%);
+  color: #f4fbff;
+  font-size: 1.12rem;
+  line-height: 1;
+  font-weight: 500;
+}
+
+.plans-info-banner p {
+  margin: 0;
+  color: #e8f3ff;
+  font-size: 1rem;
+  line-height: 1.4;
+}
+
+.plans-entry-selector {
+  width: min(560px, 100%);
+  margin: 0 auto;
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  border-radius: 18px;
+  overflow: hidden;
+  border: 1px solid rgba(255, 255, 255, 0.08);
+  background: rgba(42, 32, 29, 0.42);
+  box-shadow: 0 14px 24px rgba(8, 16, 6, 0.22);
+}
+
+.plans-entry-card {
+  border: 0;
+  border-radius: 0;
+  border-right: 1px solid rgba(255, 255, 255, 0.08);
+  background: transparent;
+  width: 100%;
+  min-height: 62px;
+  display: grid;
+  justify-items: center;
+  align-content: center;
+  gap: 4px;
+  text-align: center;
+  padding: 7px 12px;
+  color: #ead8c7;
+  cursor: pointer;
+  box-shadow: none;
+  backdrop-filter: none;
+  transition: background-color 0.2s ease, color 0.2s ease;
+}
+
+.plans-entry-card:last-child {
+  border-right: 0;
+}
+
+.plans-entry-card:hover,
+.plans-entry-card:focus {
+  background: rgba(122, 74, 53, 0.28);
+}
+
+.plans-entry-card.is-active {
+  background: rgba(122, 74, 53, 0.5);
+}
+
+.plans-entry-card-title {
+  font-size: 1.2rem;
+  font-weight: 800;
+  letter-spacing: 0.02em;
+}
+
+.plans-entry-card-subtitle {
+  color: #c9a07a;
+  display: none;
+}
+
+.plans-week-placeholder {
+  border-radius: 18px;
+  border: 1px solid rgba(255, 255, 255, 0.08);
+  background: #2a201d;
+  padding: 28px;
+  box-shadow: 0 24px 36px rgba(12, 8, 6, 0.45);
+}
+
+.plans-week-placeholder h2 {
+  margin: 0 0 10px;
+  color: #ead8c7;
+}
+
+.plans-week-placeholder p {
+  margin: 0;
+  color: #d0bca9;
+}
+
+[data-diets-view][hidden],
+[data-week-plans][hidden] {
+  display: none !important;
 }
 
 
@@ -4311,7 +4443,7 @@ body.plans-modal-open {
 
 @media (max-width: 960px) {
   .plans-shell {
-    padding: 44px 32px 80px;
+    padding: 22px 32px 80px;
   }
 
   .plans-hero-card {
@@ -4325,6 +4457,15 @@ body.plans-modal-open {
 
   .plans-panels {
     grid-template-columns: 1fr;
+  }
+
+  .plans-entry-selector {
+    width: min(360px, 100%);
+  }
+
+  .plans-entry-card {
+    min-height: 58px;
+    padding: 7px 10px;
   }
 
   .diet-types-grid {
@@ -4342,11 +4483,28 @@ body.plans-modal-open {
 
 @media (max-width: 640px) {
   .plans-shell {
-    padding: 36px 24px 70px;
+    padding: 18px 24px 70px;
   }
 
   .plans-hero-content h1 {
     font-size: 2rem;
+  }
+
+  .plans-entry-selector {
+    width: 100%;
+  }
+
+  .plans-entry-card {
+    min-height: 54px;
+    padding: 6px 9px;
+  }
+
+  .plans-entry-card-title {
+    font-size: 1.1rem;
+  }
+
+  .plans-entry-card-subtitle {
+    font-size: 0.84rem;
   }
 
   .diet-types-grid {
