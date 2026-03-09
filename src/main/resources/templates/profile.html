@@ -4,7 +4,7 @@
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
     <title>Profile</title>
-    <link rel="stylesheet" th:href="@{/css/style.css(v=63)}" href="/css/style.css?v=63" />
+    <link rel="stylesheet" th:href="@{/css/style.css(v=64)}" href="/css/style.css?v=64" />
   </head>
   <body class="page-profile">
     <div th:replace="~{fragments :: navbar}"></div>
@@ -40,7 +40,7 @@
               <div class="profile-stat">
                 <div class="profile-stat-icon" aria-hidden="true">&#x1F372;</div>
                 <div>
-                  <span class="profile-stat-value">18</span>
+                  <span class="profile-stat-value" th:text="${profileRecipesUploaded}">0</span>
                   <span class="profile-stat-label">Recipes uploaded</span>
                 </div>
               </div>

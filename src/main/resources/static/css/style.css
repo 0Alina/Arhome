@@ -588,7 +588,7 @@ body.page-profile .nav-user {
 }
 
 .profile {
-  padding: 40px 0 38px;
+  padding: 20px 0 19px;
 }
 
 .profile-shell {
@@ -603,6 +603,10 @@ body.page-profile .nav-user {
   align-items: center;
   gap: 16px;
   margin-bottom: 24px;
+}
+
+.history-header {
+  margin-bottom: 12px;
 }
 
 .section-kicker {
@@ -717,7 +721,7 @@ body.page-profile .nav-user {
 }
 
 .history {
-  padding: 10px 0 110px;
+  padding: 5px 0 110px;
 }
 
 .history-shell {

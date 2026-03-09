@@ -54,6 +54,7 @@ public class ProfileController {
         }
         List<RecipeDto> recipes = recipeService.getRecipesForUser(user);
         model.addAttribute("recipes", recipes);
+        model.addAttribute("profileRecipesUploaded", recipes.size());
         model.addAttribute("profileFullName", user.getFullName());
         model.addAttribute("profileEmail", user.getEmail());
         model.addAttribute("profileCategory", user.getCategory());
