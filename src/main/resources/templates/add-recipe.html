@@ -4,7 +4,7 @@
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
     <title th:text="${pageTitle != null ? pageTitle : 'Add Recipe'}">Add Recipe</title>
-    <link rel="stylesheet" th:href="@{/css/style.css(v=63)}" href="/css/style.css?v=63" />
+    <link rel="stylesheet" th:href="@{/css/style.css(v=64)}" href="/css/style.css?v=64" />
   </head>
   <body class="page-recipes">
     <div th:replace="~{fragments :: navbar}"></div>
@@ -43,13 +43,20 @@
                   </div>
                   <div class="add-recipe-field">
                     <label for="recipe-meal">Meal type</label>
-                    <select id="recipe-meal" name="mealType" required>
-                      <option value="" disabled th:selected="${recipe.mealType == null}">Select one</option>
-                      <option th:selected="${recipe.mealType == 'Breakfast'}">Breakfast</option>
-                      <option th:selected="${recipe.mealType == 'Lunch'}">Lunch</option>
-                      <option th:selected="${recipe.mealType == 'Dinner'}">Dinner</option>
-                      <option th:selected="${recipe.mealType == 'Dessert'}">Dessert</option>
-                    </select>
+                    <div class="ingredient-unit-select meal-type-select" data-meal-select>
+                      <input id="recipe-meal" type="hidden" name="mealType" th:value="${recipe.mealType}" data-meal-value />
+                      <button type="button"
+                              class="ingredient-unit-trigger meal-type-trigger"
+                              data-meal-trigger
+                              aria-expanded="false"
+                              th:text="${recipe.mealType != null && !#strings.isEmpty(recipe.mealType) ? recipe.mealType : 'Select one'}">Select one</button>
+                      <div class="ingredient-unit-menu meal-type-menu" data-meal-menu>
+                        <button type="button" class="ingredient-unit-option" data-meal-option data-value="Breakfast">Breakfast</button>
+                        <button type="button" class="ingredient-unit-option" data-meal-option data-value="Lunch">Lunch</button>
+                        <button type="button" class="ingredient-unit-option" data-meal-option data-value="Dinner">Dinner</button>
+                        <button type="button" class="ingredient-unit-option" data-meal-option data-value="Dessert">Dessert</button>
+                      </div>
+                    </div>
                   </div>
                 </div>
                 <div class="add-recipe-tags">
@@ -245,6 +252,64 @@
         }
 
         const ingredientRows = document.querySelector("[data-ingredient-rows]");
+        const mealSelectRoot = document.querySelector("[data-meal-select]");
+        const mealValueInput = document.querySelector("[data-meal-value]");
+        const mealTrigger = document.querySelector("[data-meal-trigger]");
+        const mealOptions = document.querySelectorAll("[data-meal-option]");
+
+        const syncMealState = () => {
+          if (!(mealValueInput instanceof HTMLInputElement) || !(mealTrigger instanceof HTMLButtonElement)) return;
+          const value = mealValueInput.value ? mealValueInput.value.trim() : "";
+          mealTrigger.textContent = value || "Select one";
+          mealTrigger.classList.toggle("is-empty", value.length === 0);
+
+          mealOptions.forEach((optionButton) => {
+            if (!(optionButton instanceof HTMLButtonElement)) return;
+            optionButton.classList.toggle("is-selected", optionButton.dataset.value === value);
+          });
+        };
+
+        const closeMealMenu = () => {
+          if (!(mealSelectRoot instanceof HTMLElement)) return;
+          mealSelectRoot.classList.remove("is-open");
+          if (mealTrigger instanceof HTMLButtonElement) {
+            mealTrigger.setAttribute("aria-expanded", "false");
+          }
+        };
+
+        if (mealSelectRoot instanceof HTMLElement && mealValueInput instanceof HTMLInputElement && mealTrigger instanceof HTMLButtonElement) {
+          syncMealState();
+
+          mealTrigger.addEventListener("click", () => {
+            const willOpen = !mealSelectRoot.classList.contains("is-open");
+            closeUnitMenus();
+            mealSelectRoot.classList.toggle("is-open", willOpen);
+            mealTrigger.setAttribute("aria-expanded", willOpen ? "true" : "false");
+          });
+
+          mealOptions.forEach((optionButton) => {
+            optionButton.addEventListener("click", () => {
+              mealValueInput.value = optionButton.dataset.value || "";
+              syncMealState();
+              closeMealMenu();
+            });
+          });
+
+          document.addEventListener("click", (event) => {
+            const target = event.target;
+            if (!(target instanceof Node)) return;
+            if (!mealSelectRoot.contains(target)) {
+              closeMealMenu();
+            }
+          });
+
+          document.addEventListener("keydown", (event) => {
+            if (event.key === "Escape") {
+              closeMealMenu();
+            }
+          });
+        }
+
         const renderIngredientSuggestions = (suggestions) => {
           if (!ingredientSuggestionsList) return;
           ingredientSuggestionsList.innerHTML = "";
@@ -566,6 +631,18 @@
 
         if (form && ingredientRows) {
           form.addEventListener("submit", (event) => {
+            if (mealValueInput instanceof HTMLInputElement && mealValueInput.value.trim().length === 0) {
+              event.preventDefault();
+              if (mealTrigger instanceof HTMLButtonElement) {
+                mealTrigger.focus();
+                if (mealSelectRoot instanceof HTMLElement) {
+                  mealSelectRoot.classList.add("is-open");
+                  mealTrigger.setAttribute("aria-expanded", "true");
+                }
+              }
+              return;
+            }
+
             syncIngredientRowRequirements();
 
             const rows = Array.from(ingredientRows.querySelectorAll(".add-recipe-ingredient-row"));

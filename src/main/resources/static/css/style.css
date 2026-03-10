@@ -2016,6 +2016,16 @@ a.collection-media {
   color: #f3e7dc;
 }
 
+.meal-type-select {
+  width: 100%;
+  min-width: 0;
+  z-index: 25;
+}
+
+.meal-type-trigger {
+  min-width: 0;
+}
+
 .add-recipe-ingredient-row input::placeholder {
   color: rgba(230, 215, 199, 0.58);
   opacity: 1;
