@@ -4,14 +4,388 @@
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
     <title>Groceries</title>
-    <link rel="stylesheet" th:href="@{/css/style.css(v=63)}" href="/css/style.css?v=63" />
+    <link rel="stylesheet" th:href="@{/css/style.css(v=69)}" href="/css/style.css?v=69" />
   </head>
   <body class="page-groceries">
     <div th:replace="~{fragments :: navbar}"></div>
 
-    <main class="page-content"></main>
+    <main class="page-content">
+      <section class="groceries-page-shell">
+        <div class="groceries-shell recipes-shell">
+          <div class="groceries-layout">
+            <section class="groceries-weekly" aria-label="Weekly plan groceries">
+              <article class="weekly-plan-box">
+                <div class="weekly-plan-box-head">
+                  <p>From weekly plan</p>
+                  <span>Day 2</span>
+                </div>
+                <ul class="weekly-plan-checklist">
+                  <li>
+                    <label>
+                      <input type="checkbox" />
+                      <span>Chicken breast</span>
+                    </label>
+                    <strong>500 g</strong>
+                  </li>
+                  <li>
+                    <label>
+                      <input type="checkbox" />
+                      <span>Bell peppers</span>
+                    </label>
+                    <strong>2 pcs</strong>
+                  </li>
+                  <li>
+                    <label>
+                      <input type="checkbox" />
+                      <span>Olive oil</span>
+                    </label>
+                    <strong>2 tbsp</strong>
+                  </li>
+                  <li>
+                    <label>
+                      <input type="checkbox" />
+                      <span>Garlic</span>
+                    </label>
+                    <strong>3 cloves</strong>
+                  </li>
+                  <li>
+                    <label>
+                      <input type="checkbox" />
+                      <span>Tomatoes</span>
+                    </label>
+                    <strong>4 pcs</strong>
+                  </li>
+                  <li>
+                    <label>
+                      <input type="checkbox" />
+                      <span>Parsley</span>
+                    </label>
+                    <strong>1 bunch</strong>
+                  </li>
+                </ul>
+              </article>
+
+              <article class="weekly-plan-box">
+                <div class="weekly-plan-box-head">
+                  <p>From weekly plan</p>
+                  <span>Day 4</span>
+                </div>
+                <ul class="weekly-plan-checklist">
+                  <li>
+                    <label>
+                      <input type="checkbox" />
+                      <span>Greek yogurt</span>
+                    </label>
+                    <strong>350 g</strong>
+                  </li>
+                  <li>
+                    <label>
+                      <input type="checkbox" />
+                      <span>Blueberries</span>
+                    </label>
+                    <strong>250 g</strong>
+                  </li>
+                  <li>
+                    <label>
+                      <input type="checkbox" />
+                      <span>Honey</span>
+                    </label>
+                    <strong>4 tsp</strong>
+                  </li>
+                  <li>
+                    <label>
+                      <input type="checkbox" />
+                      <span>Oats</span>
+                    </label>
+                    <strong>300 g</strong>
+                  </li>
+                  <li>
+                    <label>
+                      <input type="checkbox" />
+                      <span>Chia seeds</span>
+                    </label>
+                    <strong>80 g</strong>
+                  </li>
+                  <li>
+                    <label>
+                      <input type="checkbox" />
+                      <span>Almond milk</span>
+                    </label>
+                    <strong>1 l</strong>
+                  </li>
+                </ul>
+              </article>
+
+              <article class="weekly-plan-box">
+                <div class="weekly-plan-box-head">
+                  <p>From weekly plan</p>
+                  <span>Day 6</span>
+                </div>
+                <ul class="weekly-plan-checklist">
+                  <li>
+                    <label>
+                      <input type="checkbox" />
+                      <span>Salmon fillet</span>
+                    </label>
+                    <strong>600 g</strong>
+                  </li>
+                  <li>
+                    <label>
+                      <input type="checkbox" />
+                      <span>Lemon</span>
+                    </label>
+                    <strong>2 pcs</strong>
+                  </li>
+                  <li>
+                    <label>
+                      <input type="checkbox" />
+                      <span>Asparagus</span>
+                    </label>
+                    <strong>400 g</strong>
+                  </li>
+                  <li>
+                    <label>
+                      <input type="checkbox" />
+                      <span>Butter</span>
+                    </label>
+                    <strong>40 g</strong>
+                  </li>
+                  <li>
+                    <label>
+                      <input type="checkbox" />
+                      <span>Broccoli</span>
+                    </label>
+                    <strong>1 head</strong>
+                  </li>
+                  <li>
+                    <label>
+                      <input type="checkbox" />
+                      <span>Dill</span>
+                    </label>
+                    <strong>1 bunch</strong>
+                  </li>
+                </ul>
+              </article>
+            </section>
+
+            <div class="groceries-right-column">
+              <form class="groceries-card groceries-form-card" action="#" method="post" onsubmit="return false;">
+                <div class="add-recipe-field add-recipe-field--fill">
+                  <div class="groceries-card-head">
+                    <h2>Food products</h2>
+                    <button type="button" class="btn-primary groceries-add-top" data-groceries-add>Add</button>
+                  </div>
+
+                  <div class="add-recipe-ingredients groceries-ingredients" data-groceries-rows>
+                    <div class="add-recipe-ingredient-row groceries-ingredient-row" data-groceries-row>
+                      <input type="text" name="ingredientItems[0].name" placeholder="Ingredient" required />
+                      <input type="number" name="ingredientItems[0].quantity" min="0" step="0.5" placeholder="Qty" required />
+
+                      <div class="ingredient-unit-select groceries-unit-select" data-unit-select>
+                        <input type="hidden" name="ingredientItems[0].unit" value="" data-unit-value />
+                        <button type="button" class="ingredient-unit-trigger" data-unit-trigger aria-expanded="false">Unit</button>
+                        <div class="ingredient-unit-menu" data-unit-menu>
+                          <button type="button" class="ingredient-unit-option" data-unit-option data-value="pcs">pcs</button>
+                          <button type="button" class="ingredient-unit-option" data-unit-option data-value="pinch">pinch</button>
+                          <button type="button" class="ingredient-unit-option" data-unit-option data-value="tsp">tsp</button>
+                          <button type="button" class="ingredient-unit-option" data-unit-option data-value="tbsp">tbsp</button>
+                          <button type="button" class="ingredient-unit-option" data-unit-option data-value="cup">cup</button>
+                          <button type="button" class="ingredient-unit-option" data-unit-option data-value="ml">ml</button>
+                          <button type="button" class="ingredient-unit-option" data-unit-option data-value="l">l</button>
+                          <button type="button" class="ingredient-unit-option" data-unit-option data-value="g">g</button>
+                          <button type="button" class="ingredient-unit-option" data-unit-option data-value="kg">kg</button>
+                        </div>
+                      </div>
+
+                      <button
+                        type="button"
+                        class="btn-secondary groceries-remove"
+                        data-groceries-remove
+                        data-ingredient-action
+                        data-action="remove"
+                      >
+                        Remove
+                      </button>
+                    </div>
+                  </div>
+                </div>
+              </form>
+
+              <section class="groceries-products" aria-label="Food product placeholders">
+                <article class="groceries-recipe-box">
+                  <p class="groceries-recipe-source">from recipe</p>
+                  <h3 class="groceries-recipe-title">Caprese Stuffed Chicken</h3>
+                  <ul class="groceries-recipe-ingredients">
+                    <li><label><input type="checkbox" /> Chicken breast</label></li>
+                    <li><label><input type="checkbox" /> Mozzarella</label></li>
+                    <li><label><input type="checkbox" /> Tomatoes</label></li>
+                    <li><label><input type="checkbox" /> Basil</label></li>
+                    <li><label><input type="checkbox" /> Olive oil</label></li>
+                    <li><label><input type="checkbox" /> Garlic</label></li>
+                    <li><label><input type="checkbox" /> Black pepper</label></li>
+                    <li><label><input type="checkbox" /> Salt</label></li>
+                  </ul>
+                </article>
+              </section>
+            </div>
+          </div>
+        </div>
+      </section>
+    </main>
+
+    <template id="groceries-row-template">
+      <div class="add-recipe-ingredient-row groceries-ingredient-row" data-groceries-row>
+        <input type="text" name="ingredientItems[__index__].name" placeholder="Ingredient" required />
+        <input type="number" name="ingredientItems[__index__].quantity" min="0" step="0.5" placeholder="Qty" required />
+
+        <div class="ingredient-unit-select groceries-unit-select" data-unit-select>
+          <input type="hidden" name="ingredientItems[__index__].unit" value="" data-unit-value />
+          <button type="button" class="ingredient-unit-trigger" data-unit-trigger aria-expanded="false">Unit</button>
+          <div class="ingredient-unit-menu" data-unit-menu>
+            <button type="button" class="ingredient-unit-option" data-unit-option data-value="pcs">pcs</button>
+            <button type="button" class="ingredient-unit-option" data-unit-option data-value="pinch">pinch</button>
+            <button type="button" class="ingredient-unit-option" data-unit-option data-value="tsp">tsp</button>
+            <button type="button" class="ingredient-unit-option" data-unit-option data-value="tbsp">tbsp</button>
+            <button type="button" class="ingredient-unit-option" data-unit-option data-value="cup">cup</button>
+            <button type="button" class="ingredient-unit-option" data-unit-option data-value="ml">ml</button>
+            <button type="button" class="ingredient-unit-option" data-unit-option data-value="l">l</button>
+            <button type="button" class="ingredient-unit-option" data-unit-option data-value="g">g</button>
+            <button type="button" class="ingredient-unit-option" data-unit-option data-value="kg">kg</button>
+          </div>
+        </div>
+
+        <button
+          type="button"
+          class="btn-secondary groceries-remove"
+          data-groceries-remove
+          data-ingredient-action
+          data-action="remove"
+        >
+          Remove
+        </button>
+      </div>
+    </template>
+
     <div th:replace="~{fragments :: auth-modals}"></div>
     <div th:replace="~{fragments :: footer}"></div>
+
+    <script>
+      (() => {
+        const rowsContainer = document.querySelector("[data-groceries-rows]");
+        const addButton = document.querySelector("[data-groceries-add]");
+        const rowTemplate = document.getElementById("groceries-row-template");
+
+        if (!(rowsContainer instanceof HTMLElement) || !(addButton instanceof HTMLButtonElement) || !(rowTemplate instanceof HTMLTemplateElement)) {
+          return;
+        }
+
+        const closeUnitMenus = (exceptRoot = null) => {
+          rowsContainer.querySelectorAll("[data-unit-select]").forEach((selectRoot) => {
+            if (!(selectRoot instanceof HTMLElement)) return;
+            if (exceptRoot && selectRoot === exceptRoot) return;
+            selectRoot.classList.remove("is-open");
+            const trigger = selectRoot.querySelector("[data-unit-trigger]");
+            if (trigger instanceof HTMLButtonElement) {
+              trigger.setAttribute("aria-expanded", "false");
+            }
+          });
+        };
+
+        const bindUnitSelect = (rowElement) => {
+          const selectRoot = rowElement.querySelector("[data-unit-select]");
+          const trigger = rowElement.querySelector("[data-unit-trigger]");
+          const valueInput = rowElement.querySelector("[data-unit-value]");
+          const optionButtons = rowElement.querySelectorAll("[data-unit-option]");
+
+          if (!(selectRoot instanceof HTMLElement) || !(trigger instanceof HTMLButtonElement) || !(valueInput instanceof HTMLInputElement)) {
+            return;
+          }
+
+          const syncState = () => {
+            const value = valueInput.value ? valueInput.value.trim() : "";
+            trigger.textContent = value || "Unit";
+            trigger.classList.toggle("is-empty", value.length === 0);
+
+            optionButtons.forEach((optionButton) => {
+              if (!(optionButton instanceof HTMLButtonElement)) return;
+              optionButton.classList.toggle("is-selected", optionButton.dataset.value === value);
+            });
+          };
+
+          trigger.addEventListener("click", () => {
+            const willOpen = !selectRoot.classList.contains("is-open");
+            closeUnitMenus(selectRoot);
+            selectRoot.classList.toggle("is-open", willOpen);
+            trigger.setAttribute("aria-expanded", willOpen ? "true" : "false");
+          });
+
+          optionButtons.forEach((optionButton) => {
+            optionButton.addEventListener("click", () => {
+              valueInput.value = optionButton.dataset.value || "";
+              syncState();
+              closeUnitMenus();
+            });
+          });
+
+          syncState();
+        };
+
+        const renumberRows = () => {
+          rowsContainer.querySelectorAll("[data-groceries-row]").forEach((row, index) => {
+            row.querySelectorAll("input[name]").forEach((input) => {
+              if (!(input instanceof HTMLInputElement)) return;
+              input.name = input.name.replace(/ingredientItems\[\d+\]/, `ingredientItems[${index}]`);
+            });
+          });
+        };
+
+        rowsContainer.querySelectorAll("[data-groceries-row]").forEach((row) => {
+          if (!(row instanceof HTMLElement)) return;
+          bindUnitSelect(row);
+        });
+
+        addButton.addEventListener("click", () => {
+          const index = rowsContainer.querySelectorAll("[data-groceries-row]").length;
+          const html = rowTemplate.innerHTML.replaceAll("__index__", String(index));
+          rowsContainer.insertAdjacentHTML("beforeend", html);
+          const newRow = rowsContainer.lastElementChild;
+          if (newRow instanceof HTMLElement) {
+            bindUnitSelect(newRow);
+            const ingredientInput = newRow.querySelector("input[type='text']");
+            if (ingredientInput instanceof HTMLInputElement) ingredientInput.focus();
+          }
+        });
+
+        rowsContainer.addEventListener("click", (event) => {
+          const target = event.target;
+          if (!(target instanceof HTMLElement)) return;
+          const removeButton = target.closest("[data-groceries-remove]");
+          if (!removeButton) return;
+
+          const rows = rowsContainer.querySelectorAll("[data-groceries-row]");
+          if (rows.length <= 1) return;
+
+          const row = removeButton.closest("[data-groceries-row]");
+          if (!(row instanceof HTMLElement)) return;
+          row.remove();
+          renumberRows();
+        });
+
+        document.addEventListener("click", (event) => {
+          const target = event.target;
+          if (!(target instanceof Node)) return;
+          if (!rowsContainer.contains(target)) {
+            closeUnitMenus();
+          }
+        });
+
+        document.addEventListener("keydown", (event) => {
+          if (event.key === "Escape") {
+            closeUnitMenus();
+          }
+        });
+      })();
+    </script>
   </body>
 </html>
 
