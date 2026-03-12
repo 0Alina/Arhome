@@ -12,6 +12,7 @@
     <main class="page-content">
       <section class="groceries-page-shell">
         <div class="groceries-shell recipes-shell">
+          <p class="groceries-top-note">All the ingredients you need, ready for your next trip to the store.</p>
           <div class="groceries-layout">
             <section class="groceries-weekly" aria-label="Weekly plan groceries">
               <article class="weekly-plan-box">
@@ -343,6 +344,104 @@
           if (!(row instanceof HTMLElement)) return;
           bindUnitSelect(row);
         });
+
+        rowsContainer.addEventListener("pointerdown", (event) => {
+          const target = event.target;
+          if (!(target instanceof Element)) return;
+          const qtyInput = target.closest("input[type='number']");
+          if (!(qtyInput instanceof HTMLInputElement)) return;
+
+          const rect = qtyInput.getBoundingClientRect();
+          const clickX = event.clientX - rect.left;
+          const clickY = event.clientY - rect.top;
+          const arrowZone = clickX >= rect.width - 22;
+          if (!arrowZone) return;
+
+          event.preventDefault();
+          const min = qtyInput.min !== "" ? Number(qtyInput.min) : Number.NEGATIVE_INFINITY;
+          const parsedStep = Number(qtyInput.step);
+          const step = Number.isFinite(parsedStep) && parsedStep > 0 ? parsedStep : 1;
+          const current = qtyInput.value !== "" ? Number(qtyInput.value) : 0;
+
+          let next = current;
+          if (clickY < rect.height / 2) {
+            next = current + step;
+          } else {
+            next = current - step;
+          }
+
+          if (next < min) next = min;
+          qtyInput.value = String(Number(next.toFixed(4)));
+          qtyInput.dispatchEvent(new Event("input", { bubbles: true }));
+          qtyInput.dispatchEvent(new Event("change", { bubbles: true }));
+        });
+
+        const setupBoughtSection = (boxElement, sourceSelector) => {
+          const sourceList = boxElement.querySelector(sourceSelector);
+          if (!(sourceList instanceof HTMLUListElement)) return;
+
+          const boughtSection = document.createElement("section");
+          boughtSection.className = "bought-section";
+          boughtSection.hidden = true;
+
+          const title = document.createElement("h4");
+          title.textContent = "Already bought";
+
+          const boughtList = document.createElement("ul");
+          boughtList.className = `${sourceList.className} bought-checklist`;
+
+          boughtSection.appendChild(title);
+          boughtSection.appendChild(boughtList);
+          boxElement.appendChild(boughtSection);
+
+          const refreshState = () => {
+            boughtSection.hidden = boughtList.children.length === 0;
+          };
+
+          boxElement.addEventListener("change", (event) => {
+            const target = event.target;
+            if (!(target instanceof HTMLInputElement) || target.type !== "checkbox") return;
+
+            const row = target.closest("li");
+            if (!(row instanceof HTMLLIElement)) return;
+            const inBoughtList = row.parentElement === boughtList;
+
+            if (target.checked && !inBoughtList) {
+              boughtList.appendChild(row);
+              row.classList.add("is-bought");
+            }
+
+            if (!target.checked && inBoughtList) {
+              sourceList.appendChild(row);
+              row.classList.remove("is-bought");
+            }
+
+            refreshState();
+          });
+
+          sourceList.querySelectorAll("input[type='checkbox']").forEach((checkbox) => {
+            if (!(checkbox instanceof HTMLInputElement)) return;
+            if (checkbox.checked) {
+              const row = checkbox.closest("li");
+              if (row instanceof HTMLLIElement) {
+                boughtList.appendChild(row);
+                row.classList.add("is-bought");
+              }
+            }
+          });
+
+          refreshState();
+        };
+
+        document.querySelectorAll(".weekly-plan-box").forEach((box) => {
+          if (!(box instanceof HTMLElement)) return;
+          setupBoughtSection(box, ".weekly-plan-checklist");
+        });
+
+        const recipeBox = document.querySelector(".groceries-recipe-box");
+        if (recipeBox instanceof HTMLElement) {
+          setupBoughtSection(recipeBox, ".groceries-recipe-ingredients");
+        }
 
         addButton.addEventListener("click", () => {
           const index = rowsContainer.querySelectorAll("[data-groceries-row]").length;

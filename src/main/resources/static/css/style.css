@@ -4557,7 +4557,19 @@ body.plans-modal-open {
 
 .groceries-shell {
   display: grid;
-  gap: 0;
+  gap: 18px;
+}
+
+.groceries-top-note {
+  margin: -8px 0 34px;
+  text-align: center;
+  color: #a56f4d;
+  font-style: italic;
+  font-family: "Palatino Linotype", "Book Antiqua", Palatino, serif;
+  font-size: clamp(1.3rem, 2.9vw, 1.9rem);
+  font-weight: 600;
+  letter-spacing: 0.015em;
+  line-height: 1.08;
 }
 
 .groceries-layout {
@@ -4709,6 +4721,45 @@ body.plans-modal-open {
   accent-color: #5b3221;
 }
 
+.bought-section {
+  margin-top: 10px;
+  border-top: 1px solid rgba(32, 74, 41, 0.84);
+  padding-top: 10px;
+  display: grid;
+  gap: 8px;
+}
+
+.bought-section[hidden] {
+  display: none !important;
+}
+
+.bought-section h4 {
+  margin: 0;
+  color: #214b2d;
+  font-size: 0.95rem;
+  font-weight: 800;
+}
+
+.bought-checklist {
+  margin-top: 0;
+}
+
+.bought-checklist li {
+  border-bottom: 0 !important;
+  background: rgba(28, 63, 36, 0.48);
+  border-radius: 10px;
+  padding: 8px 10px;
+}
+
+.bought-checklist label,
+.bought-checklist strong {
+  color: #d5ecd9;
+}
+
+.bought-checklist input[type="checkbox"] {
+  accent-color: #3f8a51;
+}
+
 .groceries-products-grid {
   display: grid;
   grid-template-columns: repeat(2, minmax(0, 1fr));
@@ -4760,12 +4811,21 @@ body.plans-modal-open {
   display: inline-flex;
   align-items: center;
   justify-content: center;
-  min-width: 114px;
-  min-height: 42px;
+  min-width: 100px;
+  min-height: 36px;
   border-radius: 14px;
-  padding: 9px 18px;
+  padding: 7px 14px;
   line-height: 1;
   text-align: center;
+}
+
+.groceries-ingredient-row input[type="number"] {
+  cursor: pointer;
+}
+
+.groceries-ingredient-row .ingredient-unit-trigger,
+.groceries-ingredient-row .ingredient-unit-option {
+  cursor: pointer;
 }
 
 .groceries-card {
