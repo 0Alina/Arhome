@@ -4,7 +4,7 @@
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
     <title th:text="${recipe.title}">Recipe</title>
-    <link rel="stylesheet" th:href="@{/css/style.css(v=79)}" href="/css/style.css?v=79" />
+    <link rel="stylesheet" th:href="@{/css/style.css(v=81)}" href="/css/style.css?v=81" />
   </head>
   <body class="page-recipes page-recipe-detail">
     <div th:replace="~{fragments :: navbar}"></div>
@@ -60,9 +60,17 @@
                 <span class="recipe-rating-value" data-rating-average th:text="${#numbers.formatDecimal(recipeAverageRating, 1, 1)}">0.0</span>
                 <span class="recipe-rating-count" data-rating-count th:text="${recipeRatingCount + ' ratings'}">0 ratings</span>
               </div>
-              <p class="recipe-detail-author">
-                Cooked with love by <span th:text="${authorName}">Chef</span>
-              </p>
+              <div class="recipe-detail-footer-row">
+                <p class="recipe-detail-author">
+                  Cooked with love by <span th:text="${authorName}">Chef</span>
+                </p>
+                <button type="button"
+                  class="btn-primary recipe-add-groceries-btn"
+                        data-add-recipe-groceries
+                        th:attr="data-recipe-id=${recipe.id}">
+                  Add to groceries
+                </button>
+              </div>
             </div>
           </div>
 
@@ -522,6 +530,46 @@
 
         activatePanel("rating");
         paintStars(0);
+      })();
+    </script>
+
+    <script th:inline="javascript">
+      (() => {
+        const addButton = document.querySelector("[data-add-recipe-groceries]");
+        if (!(addButton instanceof HTMLButtonElement)) return;
+
+        const recipeId = addButton.getAttribute("data-recipe-id");
+        if (!recipeId) return;
+
+        const csrfToken = /*[[${_csrf.token}]]*/ "";
+        const csrfHeader = /*[[${_csrf.headerName}]]*/ "X-CSRF-TOKEN";
+
+        addButton.addEventListener("click", async () => {
+          if (addButton.disabled) return;
+          addButton.disabled = true;
+          const previousText = addButton.textContent;
+          addButton.textContent = "Adding...";
+
+          try {
+            const headers = { Accept: "application/json" };
+            if (csrfToken) {
+              headers[csrfHeader] = csrfToken;
+            }
+            const response = await fetch(`/groceries/items/from-recipe/${recipeId}`, {
+              method: "POST",
+              headers,
+            });
+            if (!response.ok) {
+              throw new Error("Could not add recipe to groceries.");
+            }
+
+            addButton.textContent = "Added";
+            window.location.href = "/groceries";
+          } catch (_error) {
+            addButton.disabled = false;
+            addButton.textContent = previousText || "Add to groceries";
+          }
+        });
       })();
     </script>
   </body>

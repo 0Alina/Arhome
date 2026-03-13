@@ -38,6 +38,12 @@ public class GroceryItem {
     @Column(nullable = false)
     private boolean bought;
 
+    @Column(name = "source_recipe_id")
+    private Long sourceRecipeId;
+
+    @Column(name = "source_recipe_title", length = 220)
+    private String sourceRecipeTitle;
+
     @Column(nullable = false)
     private LocalDateTime createdAt;
 
@@ -102,5 +108,21 @@ public class GroceryItem {
 
     public void setCreatedAt(LocalDateTime createdAt) {
         this.createdAt = createdAt;
+    }
+
+    public Long getSourceRecipeId() {
+        return sourceRecipeId;
+    }
+
+    public void setSourceRecipeId(Long sourceRecipeId) {
+        this.sourceRecipeId = sourceRecipeId;
+    }
+
+    public String getSourceRecipeTitle() {
+        return sourceRecipeTitle;
+    }
+
+    public void setSourceRecipeTitle(String sourceRecipeTitle) {
+        this.sourceRecipeTitle = sourceRecipeTitle;
     }
 }

@@ -9,7 +9,11 @@ import com.glodea.arhome.entity.GroceryItem;
 
 public interface GroceryItemRepository extends JpaRepository<GroceryItem, Long> {
 
-    List<GroceryItem> findByUserIdOrderByCreatedAtAsc(Long userId);
+    List<GroceryItem> findByUserIdAndSourceRecipeIdIsNullOrderByCreatedAtAsc(Long userId);
+
+    List<GroceryItem> findByUserIdAndSourceRecipeIdIsNotNullOrderByCreatedAtAsc(Long userId);
+
+    void deleteByUserIdAndSourceRecipeId(Long userId, Long sourceRecipeId);
 
     Optional<GroceryItem> findByIdAndUserId(Long id, Long userId);
 }

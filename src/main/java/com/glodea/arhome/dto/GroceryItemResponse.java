@@ -7,6 +7,8 @@ public class GroceryItemResponse {
     private String quantity;
     private String unit;
     private boolean bought;
+    private Long sourceRecipeId;
+    private String sourceRecipeTitle;
 
     public GroceryItemResponse() {
     }
@@ -17,6 +19,17 @@ public class GroceryItemResponse {
         this.quantity = quantity;
         this.unit = unit;
         this.bought = bought;
+    }
+
+    public GroceryItemResponse(Long id, String productName, String quantity, String unit, boolean bought,
+                               Long sourceRecipeId, String sourceRecipeTitle) {
+        this.id = id;
+        this.productName = productName;
+        this.quantity = quantity;
+        this.unit = unit;
+        this.bought = bought;
+        this.sourceRecipeId = sourceRecipeId;
+        this.sourceRecipeTitle = sourceRecipeTitle;
     }
 
     public Long getId() {
@@ -57,5 +70,21 @@ public class GroceryItemResponse {
 
     public void setBought(boolean bought) {
         this.bought = bought;
+    }
+
+    public Long getSourceRecipeId() {
+        return sourceRecipeId;
+    }
+
+    public void setSourceRecipeId(Long sourceRecipeId) {
+        this.sourceRecipeId = sourceRecipeId;
+    }
+
+    public String getSourceRecipeTitle() {
+        return sourceRecipeTitle;
+    }
+
+    public void setSourceRecipeTitle(String sourceRecipeTitle) {
+        this.sourceRecipeTitle = sourceRecipeTitle;
     }
 }

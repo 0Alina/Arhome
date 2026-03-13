@@ -19,6 +19,7 @@ import org.springframework.web.bind.annotation.RestController;
 import com.glodea.arhome.dto.GroceryItemBoughtRequest;
 import com.glodea.arhome.dto.GroceryItemCreateRequest;
 import com.glodea.arhome.dto.GroceryItemResponse;
+import com.glodea.arhome.dto.GroceryRecipeBoxResponse;
 import com.glodea.arhome.entity.User;
 import com.glodea.arhome.repository.UserRepository;
 import com.glodea.arhome.service.GroceryService;
@@ -55,6 +56,31 @@ public class GroceriesController {
         try {
             GroceryItemResponse item = groceryService.addItem(user, request.getProductName(), request.getQuantity(), request.getUnit());
             return ResponseEntity.ok(item);
+        } catch (IllegalArgumentException ex) {
+            return ResponseEntity.badRequest().body(Map.of("ok", false, "message", ex.getMessage()));
+        }
+    }
+
+    @GetMapping("/from-recipe")
+    public ResponseEntity<?> getRecipeBox() {
+        User user = getCurrentUser();
+        if (user == null) {
+            return ResponseEntity.status(401).body(Map.of("ok", false, "message", "Authentication required."));
+        }
+        List<GroceryRecipeBoxResponse> boxes = groceryService.getRecipeBoxes(user);
+        return ResponseEntity.ok(boxes);
+    }
+
+    @PostMapping("/from-recipe/{recipeId}")
+    public ResponseEntity<?> addRecipeToGroceries(@PathVariable("recipeId") Long recipeId) {
+        User user = getCurrentUser();
+        if (user == null) {
+            return ResponseEntity.status(401).body(Map.of("ok", false, "message", "Authentication required."));
+        }
+
+        try {
+            List<GroceryRecipeBoxResponse> boxes = groceryService.addRecipeItems(user, recipeId);
+            return ResponseEntity.ok(boxes);
         } catch (IllegalArgumentException ex) {
             return ResponseEntity.badRequest().body(Map.of("ok", false, "message", ex.getMessage()));
         }

@@ -2489,6 +2489,36 @@ a.recipes-media {
   color: #d98a52;
 }
 
+.recipe-detail-footer-row {
+  margin-top: auto;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 14px;
+  flex-wrap: wrap;
+}
+
+.recipe-detail-footer-row .recipe-detail-author {
+  margin: 0;
+}
+
+.recipe-add-groceries-btn {
+  padding: 9px 14px;
+  font-weight: 700;
+  font-size: 0.9rem;
+}
+
+.recipe-add-groceries-btn:hover,
+.recipe-add-groceries-btn:focus {
+  background: var(--accent-brown);
+  border-color: var(--accent-brown);
+}
+
+.recipe-add-groceries-btn:disabled {
+  opacity: 0.72;
+  cursor: not-allowed;
+}
+
 .recipe-detail-author span {
   color: #f0b07a;
   font-weight: 600;
@@ -4696,6 +4726,32 @@ body.plans-modal-open {
   line-height: 1.2;
 }
 
+.groceries-recipe-empty {
+  display: grid;
+  gap: 12px;
+}
+
+.groceries-recipe-empty[hidden] {
+  display: none !important;
+}
+
+.groceries-recipe-groups {
+  display: grid;
+  gap: 16px;
+}
+
+.groceries-recipe-group {
+  border-top: 1px solid rgba(255, 231, 220, 0.16);
+  padding-top: 12px;
+  display: grid;
+  gap: 10px;
+}
+
+.groceries-recipe-group:first-child {
+  border-top: 0;
+  padding-top: 0;
+}
+
 .groceries-recipe-ingredients {
   margin: 0;
   padding: 0;
@@ -4706,6 +4762,10 @@ body.plans-modal-open {
 }
 
 .groceries-recipe-ingredients li {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 10px;
   padding: 8px 0;
   border-bottom: 1px solid rgba(255, 231, 220, 0.18);
 }
@@ -4722,6 +4782,13 @@ body.plans-modal-open {
   width: 16px;
   height: 16px;
   accent-color: #5b3221;
+}
+
+.groceries-recipe-ingredients strong {
+  color: rgba(255, 231, 220, 0.9);
+  font-size: 0.86rem;
+  font-weight: 700;
+  white-space: nowrap;
 }
 
 .bought-section {

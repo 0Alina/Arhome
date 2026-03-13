@@ -4,7 +4,7 @@
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
     <title>Groceries</title>
-    <link rel="stylesheet" th:href="@{/css/style.css(v=70)}" href="/css/style.css?v=70" />
+    <link rel="stylesheet" th:href="@{/css/style.css(v=81)}" href="/css/style.css?v=81" />
   </head>
   <body class="page-groceries">
     <div th:replace="~{fragments :: navbar}"></div>
@@ -214,18 +214,11 @@
 
               <section class="groceries-products" aria-label="Food product placeholders">
                 <article class="groceries-recipe-box">
-                  <p class="groceries-recipe-source">from recipe</p>
-                  <h3 class="groceries-recipe-title">Caprese Stuffed Chicken</h3>
-                  <ul class="groceries-recipe-ingredients">
-                    <li><label><input type="checkbox" /> Chicken breast</label></li>
-                    <li><label><input type="checkbox" /> Mozzarella</label></li>
-                    <li><label><input type="checkbox" /> Tomatoes</label></li>
-                    <li><label><input type="checkbox" /> Basil</label></li>
-                    <li><label><input type="checkbox" /> Olive oil</label></li>
-                    <li><label><input type="checkbox" /> Garlic</label></li>
-                    <li><label><input type="checkbox" /> Black pepper</label></li>
-                    <li><label><input type="checkbox" /> Salt</label></li>
-                  </ul>
+                  <div class="groceries-recipe-empty" data-groceries-recipe-empty>
+                    <p class="groceries-recipe-source">from recipe</p>
+                    <h3 class="groceries-recipe-title">No recipe selected</h3>
+                  </div>
+                  <div class="groceries-recipe-groups" data-groceries-recipe-groups></div>
                 </article>
               </section>
             </div>
@@ -253,6 +246,8 @@
         const addedList = document.querySelector("[data-groceries-added-list]");
         const addedBoughtSection = document.querySelector("[data-groceries-added-bought]");
         const addedBoughtList = document.querySelector("[data-groceries-added-bought-list]");
+        const recipeEmpty = document.querySelector("[data-groceries-recipe-empty]");
+        const recipeGroups = document.querySelector("[data-groceries-recipe-groups]");
 
         if (!(inlineAddButton instanceof HTMLButtonElement)
           || !(productInput instanceof HTMLInputElement)
@@ -260,7 +255,9 @@
           || !(unitValueInput instanceof HTMLInputElement)
           || !(addedList instanceof HTMLUListElement)
           || !(addedBoughtSection instanceof HTMLElement)
-          || !(addedBoughtList instanceof HTMLUListElement)) {
+          || !(addedBoughtList instanceof HTMLUListElement)
+          || !(recipeEmpty instanceof HTMLElement)
+          || !(recipeGroups instanceof HTMLElement)) {
           return;
         }
 
@@ -371,6 +368,14 @@
           addedBoughtSection.hidden = addedBoughtList.children.length === 0;
         };
 
+        const refreshRecipeGroupBoughtVisibility = (groupElement) => {
+          if (!(groupElement instanceof HTMLElement)) return;
+          const boughtSection = groupElement.querySelector("[data-recipe-group-bought]");
+          const boughtList = groupElement.querySelector("[data-recipe-group-bought-list]");
+          if (!(boughtSection instanceof HTMLElement) || !(boughtList instanceof HTMLUListElement)) return;
+          boughtSection.hidden = boughtList.children.length === 0;
+        };
+
         const createAddedItem = (item) => {
           const row = document.createElement("li");
           row.className = "groceries-added-item";
@@ -424,6 +429,98 @@
           refreshAddedBoughtVisibility();
         };
 
+        const createRecipeItem = (item) => {
+          const row = document.createElement("li");
+          row.dataset.id = String(item.id);
+
+          const label = document.createElement("label");
+          const checkbox = document.createElement("input");
+          checkbox.type = "checkbox";
+          checkbox.checked = !!item.bought;
+
+          const name = document.createElement("span");
+          name.textContent = item.productName;
+
+          label.appendChild(checkbox);
+          label.appendChild(name);
+
+          const meta = document.createElement("strong");
+          meta.textContent = `${item.quantity} ${item.unit}`;
+
+          row.appendChild(label);
+          row.appendChild(meta);
+          if (item.bought) {
+            row.classList.add("is-bought");
+          }
+          return row;
+        };
+
+        const createRecipeGroup = (box) => {
+          const group = document.createElement("section");
+          group.className = "groceries-recipe-group";
+          group.dataset.recipeId = String(box.recipeId || "");
+
+          const source = document.createElement("p");
+          source.className = "groceries-recipe-source";
+          source.textContent = "from recipe";
+
+          const title = document.createElement("h3");
+          title.className = "groceries-recipe-title";
+          title.textContent = box.recipeTitle || "Recipe";
+
+          const activeList = document.createElement("ul");
+          activeList.className = "groceries-recipe-ingredients";
+          activeList.setAttribute("data-recipe-group-list", "");
+
+          const boughtSection = document.createElement("section");
+          boughtSection.className = "bought-section";
+          boughtSection.setAttribute("data-recipe-group-bought", "");
+          boughtSection.hidden = true;
+
+          const boughtTitle = document.createElement("h4");
+          boughtTitle.textContent = "Already bought";
+
+          const boughtList = document.createElement("ul");
+          boughtList.className = "groceries-recipe-ingredients bought-checklist";
+          boughtList.setAttribute("data-recipe-group-bought-list", "");
+
+          boughtSection.appendChild(boughtTitle);
+          boughtSection.appendChild(boughtList);
+
+          group.appendChild(source);
+          group.appendChild(title);
+          group.appendChild(activeList);
+          group.appendChild(boughtSection);
+
+          const items = Array.isArray(box.items) ? box.items : [];
+          items.forEach((item) => {
+            const row = createRecipeItem(item);
+            if (item.bought) {
+              boughtList.appendChild(row);
+            } else {
+              activeList.appendChild(row);
+            }
+          });
+
+          refreshRecipeGroupBoughtVisibility(group);
+          return group;
+        };
+
+        const renderRecipeItems = (boxes) => {
+          recipeGroups.innerHTML = "";
+          const sourceBoxes = Array.isArray(boxes) ? boxes : [];
+
+          if (sourceBoxes.length === 0) {
+            recipeEmpty.hidden = false;
+            return;
+          }
+
+          recipeEmpty.hidden = true;
+          sourceBoxes.forEach((box) => {
+            recipeGroups.appendChild(createRecipeGroup(box));
+          });
+        };
+
         const loadUserItems = async () => {
           try {
             const response = await fetch("/groceries/items", { method: "GET", headers: { Accept: "application/json" } });
@@ -432,6 +529,16 @@
             if (Array.isArray(items)) {
               renderUserItems(items);
             }
+          } catch (_error) {
+          }
+        };
+
+        const loadRecipeItems = async () => {
+          try {
+            const response = await fetch("/groceries/items/from-recipe", { method: "GET", headers: { Accept: "application/json" } });
+            if (!response.ok) return;
+            const boxes = await response.json();
+            renderRecipeItems(boxes);
           } catch (_error) {
           }
         };
@@ -476,11 +583,6 @@
           if (!(box instanceof HTMLElement)) return;
           setupBoughtSection(box, ".weekly-plan-checklist");
         });
-
-        const recipeBox = document.querySelector(".groceries-recipe-box");
-        if (recipeBox instanceof HTMLElement) {
-          setupBoughtSection(recipeBox, ".groceries-recipe-ingredients");
-        }
 
         inlineAddButton.addEventListener("click", async () => {
           const productName = productInput.value.trim();
@@ -571,6 +673,61 @@
           }
         };
 
+        const handleRecipeBoughtToggle = async (row, checkbox) => {
+          const id = row.dataset.id;
+          if (!id) return;
+          const bought = checkbox.checked;
+
+          const group = row.closest(".groceries-recipe-group");
+          if (!(group instanceof HTMLElement)) return;
+          const activeList = group.querySelector("[data-recipe-group-list]");
+          const boughtList = group.querySelector("[data-recipe-group-bought-list]");
+          if (!(activeList instanceof HTMLUListElement) || !(boughtList instanceof HTMLUListElement)) return;
+
+          const previousParent = row.parentElement;
+          const previousBoughtClass = row.classList.contains("is-bought");
+
+          if (bought) {
+            row.classList.add("is-bought");
+            boughtList.appendChild(row);
+          } else {
+            row.classList.remove("is-bought");
+            activeList.appendChild(row);
+          }
+          refreshRecipeGroupBoughtVisibility(group);
+
+          try {
+            const response = await fetch(`/groceries/items/${id}/bought`, {
+              method: "PATCH",
+              headers: apiHeaders(),
+              body: JSON.stringify({ bought }),
+            });
+            if (!response.ok) {
+              checkbox.checked = !bought;
+              if (previousParent instanceof HTMLElement) {
+                previousParent.appendChild(row);
+              }
+              if (previousBoughtClass) {
+                row.classList.add("is-bought");
+              } else {
+                row.classList.remove("is-bought");
+              }
+              refreshRecipeGroupBoughtVisibility(group);
+            }
+          } catch (_error) {
+            checkbox.checked = !bought;
+            if (previousParent instanceof HTMLElement) {
+              previousParent.appendChild(row);
+            }
+            if (previousBoughtClass) {
+              row.classList.add("is-bought");
+            } else {
+              row.classList.remove("is-bought");
+            }
+            refreshRecipeGroupBoughtVisibility(group);
+          }
+        };
+
         const handleAddedListClick = (event) => {
           const target = event.target;
           if (!(target instanceof HTMLElement)) return;
@@ -592,10 +749,19 @@
           handleBoughtToggle(row, target);
         };
 
+        const handleRecipeListChange = (event) => {
+          const target = event.target;
+          if (!(target instanceof HTMLInputElement) || target.type !== "checkbox") return;
+          const row = target.closest("li");
+          if (!(row instanceof HTMLLIElement)) return;
+          handleRecipeBoughtToggle(row, target);
+        };
+
         addedList.addEventListener("click", handleAddedListClick);
         addedBoughtList.addEventListener("click", handleAddedListClick);
         addedList.addEventListener("change", handleAddedListChange);
         addedBoughtList.addEventListener("change", handleAddedListChange);
+        recipeGroups.addEventListener("change", handleRecipeListChange);
 
         document.addEventListener("click", (event) => {
           const target = event.target;
@@ -612,6 +778,7 @@
         });
 
         loadUserItems();
+        loadRecipeItems();
       })();
     </script>
   </body>
