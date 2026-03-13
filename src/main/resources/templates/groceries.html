@@ -4,7 +4,7 @@
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
     <title>Groceries</title>
-    <link rel="stylesheet" th:href="@{/css/style.css(v=69)}" href="/css/style.css?v=69" />
+    <link rel="stylesheet" th:href="@{/css/style.css(v=70)}" href="/css/style.css?v=70" />
   </head>
   <body class="page-groceries">
     <div th:replace="~{fragments :: navbar}"></div>
@@ -171,15 +171,15 @@
 
             <div class="groceries-right-column">
               <form class="groceries-card groceries-form-card" action="#" method="post" onsubmit="return false;">
+                <input type="hidden" th:name="${_csrf.parameterName}" th:value="${_csrf.token}" />
                 <div class="add-recipe-field add-recipe-field--fill">
                   <div class="groceries-card-head">
                     <h2>Food products</h2>
-                    <button type="button" class="btn-primary groceries-add-top" data-groceries-add>Add</button>
                   </div>
 
                   <div class="add-recipe-ingredients groceries-ingredients" data-groceries-rows>
                     <div class="add-recipe-ingredient-row groceries-ingredient-row" data-groceries-row>
-                      <input type="text" name="ingredientItems[0].name" placeholder="Ingredient" required />
+                      <input type="text" name="ingredientItems[0].name" placeholder="Product" required />
                       <input type="number" name="ingredientItems[0].quantity" min="0" step="0.5" placeholder="Qty" required />
 
                       <div class="ingredient-unit-select groceries-unit-select" data-unit-select>
@@ -198,16 +198,16 @@
                         </div>
                       </div>
 
-                      <button
-                        type="button"
-                        class="btn-secondary groceries-remove"
-                        data-groceries-remove
-                        data-ingredient-action
-                        data-action="remove"
-                      >
-                        Remove
-                      </button>
+                      <button type="button" class="btn-primary groceries-inline-add" data-groceries-inline-add>Add</button>
                     </div>
+                  </div>
+
+                  <div class="groceries-added-wrap" data-groceries-added-wrap>
+                    <ul class="groceries-added-list" data-groceries-added-list></ul>
+                    <section class="bought-section groceries-added-bought" data-groceries-added-bought hidden>
+                      <h4>Already bought</h4>
+                      <ul class="groceries-added-list groceries-added-bought-list" data-groceries-added-bought-list></ul>
+                    </section>
                   </div>
                 </div>
               </form>
@@ -234,54 +234,44 @@
       </section>
     </main>
 
-    <template id="groceries-row-template">
-      <div class="add-recipe-ingredient-row groceries-ingredient-row" data-groceries-row>
-        <input type="text" name="ingredientItems[__index__].name" placeholder="Ingredient" required />
-        <input type="number" name="ingredientItems[__index__].quantity" min="0" step="0.5" placeholder="Qty" required />
-
-        <div class="ingredient-unit-select groceries-unit-select" data-unit-select>
-          <input type="hidden" name="ingredientItems[__index__].unit" value="" data-unit-value />
-          <button type="button" class="ingredient-unit-trigger" data-unit-trigger aria-expanded="false">Unit</button>
-          <div class="ingredient-unit-menu" data-unit-menu>
-            <button type="button" class="ingredient-unit-option" data-unit-option data-value="pcs">pcs</button>
-            <button type="button" class="ingredient-unit-option" data-unit-option data-value="pinch">pinch</button>
-            <button type="button" class="ingredient-unit-option" data-unit-option data-value="tsp">tsp</button>
-            <button type="button" class="ingredient-unit-option" data-unit-option data-value="tbsp">tbsp</button>
-            <button type="button" class="ingredient-unit-option" data-unit-option data-value="cup">cup</button>
-            <button type="button" class="ingredient-unit-option" data-unit-option data-value="ml">ml</button>
-            <button type="button" class="ingredient-unit-option" data-unit-option data-value="l">l</button>
-            <button type="button" class="ingredient-unit-option" data-unit-option data-value="g">g</button>
-            <button type="button" class="ingredient-unit-option" data-unit-option data-value="kg">kg</button>
-          </div>
-        </div>
-
-        <button
-          type="button"
-          class="btn-secondary groceries-remove"
-          data-groceries-remove
-          data-ingredient-action
-          data-action="remove"
-        >
-          Remove
-        </button>
-      </div>
-    </template>
-
     <div th:replace="~{fragments :: auth-modals}"></div>
     <div th:replace="~{fragments :: footer}"></div>
 
     <script>
       (() => {
         const rowsContainer = document.querySelector("[data-groceries-rows]");
-        const addButton = document.querySelector("[data-groceries-add]");
-        const rowTemplate = document.getElementById("groceries-row-template");
+        if (!(rowsContainer instanceof HTMLElement)) return;
 
-        if (!(rowsContainer instanceof HTMLElement) || !(addButton instanceof HTMLButtonElement) || !(rowTemplate instanceof HTMLTemplateElement)) {
+        const form = rowsContainer.closest("form");
+        const csrfTokenInput = form ? form.querySelector("input[type='hidden'][name]") : null;
+        const csrfToken = csrfTokenInput instanceof HTMLInputElement ? csrfTokenInput.value : null;
+
+        const inlineAddButton = rowsContainer.querySelector("[data-groceries-inline-add]");
+        const productInput = rowsContainer.querySelector("input[name='ingredientItems[0].name']");
+        const qtyInput = rowsContainer.querySelector("input[name='ingredientItems[0].quantity']");
+        const unitValueInput = rowsContainer.querySelector("[data-unit-value]");
+        const addedList = document.querySelector("[data-groceries-added-list]");
+        const addedBoughtSection = document.querySelector("[data-groceries-added-bought]");
+        const addedBoughtList = document.querySelector("[data-groceries-added-bought-list]");
+
+        if (!(inlineAddButton instanceof HTMLButtonElement)
+          || !(productInput instanceof HTMLInputElement)
+          || !(qtyInput instanceof HTMLInputElement)
+          || !(unitValueInput instanceof HTMLInputElement)
+          || !(addedList instanceof HTMLUListElement)
+          || !(addedBoughtSection instanceof HTMLElement)
+          || !(addedBoughtList instanceof HTMLUListElement)) {
           return;
         }
 
+        const apiHeaders = () => {
+          const headers = { "Content-Type": "application/json" };
+          if (csrfToken) headers["X-CSRF-TOKEN"] = csrfToken;
+          return headers;
+        };
+
         const closeUnitMenus = (exceptRoot = null) => {
-          rowsContainer.querySelectorAll("[data-unit-select]").forEach((selectRoot) => {
+          document.querySelectorAll("[data-unit-select]").forEach((selectRoot) => {
             if (!(selectRoot instanceof HTMLElement)) return;
             if (exceptRoot && selectRoot === exceptRoot) return;
             selectRoot.classList.remove("is-open");
@@ -331,51 +321,6 @@
           syncState();
         };
 
-        const renumberRows = () => {
-          rowsContainer.querySelectorAll("[data-groceries-row]").forEach((row, index) => {
-            row.querySelectorAll("input[name]").forEach((input) => {
-              if (!(input instanceof HTMLInputElement)) return;
-              input.name = input.name.replace(/ingredientItems\[\d+\]/, `ingredientItems[${index}]`);
-            });
-          });
-        };
-
-        rowsContainer.querySelectorAll("[data-groceries-row]").forEach((row) => {
-          if (!(row instanceof HTMLElement)) return;
-          bindUnitSelect(row);
-        });
-
-        rowsContainer.addEventListener("pointerdown", (event) => {
-          const target = event.target;
-          if (!(target instanceof Element)) return;
-          const qtyInput = target.closest("input[type='number']");
-          if (!(qtyInput instanceof HTMLInputElement)) return;
-
-          const rect = qtyInput.getBoundingClientRect();
-          const clickX = event.clientX - rect.left;
-          const clickY = event.clientY - rect.top;
-          const arrowZone = clickX >= rect.width - 22;
-          if (!arrowZone) return;
-
-          event.preventDefault();
-          const min = qtyInput.min !== "" ? Number(qtyInput.min) : Number.NEGATIVE_INFINITY;
-          const parsedStep = Number(qtyInput.step);
-          const step = Number.isFinite(parsedStep) && parsedStep > 0 ? parsedStep : 1;
-          const current = qtyInput.value !== "" ? Number(qtyInput.value) : 0;
-
-          let next = current;
-          if (clickY < rect.height / 2) {
-            next = current + step;
-          } else {
-            next = current - step;
-          }
-
-          if (next < min) next = min;
-          qtyInput.value = String(Number(next.toFixed(4)));
-          qtyInput.dispatchEvent(new Event("input", { bubbles: true }));
-          qtyInput.dispatchEvent(new Event("change", { bubbles: true }));
-        });
-
         const setupBoughtSection = (boxElement, sourceSelector) => {
           const sourceList = boxElement.querySelector(sourceSelector);
           if (!(sourceList instanceof HTMLUListElement)) return;
@@ -419,19 +364,113 @@
             refreshState();
           });
 
-          sourceList.querySelectorAll("input[type='checkbox']").forEach((checkbox) => {
-            if (!(checkbox instanceof HTMLInputElement)) return;
-            if (checkbox.checked) {
-              const row = checkbox.closest("li");
-              if (row instanceof HTMLLIElement) {
-                boughtList.appendChild(row);
-                row.classList.add("is-bought");
-              }
+          refreshState();
+        };
+
+        const refreshAddedBoughtVisibility = () => {
+          addedBoughtSection.hidden = addedBoughtList.children.length === 0;
+        };
+
+        const createAddedItem = (item) => {
+          const row = document.createElement("li");
+          row.className = "groceries-added-item";
+          row.dataset.id = String(item.id);
+
+          const label = document.createElement("label");
+          label.className = "groceries-added-main";
+          const checkbox = document.createElement("input");
+          checkbox.type = "checkbox";
+          checkbox.checked = !!item.bought;
+          const name = document.createElement("span");
+          name.className = "groceries-added-name";
+          name.textContent = item.productName;
+          label.appendChild(checkbox);
+          label.appendChild(name);
+
+          const meta = document.createElement("span");
+          meta.className = "groceries-added-meta";
+          meta.textContent = `${item.quantity} ${item.unit}`;
+
+          const removeBtn = document.createElement("button");
+          removeBtn.type = "button";
+          removeBtn.className = "groceries-added-delete";
+          removeBtn.setAttribute("aria-label", `Delete ${item.productName}`);
+          removeBtn.textContent = "x";
+
+          row.appendChild(label);
+          row.appendChild(meta);
+          row.appendChild(removeBtn);
+
+          if (item.bought) {
+            row.classList.add("is-bought");
+          }
+
+          return row;
+        };
+
+        const renderUserItems = (items) => {
+          addedList.innerHTML = "";
+          addedBoughtList.innerHTML = "";
+
+          items.forEach((item) => {
+            const row = createAddedItem(item);
+            if (item.bought) {
+              addedBoughtList.appendChild(row);
+            } else {
+              addedList.appendChild(row);
             }
           });
 
-          refreshState();
+          refreshAddedBoughtVisibility();
         };
+
+        const loadUserItems = async () => {
+          try {
+            const response = await fetch("/groceries/items", { method: "GET", headers: { Accept: "application/json" } });
+            if (!response.ok) return;
+            const items = await response.json();
+            if (Array.isArray(items)) {
+              renderUserItems(items);
+            }
+          } catch (_error) {
+          }
+        };
+
+        rowsContainer.querySelectorAll("[data-groceries-row]").forEach((row) => {
+          if (!(row instanceof HTMLElement)) return;
+          bindUnitSelect(row);
+        });
+
+        rowsContainer.addEventListener("pointerdown", (event) => {
+          const target = event.target;
+          if (!(target instanceof Element)) return;
+          const targetQtyInput = target.closest("input[type='number']");
+          if (!(targetQtyInput instanceof HTMLInputElement)) return;
+
+          const rect = targetQtyInput.getBoundingClientRect();
+          const clickX = event.clientX - rect.left;
+          const clickY = event.clientY - rect.top;
+          const arrowZone = clickX >= rect.width - 22;
+          if (!arrowZone) return;
+
+          event.preventDefault();
+          const min = targetQtyInput.min !== "" ? Number(targetQtyInput.min) : Number.NEGATIVE_INFINITY;
+          const parsedStep = Number(targetQtyInput.step);
+          const step = Number.isFinite(parsedStep) && parsedStep > 0 ? parsedStep : 1;
+          const current = targetQtyInput.value !== "" ? Number(targetQtyInput.value) : 0;
+
+          let next = current;
+          if (clickY < rect.height / 2) {
+            next = current + step;
+          } else {
+            next = current - step;
+          }
+
+          if (next < min) next = min;
+          targetQtyInput.value = String(Number(next.toFixed(4)));
+          targetQtyInput.dispatchEvent(new Event("input", { bubbles: true }));
+          targetQtyInput.dispatchEvent(new Event("change", { bubbles: true }));
+        });
 
         document.querySelectorAll(".weekly-plan-box").forEach((box) => {
           if (!(box instanceof HTMLElement)) return;
@@ -443,32 +482,120 @@
           setupBoughtSection(recipeBox, ".groceries-recipe-ingredients");
         }
 
-        addButton.addEventListener("click", () => {
-          const index = rowsContainer.querySelectorAll("[data-groceries-row]").length;
-          const html = rowTemplate.innerHTML.replaceAll("__index__", String(index));
-          rowsContainer.insertAdjacentHTML("beforeend", html);
-          const newRow = rowsContainer.lastElementChild;
-          if (newRow instanceof HTMLElement) {
-            bindUnitSelect(newRow);
-            const ingredientInput = newRow.querySelector("input[type='text']");
-            if (ingredientInput instanceof HTMLInputElement) ingredientInput.focus();
+        inlineAddButton.addEventListener("click", async () => {
+          const productName = productInput.value.trim();
+          const quantity = qtyInput.value.trim();
+          const unit = (unitValueInput.value || "").trim() || "unit";
+          if (!productName || !quantity) return;
+
+          try {
+            const response = await fetch("/groceries/items", {
+              method: "POST",
+              headers: apiHeaders(),
+              body: JSON.stringify({ productName, quantity, unit }),
+            });
+            if (!response.ok) return;
+            const item = await response.json();
+            const row = createAddedItem(item);
+            addedList.appendChild(row);
+
+            productInput.value = "";
+            qtyInput.value = "";
+            productInput.focus();
+          } catch (_error) {
           }
         });
 
-        rowsContainer.addEventListener("click", (event) => {
+        const handleDelete = async (row) => {
+          const id = row.dataset.id;
+          if (!id) return;
+          try {
+            const response = await fetch(`/groceries/items/${id}`, {
+              method: "DELETE",
+              headers: apiHeaders(),
+            });
+            if (!response.ok) return;
+            row.remove();
+            refreshAddedBoughtVisibility();
+          } catch (_error) {
+          }
+        };
+
+        const handleBoughtToggle = async (row, checkbox) => {
+          const id = row.dataset.id;
+          if (!id) return;
+          const bought = checkbox.checked;
+
+          const previousParent = row.parentElement;
+          const previousBoughtClass = row.classList.contains("is-bought");
+
+          if (bought) {
+            row.classList.add("is-bought");
+            addedBoughtList.appendChild(row);
+          } else {
+            row.classList.remove("is-bought");
+            addedList.appendChild(row);
+          }
+          refreshAddedBoughtVisibility();
+
+          try {
+            const response = await fetch(`/groceries/items/${id}/bought`, {
+              method: "PATCH",
+              headers: apiHeaders(),
+              body: JSON.stringify({ bought }),
+            });
+            if (!response.ok) {
+              checkbox.checked = !bought;
+              if (previousParent instanceof HTMLElement) {
+                previousParent.appendChild(row);
+              }
+              if (previousBoughtClass) {
+                row.classList.add("is-bought");
+              } else {
+                row.classList.remove("is-bought");
+              }
+              refreshAddedBoughtVisibility();
+              return;
+            }
+          } catch (_error) {
+            checkbox.checked = !bought;
+            if (previousParent instanceof HTMLElement) {
+              previousParent.appendChild(row);
+            }
+            if (previousBoughtClass) {
+              row.classList.add("is-bought");
+            } else {
+              row.classList.remove("is-bought");
+            }
+            refreshAddedBoughtVisibility();
+          }
+        };
+
+        const handleAddedListClick = (event) => {
           const target = event.target;
           if (!(target instanceof HTMLElement)) return;
-          const removeButton = target.closest("[data-groceries-remove]");
-          if (!removeButton) return;
 
-          const rows = rowsContainer.querySelectorAll("[data-groceries-row]");
-          if (rows.length <= 1) return;
+          const removeBtn = target.closest(".groceries-added-delete");
+          if (removeBtn) {
+            const row = removeBtn.closest(".groceries-added-item");
+            if (row instanceof HTMLLIElement) {
+              handleDelete(row);
+            }
+          }
+        };
 
-          const row = removeButton.closest("[data-groceries-row]");
-          if (!(row instanceof HTMLElement)) return;
-          row.remove();
-          renumberRows();
-        });
+        const handleAddedListChange = (event) => {
+          const target = event.target;
+          if (!(target instanceof HTMLInputElement) || target.type !== "checkbox") return;
+          const row = target.closest(".groceries-added-item");
+          if (!(row instanceof HTMLLIElement)) return;
+          handleBoughtToggle(row, target);
+        };
+
+        addedList.addEventListener("click", handleAddedListClick);
+        addedBoughtList.addEventListener("click", handleAddedListClick);
+        addedList.addEventListener("change", handleAddedListChange);
+        addedBoughtList.addEventListener("change", handleAddedListChange);
 
         document.addEventListener("click", (event) => {
           const target = event.target;
@@ -483,6 +610,8 @@
             closeUnitMenus();
           }
         });
+
+        loadUserItems();
       })();
     </script>
   </body>
