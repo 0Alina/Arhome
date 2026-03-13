@@ -4698,17 +4698,14 @@ body.plans-modal-open {
 }
 
 .groceries-recipe-box {
-  background: #8a5a3e;
-  border: 1px solid rgba(206, 150, 111, 0.56);
-  border-radius: 22px;
-  padding: 14px;
-  min-height: 382px;
+  background: transparent;
+  border: 0;
+  border-radius: 0;
+  padding: 0;
   display: grid;
   align-content: start;
-  gap: 12px;
-  box-shadow:
-    inset 0 1px 0 rgba(255, 224, 198, 0.16),
-    0 14px 28px rgba(0, 0, 0, 0.24);
+  gap: 14px;
+  box-shadow: none;
 }
 
 .groceries-recipe-source {
@@ -4729,6 +4726,13 @@ body.plans-modal-open {
 .groceries-recipe-empty {
   display: grid;
   gap: 12px;
+  background: #8a5a3e;
+  border: 1px solid rgba(206, 150, 111, 0.56);
+  border-radius: 22px;
+  padding: 14px;
+  box-shadow:
+    inset 0 1px 0 rgba(255, 224, 198, 0.16),
+    0 14px 28px rgba(0, 0, 0, 0.24);
 }
 
 .groceries-recipe-empty[hidden] {
@@ -4741,15 +4745,49 @@ body.plans-modal-open {
 }
 
 .groceries-recipe-group {
-  border-top: 1px solid rgba(255, 231, 220, 0.16);
-  padding-top: 12px;
+  background: #8a5a3e;
+  border: 1px solid rgba(206, 150, 111, 0.56);
+  border-radius: 22px;
+  padding: 14px;
+  position: relative;
   display: grid;
   gap: 10px;
+  box-shadow:
+    inset 0 1px 0 rgba(255, 224, 198, 0.16),
+    0 14px 28px rgba(0, 0, 0, 0.24);
 }
 
 .groceries-recipe-group:first-child {
-  border-top: 0;
-  padding-top: 0;
+  padding: 14px;
+}
+
+.groceries-recipe-remove {
+  position: absolute;
+  top: 8px;
+  right: 10px;
+  width: 34px;
+  height: 24px;
+  border: 0;
+  background: transparent;
+  color: #452a1d;
+  font-size: 1.16rem;
+  font-weight: 400;
+  line-height: 1;
+  cursor: pointer;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  padding: 0 4px;
+}
+
+.groceries-recipe-remove:hover,
+.groceries-recipe-remove:focus {
+  color: #603a29;
+}
+
+.groceries-recipe-remove:disabled {
+  opacity: 0.55;
+  cursor: not-allowed;
 }
 
 .groceries-recipe-ingredients {

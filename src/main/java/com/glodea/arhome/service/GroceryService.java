@@ -14,6 +14,8 @@ public interface GroceryService {
 
     List<GroceryRecipeBoxResponse> addRecipeItems(User user, Long recipeId);
 
+    void removeRecipeItems(User user, Long recipeId);
+
     GroceryItemResponse addItem(User user, String productName, String quantity, String unit);
 
     GroceryItemResponse setBought(User user, Long id, boolean bought);

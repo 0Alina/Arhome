@@ -460,6 +460,13 @@
           group.className = "groceries-recipe-group";
           group.dataset.recipeId = String(box.recipeId || "");
 
+          const removeBtn = document.createElement("button");
+          removeBtn.type = "button";
+          removeBtn.className = "groceries-recipe-remove";
+          removeBtn.setAttribute("aria-label", `Remove ${box.recipeTitle || "recipe"}`);
+          removeBtn.setAttribute("data-recipe-remove", "");
+          removeBtn.textContent = "x";
+
           const source = document.createElement("p");
           source.className = "groceries-recipe-source";
           source.textContent = "from recipe";
@@ -489,6 +496,7 @@
 
           group.appendChild(source);
           group.appendChild(title);
+          group.appendChild(removeBtn);
           group.appendChild(activeList);
           group.appendChild(boughtSection);
 
@@ -757,10 +765,43 @@
           handleRecipeBoughtToggle(row, target);
         };
 
+        const handleRecipeGroupRemove = async (event) => {
+          const target = event.target;
+          if (!(target instanceof HTMLElement)) return;
+          const removeBtn = target.closest("[data-recipe-remove]");
+          if (!(removeBtn instanceof HTMLButtonElement)) return;
+
+          const group = removeBtn.closest(".groceries-recipe-group");
+          if (!(group instanceof HTMLElement)) return;
+          const recipeId = group.dataset.recipeId;
+          if (!recipeId) return;
+
+          removeBtn.disabled = true;
+
+          try {
+            const response = await fetch(`/groceries/items/from-recipe/${recipeId}`, {
+              method: "DELETE",
+              headers: apiHeaders(),
+            });
+            if (!response.ok) {
+              removeBtn.disabled = false;
+              return;
+            }
+
+            group.remove();
+            if (!recipeGroups.querySelector(".groceries-recipe-group")) {
+              recipeEmpty.hidden = false;
+            }
+          } catch (_error) {
+            removeBtn.disabled = false;
+          }
+        };
+
         addedList.addEventListener("click", handleAddedListClick);
         addedBoughtList.addEventListener("click", handleAddedListClick);
         addedList.addEventListener("change", handleAddedListChange);
         addedBoughtList.addEventListener("change", handleAddedListChange);
+        recipeGroups.addEventListener("click", handleRecipeGroupRemove);
         recipeGroups.addEventListener("change", handleRecipeListChange);
 
         document.addEventListener("click", (event) => {

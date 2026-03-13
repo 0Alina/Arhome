@@ -113,6 +113,18 @@ public class GroceryServiceImpl implements GroceryService {
     }
 
     @Override
+    public void removeRecipeItems(User user, Long recipeId) {
+        if (user == null || user.getId() == null) {
+            throw new IllegalArgumentException("Authentication required.");
+        }
+        if (recipeId == null) {
+            throw new IllegalArgumentException("Recipe is required.");
+        }
+
+        groceryItemRepository.deleteByUserIdAndSourceRecipeId(user.getId(), recipeId);
+    }
+
+    @Override
     public GroceryItemResponse addItem(User user, String productName, String quantity, String unit) {
         if (user == null || user.getId() == null) {
             throw new IllegalArgumentException("Authentication required.");

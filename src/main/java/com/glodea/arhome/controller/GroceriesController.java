@@ -86,6 +86,21 @@ public class GroceriesController {
         }
     }
 
+    @DeleteMapping("/from-recipe/{recipeId}")
+    public ResponseEntity<?> removeRecipeFromGroceries(@PathVariable("recipeId") Long recipeId) {
+        User user = getCurrentUser();
+        if (user == null) {
+            return ResponseEntity.status(401).body(Map.of("ok", false, "message", "Authentication required."));
+        }
+
+        try {
+            groceryService.removeRecipeItems(user, recipeId);
+            return ResponseEntity.ok(Map.of("ok", true));
+        } catch (IllegalArgumentException ex) {
+            return ResponseEntity.badRequest().body(Map.of("ok", false, "message", ex.getMessage()));
+        }
+    }
+
     @PatchMapping("/{id}/bought")
     public ResponseEntity<?> setBought(@PathVariable("id") Long id, @RequestBody GroceryItemBoughtRequest request) {
         User user = getCurrentUser();
