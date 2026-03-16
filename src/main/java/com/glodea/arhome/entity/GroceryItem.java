@@ -13,9 +13,16 @@ import jakarta.persistence.JoinColumn;
 import jakarta.persistence.ManyToOne;
 import jakarta.persistence.PrePersist;
 import jakarta.persistence.Table;
+import jakarta.persistence.Index;
 
 @Entity
-@Table(name = "grocery_items")
+@Table(
+    name = "grocery_items",
+    indexes = {
+        @Index(name = "idx_grocery_items_user_created", columnList = "user_id, created_at"),
+        @Index(name = "idx_grocery_items_user_recipe_created", columnList = "user_id, source_recipe_id, created_at")
+    }
+)
 public class GroceryItem {
 
     @Id
@@ -44,7 +51,7 @@ public class GroceryItem {
     @Column(name = "source_recipe_title", length = 220)
     private String sourceRecipeTitle;
 
-    @Column(nullable = false)
+    @Column(name = "created_at", nullable = false)
     private LocalDateTime createdAt;
 
     @PrePersist

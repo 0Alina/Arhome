@@ -52,7 +52,7 @@ public class GroceryServiceImpl implements GroceryService {
         }
 
         List<GroceryItem> recipeItems = groceryItemRepository
-            .findByUserIdAndSourceRecipeIdIsNotNullOrderByCreatedAtAsc(user.getId());
+            .findByUserIdAndSourceRecipeIdIsNotNullOrderBySourceRecipeIdAscCreatedAtAsc(user.getId());
         if (recipeItems.isEmpty()) {
             return List.of();
         }

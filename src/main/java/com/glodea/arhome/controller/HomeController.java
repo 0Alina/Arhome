@@ -9,6 +9,7 @@ import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.RequestParam;
 
 import com.glodea.arhome.service.RecipeService;
+import com.glodea.arhome.service.GroceryService;
 import com.glodea.arhome.repository.UserRepository;
 import com.glodea.arhome.entity.User;
 
@@ -16,10 +17,12 @@ import com.glodea.arhome.entity.User;
 public class HomeController {
 
     private final RecipeService recipeService;
+    private final GroceryService groceryService;
     private final UserRepository userRepository;
 
-    public HomeController(RecipeService recipeService, UserRepository userRepository) {
+    public HomeController(RecipeService recipeService, GroceryService groceryService, UserRepository userRepository) {
         this.recipeService = recipeService;
+        this.groceryService = groceryService;
         this.userRepository = userRepository;
     }
 
@@ -73,7 +76,15 @@ public class HomeController {
     }
 
     @GetMapping({"/groceries", "/search"})
-    public String groceries() {
+    public String groceries(Model model) {
+        User user = getCurrentUser();
+        if (user != null) {
+            model.addAttribute("initialManualItems", groceryService.listItems(user));
+            model.addAttribute("initialRecipeBoxes", groceryService.getRecipeBoxes(user));
+        } else {
+            model.addAttribute("initialManualItems", java.util.List.of());
+            model.addAttribute("initialRecipeBoxes", java.util.List.of());
+        }
         return "groceries";
     }
 

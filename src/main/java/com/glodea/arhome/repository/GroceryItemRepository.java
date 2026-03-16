@@ -11,7 +11,7 @@ public interface GroceryItemRepository extends JpaRepository<GroceryItem, Long> 
 
     List<GroceryItem> findByUserIdAndSourceRecipeIdIsNullOrderByCreatedAtAsc(Long userId);
 
-    List<GroceryItem> findByUserIdAndSourceRecipeIdIsNotNullOrderByCreatedAtAsc(Long userId);
+    List<GroceryItem> findByUserIdAndSourceRecipeIdIsNotNullOrderBySourceRecipeIdAscCreatedAtAsc(Long userId);
 
     void deleteByUserIdAndSourceRecipeId(Long userId, Long sourceRecipeId);
 

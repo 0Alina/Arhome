@@ -214,7 +214,7 @@
 
               <section class="groceries-products" aria-label="Food product placeholders">
                 <article class="groceries-recipe-box">
-                  <div class="groceries-recipe-empty" data-groceries-recipe-empty>
+                  <div class="groceries-recipe-empty" data-groceries-recipe-empty hidden>
                     <p class="groceries-recipe-source">from recipe</p>
                     <h3 class="groceries-recipe-title">No recipe selected</h3>
                   </div>
@@ -230,8 +230,11 @@
     <div th:replace="~{fragments :: auth-modals}"></div>
     <div th:replace="~{fragments :: footer}"></div>
 
-    <script>
+    <script th:inline="javascript">
       (() => {
+        const initialManualItems = /*[[${initialManualItems}]]*/ [];
+        const initialRecipeBoxes = /*[[${initialRecipeBoxes}]]*/ [];
+
         const rowsContainer = document.querySelector("[data-groceries-rows]");
         if (!(rowsContainer instanceof HTMLElement)) return;
 
@@ -652,28 +655,6 @@
           });
         };
 
-        const loadUserItems = async () => {
-          try {
-            const response = await fetch("/groceries/items", { method: "GET", headers: { Accept: "application/json" } });
-            if (!response.ok) return;
-            const items = await response.json();
-            if (Array.isArray(items)) {
-              renderUserItems(items);
-            }
-          } catch (_error) {
-          }
-        };
-
-        const loadRecipeItems = async () => {
-          try {
-            const response = await fetch("/groceries/items/from-recipe", { method: "GET", headers: { Accept: "application/json" } });
-            if (!response.ok) return;
-            const boxes = await response.json();
-            renderRecipeItems(boxes);
-          } catch (_error) {
-          }
-        };
-
         rowsContainer.querySelectorAll("[data-groceries-row]").forEach((row) => {
           if (!(row instanceof HTMLElement)) return;
           bindUnitSelect(row);
@@ -1015,8 +996,8 @@
           }
         });
 
-        loadUserItems();
-        loadRecipeItems();
+        renderUserItems(Array.isArray(initialManualItems) ? initialManualItems : []);
+        renderRecipeItems(Array.isArray(initialRecipeBoxes) ? initialRecipeBoxes : []);
       })();
     </script>
   </body>
