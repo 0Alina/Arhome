@@ -4752,13 +4752,35 @@ body.plans-modal-open {
   position: relative;
   display: grid;
   gap: 10px;
+  transform-origin: top;
+  transition: opacity 0.45s ease, transform 0.45s ease;
   box-shadow:
     inset 0 1px 0 rgba(255, 224, 198, 0.16),
     0 14px 28px rgba(0, 0, 0, 0.24);
 }
 
+.groceries-recipe-group.is-clearing {
+  opacity: 0;
+  transform: translateY(-4px);
+}
+
 .groceries-recipe-group:first-child {
   padding: 14px;
+}
+
+.groceries-recipe-ready-note {
+  margin: 6px 0 2px;
+  text-align: center;
+  color: #4f2f21;
+  font-style: italic;
+  font-weight: 600;
+  font-size: 1.12rem;
+  letter-spacing: 0.02em;
+  line-height: 1.35;
+}
+
+.groceries-recipe-ready-note[hidden] {
+  display: none !important;
 }
 
 .groceries-recipe-remove {

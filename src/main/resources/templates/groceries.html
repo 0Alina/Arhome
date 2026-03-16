@@ -270,6 +270,9 @@
         const MANUAL_ITEM_AUTO_DELETE_MS = 3000;
         const MANUAL_ITEM_FADE_MS = 450;
         const pendingManualAutoDelete = new WeakMap();
+        const RECIPE_GROUP_AUTO_REMOVE_MS = 3000;
+        const RECIPE_GROUP_FADE_MS = 450;
+        const pendingRecipeGroupAutoDelete = new WeakMap();
 
         const clearManualAutoDelete = (row, options = {}) => {
           const { clearFadeClass = true } = options;
@@ -414,6 +417,81 @@
           boughtSection.hidden = boughtList.children.length === 0;
         };
 
+        const clearRecipeGroupAutoDelete = (groupElement, options = {}) => {
+          const { hideReadyMessage = true, clearFadeClass = true } = options;
+          const timerState = pendingRecipeGroupAutoDelete.get(groupElement);
+          if (timerState) {
+            clearTimeout(timerState.fadeTimerId);
+            clearTimeout(timerState.deleteTimerId);
+            pendingRecipeGroupAutoDelete.delete(groupElement);
+          }
+
+          if (clearFadeClass) {
+            groupElement.classList.remove("is-clearing");
+          }
+
+          const readyNote = groupElement.querySelector("[data-recipe-ready-note]");
+          if (hideReadyMessage && readyNote instanceof HTMLElement) {
+            readyNote.hidden = true;
+          }
+        };
+
+        const autoRemoveRecipeGroup = async (groupElement) => {
+          const recipeId = groupElement.dataset.recipeId;
+          if (!recipeId) {
+            clearRecipeGroupAutoDelete(groupElement);
+            return;
+          }
+
+          const previousParent = groupElement.parentElement;
+          const previousNextSibling = groupElement.nextSibling;
+
+          groupElement.remove();
+          if (!recipeGroups.querySelector(".groceries-recipe-group")) {
+            recipeEmpty.hidden = false;
+          }
+
+          try {
+            const response = await fetch(`/groceries/items/from-recipe/${recipeId}`, {
+              method: "DELETE",
+              headers: apiHeaders(),
+            });
+            if (response.ok) {
+              return;
+            }
+          } catch (_error) {
+          }
+
+          if (previousParent instanceof Node) {
+            previousParent.insertBefore(groupElement, previousNextSibling);
+          } else {
+            recipeGroups.appendChild(groupElement);
+          }
+          recipeEmpty.hidden = true;
+          clearRecipeGroupAutoDelete(groupElement, { hideReadyMessage: false, clearFadeClass: true });
+        };
+
+        const scheduleRecipeGroupAutoDelete = (groupElement) => {
+          clearRecipeGroupAutoDelete(groupElement, { hideReadyMessage: false, clearFadeClass: true });
+
+          const readyNote = groupElement.querySelector("[data-recipe-ready-note]");
+          if (readyNote instanceof HTMLElement) {
+            readyNote.hidden = false;
+          }
+
+          const fadeDelay = Math.max(0, RECIPE_GROUP_AUTO_REMOVE_MS - RECIPE_GROUP_FADE_MS);
+          const fadeTimerId = setTimeout(() => {
+            groupElement.classList.add("is-clearing");
+          }, fadeDelay);
+
+          const deleteTimerId = setTimeout(() => {
+            pendingRecipeGroupAutoDelete.delete(groupElement);
+            autoRemoveRecipeGroup(groupElement);
+          }, RECIPE_GROUP_AUTO_REMOVE_MS);
+
+          pendingRecipeGroupAutoDelete.set(groupElement, { fadeTimerId, deleteTimerId });
+        };
+
         const createAddedItem = (item) => {
           const row = document.createElement("li");
           row.className = "groceries-added-item";
@@ -513,6 +591,12 @@
           title.className = "groceries-recipe-title";
           title.textContent = box.recipeTitle || "Recipe";
 
+          const readyNote = document.createElement("p");
+          readyNote.className = "groceries-recipe-ready-note";
+          readyNote.textContent = "Everything ready for this recipe.";
+          readyNote.setAttribute("data-recipe-ready-note", "");
+          readyNote.hidden = true;
+
           const activeList = document.createElement("ul");
           activeList.className = "groceries-recipe-ingredients";
           activeList.setAttribute("data-recipe-group-list", "");
@@ -534,6 +618,7 @@
 
           group.appendChild(source);
           group.appendChild(title);
+          group.appendChild(readyNote);
           group.appendChild(removeBtn);
           group.appendChild(activeList);
           group.appendChild(boughtSection);
@@ -783,6 +868,10 @@
           const previousParent = row.parentElement;
           const previousBoughtClass = row.classList.contains("is-bought");
 
+          if (!bought) {
+            clearRecipeGroupAutoDelete(group);
+          }
+
           if (bought) {
             row.classList.add("is-bought");
             boughtList.appendChild(row);
@@ -792,6 +881,12 @@
           }
           refreshRecipeGroupBoughtVisibility(group);
 
+          const totalItems = activeList.children.length + boughtList.children.length;
+          const allChecked = totalItems > 0 && activeList.children.length === 0;
+          if (allChecked) {
+            scheduleRecipeGroupAutoDelete(group);
+          }
+
           try {
             const response = await fetch(`/groceries/items/${id}/bought`, {
               method: "PATCH",
@@ -800,6 +895,7 @@
             });
             if (!response.ok) {
               checkbox.checked = !bought;
+              clearRecipeGroupAutoDelete(group);
               if (previousParent instanceof HTMLElement) {
                 previousParent.appendChild(row);
               }
@@ -809,9 +905,15 @@
                 row.classList.remove("is-bought");
               }
               refreshRecipeGroupBoughtVisibility(group);
+              const totalAfterRollback = activeList.children.length + boughtList.children.length;
+              const allCheckedAfterRollback = totalAfterRollback > 0 && activeList.children.length === 0;
+              if (allCheckedAfterRollback) {
+                scheduleRecipeGroupAutoDelete(group);
+              }
             }
           } catch (_error) {
             checkbox.checked = !bought;
+            clearRecipeGroupAutoDelete(group);
             if (previousParent instanceof HTMLElement) {
               previousParent.appendChild(row);
             }
@@ -821,6 +923,11 @@
               row.classList.remove("is-bought");
             }
             refreshRecipeGroupBoughtVisibility(group);
+            const totalAfterRollback = activeList.children.length + boughtList.children.length;
+            const allCheckedAfterRollback = totalAfterRollback > 0 && activeList.children.length === 0;
+            if (allCheckedAfterRollback) {
+              scheduleRecipeGroupAutoDelete(group);
+            }
           }
         };
 
@@ -863,6 +970,8 @@
           if (!(group instanceof HTMLElement)) return;
           const recipeId = group.dataset.recipeId;
           if (!recipeId) return;
+
+          clearRecipeGroupAutoDelete(group);
 
           removeBtn.disabled = true;
 
