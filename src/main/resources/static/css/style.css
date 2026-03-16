@@ -4588,6 +4588,10 @@ body.plans-modal-open {
 .groceries-shell {
   display: grid;
   gap: 18px;
+  --groceries-qty-color: #dfbc93;
+  --groceries-accent-caramel: #a56f4d;
+  --groceries-accent-dark: #2c1c16;
+  --groceries-recipe-box-bg: #78503a;
 }
 
 .groceries-top-note {
@@ -4637,13 +4641,13 @@ body.plans-modal-open {
 
 .weekly-plan-box-head p {
   margin: 0;
-  color: #c47f4d;
+  color: var(--groceries-accent-caramel);
   font-style: italic;
   font-weight: 600;
 }
 
 .weekly-plan-box-head span {
-  color: #c47f4d;
+  color: var(--groceries-accent-caramel);
   font-weight: 700;
 }
 
@@ -4684,7 +4688,7 @@ body.plans-modal-open {
 }
 
 .weekly-plan-checklist strong {
-  color: #d8b28b;
+  color: var(--groceries-qty-color);
   font-size: 0.9rem;
 }
 
@@ -4710,7 +4714,7 @@ body.plans-modal-open {
 
 .groceries-recipe-source {
   margin: 0;
-  color: rgba(255, 231, 220, 0.78);
+  color: var(--groceries-accent-dark);
   font-style: italic;
   font-weight: 600;
   text-transform: lowercase;
@@ -4726,12 +4730,11 @@ body.plans-modal-open {
 .groceries-recipe-empty {
   display: grid;
   gap: 12px;
-  background: #8a5a3e;
-  border: 1px solid rgba(206, 150, 111, 0.56);
+  background: var(--groceries-recipe-box-bg);
+  border: 0;
   border-radius: 22px;
   padding: 14px;
   box-shadow:
-    inset 0 1px 0 rgba(255, 224, 198, 0.16),
     0 14px 28px rgba(0, 0, 0, 0.24);
 }
 
@@ -4745,8 +4748,8 @@ body.plans-modal-open {
 }
 
 .groceries-recipe-group {
-  background: #8a5a3e;
-  border: 1px solid rgba(206, 150, 111, 0.56);
+  background: var(--groceries-recipe-box-bg);
+  border: 0;
   border-radius: 22px;
   padding: 14px;
   position: relative;
@@ -4755,7 +4758,6 @@ body.plans-modal-open {
   transform-origin: top;
   transition: opacity 0.45s ease, transform 0.45s ease;
   box-shadow:
-    inset 0 1px 0 rgba(255, 224, 198, 0.16),
     0 14px 28px rgba(0, 0, 0, 0.24);
 }
 
@@ -4771,7 +4773,7 @@ body.plans-modal-open {
 .groceries-recipe-ready-note {
   margin: 6px 0 2px;
   text-align: center;
-  color: #4f2f21;
+  color: var(--groceries-accent-dark);
   font-style: italic;
   font-weight: 600;
   font-size: 1.12rem;
@@ -4845,7 +4847,7 @@ body.plans-modal-open {
 }
 
 .groceries-recipe-ingredients strong {
-  color: rgba(255, 231, 220, 0.9);
+  color: var(--groceries-qty-color);
   font-size: 0.86rem;
   font-weight: 700;
   white-space: nowrap;
@@ -4992,7 +4994,7 @@ body.plans-modal-open {
 
 .groceries-card h2 {
   margin: 0;
-  color: #c47f4d;
+  color: var(--groceries-accent-caramel);
   font-size: 1.25rem;
 }
 
@@ -5054,11 +5056,11 @@ body.plans-modal-open {
   border-color: transparent;
 }
 
-.groceries-added-main {
+.groceries-added-item .groceries-added-main {
   display: inline-flex;
   align-items: center;
   gap: 8px;
-  color: #f1e4d6;
+  color: #e6d7c7;
   font-weight: 600;
 }
 
@@ -5071,7 +5073,7 @@ body.plans-modal-open {
 .groceries-added-meta {
   margin-right: 8px;
   white-space: nowrap;
-  color: #d8b28b;
+  color: var(--groceries-qty-color);
   font-weight: 700;
 }
 
@@ -5101,7 +5103,11 @@ body.plans-modal-open {
 
 .groceries-added-item.is-bought .groceries-added-main,
 .groceries-added-item.is-bought .groceries-added-meta {
-  color: #edf2e6;
+  color: #e6d7c7;
+}
+
+.groceries-added-item.is-bought .groceries-added-meta {
+  color: var(--groceries-qty-color);
 }
 
 .groceries-added-item.is-bought .groceries-added-main input[type="checkbox"] {
