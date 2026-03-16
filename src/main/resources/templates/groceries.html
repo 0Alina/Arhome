@@ -267,6 +267,44 @@
           return headers;
         };
 
+        const MANUAL_ITEM_AUTO_DELETE_MS = 3000;
+        const MANUAL_ITEM_FADE_MS = 450;
+        const pendingManualAutoDelete = new WeakMap();
+
+        const clearManualAutoDelete = (row, options = {}) => {
+          const { clearFadeClass = true } = options;
+          const timerState = pendingManualAutoDelete.get(row);
+          if (timerState) {
+            clearTimeout(timerState.fadeTimerId);
+            clearTimeout(timerState.deleteTimerId);
+            pendingManualAutoDelete.delete(row);
+          }
+          if (clearFadeClass) {
+            row.classList.remove("is-auto-removing");
+          }
+          addedBoughtSection.classList.remove("is-clearing");
+        };
+
+        const scheduleManualAutoDelete = (row) => {
+          clearManualAutoDelete(row);
+
+          const fadeDelay = Math.max(0, MANUAL_ITEM_AUTO_DELETE_MS - MANUAL_ITEM_FADE_MS);
+          const fadeTimerId = setTimeout(() => {
+            row.classList.add("is-auto-removing");
+            const isLastBoughtItem = row.parentElement === addedBoughtList && addedBoughtList.children.length === 1;
+            if (isLastBoughtItem) {
+              addedBoughtSection.classList.add("is-clearing");
+            }
+          }, fadeDelay);
+
+          const deleteTimerId = setTimeout(() => {
+            pendingManualAutoDelete.delete(row);
+            autoDeleteAfterFade(row);
+          }, MANUAL_ITEM_AUTO_DELETE_MS);
+
+          pendingManualAutoDelete.set(row, { fadeTimerId, deleteTimerId });
+        };
+
         const closeUnitMenus = (exceptRoot = null) => {
           document.querySelectorAll("[data-unit-select]").forEach((selectRoot) => {
             if (!(selectRoot instanceof HTMLElement)) return;
@@ -616,7 +654,9 @@
           }
         });
 
-        const handleDelete = async (row) => {
+        const handleDelete = async (row, options = {}) => {
+          const { preserveFadeClass = false } = options;
+          clearManualAutoDelete(row, { clearFadeClass: !preserveFadeClass });
           const id = row.dataset.id;
           if (!id) return;
           try {
@@ -624,11 +664,52 @@
               method: "DELETE",
               headers: apiHeaders(),
             });
-            if (!response.ok) return;
+            if (!response.ok) {
+              row.classList.remove("is-auto-removing");
+              addedBoughtSection.classList.remove("is-clearing");
+              return;
+            }
             row.remove();
             refreshAddedBoughtVisibility();
           } catch (_error) {
+            row.classList.remove("is-auto-removing");
+            addedBoughtSection.classList.remove("is-clearing");
           }
+        };
+
+        const autoDeleteAfterFade = async (row) => {
+          const id = row.dataset.id;
+          if (!id) {
+            row.classList.remove("is-auto-removing");
+            addedBoughtSection.classList.remove("is-clearing");
+            return;
+          }
+
+          const previousParent = row.parentElement;
+          const previousNextSibling = row.nextSibling;
+
+          row.remove();
+          refreshAddedBoughtVisibility();
+
+          try {
+            const response = await fetch(`/groceries/items/${id}`, {
+              method: "DELETE",
+              headers: apiHeaders(),
+            });
+            if (response.ok) {
+              return;
+            }
+          } catch (_error) {
+          }
+
+          // Roll back in UI if backend delete fails.
+          row.classList.remove("is-auto-removing");
+          if (previousParent instanceof Node) {
+            previousParent.insertBefore(row, previousNextSibling);
+          } else {
+            addedBoughtList.appendChild(row);
+          }
+          refreshAddedBoughtVisibility();
         };
 
         const handleBoughtToggle = async (row, checkbox) => {
@@ -636,12 +717,17 @@
           if (!id) return;
           const bought = checkbox.checked;
 
+          if (!bought) {
+            clearManualAutoDelete(row);
+          }
+
           const previousParent = row.parentElement;
           const previousBoughtClass = row.classList.contains("is-bought");
 
           if (bought) {
             row.classList.add("is-bought");
             addedBoughtList.appendChild(row);
+            scheduleManualAutoDelete(row);
           } else {
             row.classList.remove("is-bought");
             addedList.appendChild(row);
@@ -656,6 +742,7 @@
             });
             if (!response.ok) {
               checkbox.checked = !bought;
+              clearManualAutoDelete(row);
               if (previousParent instanceof HTMLElement) {
                 previousParent.appendChild(row);
               }
@@ -669,6 +756,7 @@
             }
           } catch (_error) {
             checkbox.checked = !bought;
+            clearManualAutoDelete(row);
             if (previousParent instanceof HTMLElement) {
               previousParent.appendChild(row);
             }

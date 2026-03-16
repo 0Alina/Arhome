@@ -4839,6 +4839,16 @@ body.plans-modal-open {
   gap: 8px;
 }
 
+.groceries-added-bought {
+  transform-origin: top;
+  transition: opacity 0.45s ease, transform 0.45s ease;
+}
+
+.groceries-added-bought.is-clearing {
+  opacity: 0;
+  transform: translateY(-4px);
+}
+
 .bought-section[hidden] {
   display: none !important;
 }
@@ -5000,6 +5010,26 @@ body.plans-modal-open {
   border-radius: 12px;
   background: rgba(35, 25, 19, 0.92);
   border: 1px solid rgba(201, 160, 122, 0.22);
+  overflow: hidden;
+  max-height: 72px;
+  transition:
+    opacity 0.45s ease,
+    transform 0.45s ease,
+    max-height 0.45s ease,
+    margin 0.45s ease,
+    padding-top 0.45s ease,
+    padding-bottom 0.45s ease,
+    border-color 0.45s ease;
+}
+
+.groceries-added-item.is-auto-removing {
+  opacity: 0;
+  transform: translateY(-4px) scale(0.985);
+  max-height: 0;
+  margin: 0;
+  padding-top: 0;
+  padding-bottom: 0;
+  border-color: transparent;
 }
 
 .groceries-added-main {
