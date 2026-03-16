@@ -1512,12 +1512,42 @@ a.collection-media {
 .recipes-filters {
   background: rgba(31, 23, 19, 0.9);
   border-radius: 20px;
-  padding: 20px;
+  padding: 7px 20px 20px;
   box-shadow:
     0 0 0 1px rgba(106, 63, 42, 0.25),
     0 16px 30px rgba(0, 0, 0, 0.35);
   position: sticky;
   top: 110px;
+}
+
+.recipes-filters-head {
+  display: flex;
+  justify-content: flex-end;
+  margin: 0 0 4px;
+}
+
+.recipes-filters-clear {
+  border: 0;
+  background: transparent;
+  color: #c9a07a;
+  font-family: inherit;
+  font-size: 0.82rem;
+  font-weight: 600;
+  letter-spacing: 0.04em;
+  cursor: pointer;
+  padding: 2px 0;
+}
+
+.recipes-filters-clear:hover,
+.recipes-filters-clear:focus {
+  color: #f0dfcf;
+  text-decoration: underline;
+}
+
+.recipes-filters-clear:disabled {
+  opacity: 0.45;
+  cursor: default;
+  text-decoration: none;
 }
 
 .filters-group + .filters-group {
