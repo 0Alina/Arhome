@@ -3,8 +3,10 @@
   <head>
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <meta name="_csrf" th:content="${_csrf.token}" />
+    <meta name="_csrf_header" th:content="${_csrf.headerName}" />
     <title th:text="${recipe.title}">Recipe</title>
-    <link rel="stylesheet" th:href="@{/css/style.css(v=81)}" href="/css/style.css?v=81" />
+    <link rel="stylesheet" th:href="@{/css/style.css(v=82)}" href="/css/style.css?v=82" />
   </head>
   <body class="page-recipes page-recipe-detail">
     <div th:replace="~{fragments :: navbar}"></div>
@@ -101,7 +103,7 @@
           </section>
 
           <section class="recipe-review-section">
-            <h2 class="recipe-review-title">Review</h2>
+            <h2 class="recipe-review-title">Reviews</h2>
             <div class="recipe-feedback" th:if="${!isOwnRecipe}" th:classappend="${hasCurrentUserReview} ? ' is-locked' : ''" data-feedback th:attr="data-recipe-id=${recipe.id}, hidden=${hasCurrentUserReview} ? 'hidden' : null">
             <div class="recipe-feedback-actions">
               <button class="recipe-feedback-btn is-active" type="button" data-toggle-panel="rating">Rate</button>
@@ -135,32 +137,36 @@
 
             <p class="recipe-feedback-note" data-no-reviews th:if="${reviewItems == null || #lists.isEmpty(reviewItems)}">No reviews yet.</p>
 
-            <div class="recipe-reviews-list" data-review-list th:if="${reviewItems != null && !#lists.isEmpty(reviewItems)}">
-              <article class="recipe-user-review recipe-user-review--illustrated" th:each="review : ${reviewItems}" th:attr="data-comment-id=${review.commentId}">
-                <div class="recipe-review-actions" th:if="${review.ownReview}">
-                  <button type="button" class="recipe-review-action recipe-review-action--edit" data-review-edit aria-label="Edit review">
-                    <svg viewBox="0 0 24 24" aria-hidden="true">
-                      <path d="M4 20l3.8-.8L19 8l-3-3L4.8 16.2 4 20z" />
-                      <path d="M14.5 6.5l3 3" />
-                    </svg>
-                  </button>
-                  <button type="button" class="recipe-review-action recipe-review-action--delete" data-review-delete aria-label="Delete review">
-                    <svg viewBox="0 0 24 24" aria-hidden="true">
-                      <path d="m14.74 9-.346 9m-4.788 0L9.26 9m9.968-3.21c.342.052.682.107 1.022.166m-1.022-.165L18.16 19.673a2.25 2.25 0 0 1-2.244 2.077H8.084a2.25 2.25 0 0 1-2.244-2.077L4.772 5.79m14.456 0a48.108 48.108 0 0 0-3.478-.397m-12 .562c.34-.059.68-.114 1.022-.165m0 0a48.11 48.11 0 0 1 3.478-.397m7.5 0v-.916c0-1.18-.91-2.164-2.09-2.201a51.964 51.964 0 0 0-3.32 0c-1.18.037-2.09 1.022-2.09 2.201v.916m7.5 0a48.667 48.667 0 0 0-7.5 0" />
-                    </svg>
-                  </button>
-                </div>
-                <div class="recipe-user-review-cap">
-                  <div class="recipe-user-review-meta">
-                    <span class="recipe-user-review-name" th:text="${review.userName}">User Name</span>
-                    <span class="recipe-user-review-category" th:text="${review.userCategory}">young&hungry</span>
-                    <span class="recipe-user-review-stars" th:text="${review.starText}">⭐⭐⭐⭐⭐</span>
+            <div class="recipe-reviews-preview" data-review-preview th:if="${reviewItems != null && !#lists.isEmpty(reviewItems)}">
+              <div class="recipe-reviews-list" data-review-list>
+                <article class="recipe-user-review recipe-user-review--illustrated" th:each="review : ${reviewItems}" th:attr="data-comment-id=${review.commentId}">
+                  <div class="recipe-review-actions" th:if="${review.ownReview}">
+                    <button type="button" class="recipe-review-action recipe-review-action--edit" data-review-edit aria-label="Edit review">
+                      <svg viewBox="0 0 24 24" aria-hidden="true">
+                        <path d="M4 20l3.8-.8L19 8l-3-3L4.8 16.2 4 20z" />
+                        <path d="M14.5 6.5l3 3" />
+                      </svg>
+                    </button>
+                    <button type="button" class="recipe-review-action recipe-review-action--delete" data-review-delete aria-label="Delete review">
+                      <svg viewBox="0 0 24 24" aria-hidden="true">
+                        <path d="m14.74 9-.346 9m-4.788 0L9.26 9m9.968-3.21c.342.052.682.107 1.022.166m-1.022-.165L18.16 19.673a2.25 2.25 0 0 1-2.244 2.077H8.084a2.25 2.25 0 0 1-2.244-2.077L4.772 5.79m14.456 0a48.108 48.108 0 0 0-3.478-.397m-12 .562c.34-.059.68-.114 1.022-.165m0 0a48.11 48.11 0 0 1 3.478-.397m7.5 0v-.916c0-1.18-.91-2.164-2.09-2.201a51.964 51.964 0 0 0-3.32 0c-1.18.037-2.09 1.022-2.09 2.201v.916m7.5 0a48.667 48.667 0 0 0-7.5 0" />
+                      </svg>
+                    </button>
                   </div>
-                </div>
-                <div class="recipe-user-review-body">
-                  <p th:text="${review.commentText}">Review content</p>
-                </div>
-              </article>
+                  <div class="recipe-user-review-cap">
+                    <div class="recipe-user-review-meta">
+                      <span class="recipe-user-review-name" th:text="${review.userName}">User Name</span>
+                      <span class="recipe-user-review-category" th:text="${review.userCategory}">young&hungry</span>
+                      <span class="recipe-user-review-stars" th:text="${review.starText}">⭐⭐⭐⭐⭐</span>
+                    </div>
+                  </div>
+                  <div class="recipe-user-review-body">
+                    <p th:text="${review.commentText}">Review content</p>
+                  </div>
+                </article>
+              </div>
+              <div class="recipe-reviews-fade" data-review-fade aria-hidden="true"></div>
+              <button type="button" class="recipe-reviews-toggle" data-review-toggle hidden>View the rest</button>
             </div>
           </section>
         </div>
@@ -168,29 +174,33 @@
     </main>
 
     <div th:replace="~{fragments :: footer}"></div>
-    <script th:inline="javascript">
+    <script>
       (() => {
         const feedback = document.querySelector("[data-feedback]");
-        if (!feedback) return;
-        const recipeId = feedback.getAttribute("data-recipe-id");
-        const csrfToken = /*[[${_csrf.token}]]*/ "";
-        const csrfHeader = /*[[${_csrf.headerName}]]*/ "X-CSRF-TOKEN";
+        const recipeId = feedback ? feedback.getAttribute("data-recipe-id") : null;
+        const csrfToken = document.querySelector("meta[name='_csrf']")?.getAttribute("content") || "";
+        const csrfHeader = document.querySelector("meta[name='_csrf_header']")?.getAttribute("content") || "X-CSRF-TOKEN";
 
-        const toggleButtons = Array.from(feedback.querySelectorAll("[data-toggle-panel]"));
-        const panels = Array.from(feedback.querySelectorAll("[data-panel]"));
-        const feedbackNote = feedback.querySelector("[data-feedback-note]");
-        const commentInput = feedback.querySelector(".recipe-comment-input");
-        const postButton = feedback.querySelector("[data-feedback-post]");
+        const toggleButtons = feedback ? Array.from(feedback.querySelectorAll("[data-toggle-panel]")) : [];
+        const panels = feedback ? Array.from(feedback.querySelectorAll("[data-panel]")) : [];
+        const feedbackNote = feedback ? feedback.querySelector("[data-feedback-note]") : null;
+        const commentInput = feedback ? feedback.querySelector(".recipe-comment-input") : null;
+        const postButton = feedback ? feedback.querySelector("[data-feedback-post]") : null;
         const summaryAverage = document.querySelector("[data-rating-average]");
         const summaryCount = document.querySelector("[data-rating-count]");
         const reviewSection = document.querySelector(".recipe-review-section");
         const lockNote = reviewSection ? reviewSection.querySelector("[data-review-lock-note]") : null;
         const noReviewsNote = () => document.querySelector("[data-no-reviews]");
+        const reviewPreview = () => reviewSection ? reviewSection.querySelector("[data-review-preview]") : null;
+        const reviewListNode = () => reviewSection ? reviewSection.querySelector("[data-review-list]") : null;
         let activePanel = "rating";
         let editingCommentId = null;
         let editingArticle = null;
 
         const setLockState = (locked) => {
+          if (!(feedback instanceof HTMLElement)) {
+            return;
+          }
           feedback.classList.toggle("is-locked", !!locked);
           feedback.toggleAttribute("hidden", !!locked);
           if (lockNote instanceof HTMLElement) {
@@ -210,18 +220,42 @@
             .replaceAll("'", "&#39;");
 
         const ensureReviewList = () => {
-          let list = document.querySelector("[data-review-list]");
+          let list = reviewListNode();
           if (list) return list;
           if (!reviewSection) return null;
+          let preview = reviewPreview();
+          if (!preview) {
+            preview = document.createElement("div");
+            preview.className = "recipe-reviews-preview";
+            preview.setAttribute("data-review-preview", "");
+
+            const fade = document.createElement("div");
+            fade.className = "recipe-reviews-fade";
+            fade.setAttribute("data-review-fade", "");
+            fade.setAttribute("aria-hidden", "true");
+
+            const toggle = document.createElement("button");
+            toggle.type = "button";
+            toggle.className = "recipe-reviews-toggle";
+            toggle.setAttribute("data-review-toggle", "");
+            toggle.setAttribute("hidden", "hidden");
+            toggle.textContent = "View the rest";
+
+            const note = noReviewsNote();
+            if (note && note.parentNode === reviewSection) {
+              reviewSection.insertBefore(preview, note.nextSibling);
+            } else {
+              reviewSection.appendChild(preview);
+            }
+            preview.appendChild(fade);
+            preview.appendChild(toggle);
+          }
+
           list = document.createElement("div");
           list.className = "recipe-reviews-list";
           list.setAttribute("data-review-list", "");
-          const note = noReviewsNote();
-          if (note && note.parentNode === reviewSection) {
-            reviewSection.insertBefore(list, note.nextSibling);
-          } else {
-            reviewSection.appendChild(list);
-          }
+          const fadeNode = preview.querySelector("[data-review-fade]");
+          preview.insertBefore(list, fadeNode || preview.firstChild);
           return list;
         };
 
@@ -273,6 +307,7 @@
           if (note) {
             note.remove();
           }
+          updateReviewPreviewState();
         };
 
         const updateReviewCard = (article, reviewItem) => {
@@ -288,12 +323,17 @@
         };
 
         const ensureNoReviewsMessage = () => {
-          const list = document.querySelector("[data-review-list]");
+          const list = reviewListNode();
           const hasCards = !!(list && list.querySelector(".recipe-user-review--illustrated"));
           if (hasCards) {
             const existing = noReviewsNote();
             if (existing) existing.remove();
+            updateReviewPreviewState();
             return;
+          }
+          const preview = reviewPreview();
+          if (preview) {
+            preview.remove();
           }
           if (noReviewsNote() || !reviewSection) return;
           const note = document.createElement("p");
@@ -303,10 +343,72 @@
           reviewSection.appendChild(note);
         };
 
+        const updateReviewPreviewState = () => {
+          const preview = reviewPreview();
+          const list = reviewListNode();
+          if (!(preview instanceof HTMLElement) || !(list instanceof HTMLElement)) {
+            return;
+          }
+
+          const toggle = preview.querySelector("[data-review-toggle]");
+          if (!(toggle instanceof HTMLButtonElement)) {
+            return;
+          }
+
+          const cards = Array.from(list.querySelectorAll(".recipe-user-review--illustrated"));
+          cards.forEach((card) => card.classList.remove("is-preview-hidden"));
+          if (cards.length === 0) {
+            preview.classList.remove("is-collapsed", "is-expanded");
+            list.classList.remove("is-collapsed");
+            toggle.setAttribute("hidden", "hidden");
+            return;
+          }
+
+          if (preview.classList.contains("is-expanded")) {
+            list.classList.remove("is-collapsed");
+            preview.classList.remove("is-collapsed");
+            toggle.textContent = "Hide the rest";
+            toggle.setAttribute("aria-expanded", "true");
+            toggle.removeAttribute("hidden");
+            return;
+          }
+
+          list.classList.remove("is-collapsed");
+          preview.classList.remove("is-collapsed");
+
+          const firstCardRect = cards[0].getBoundingClientRect();
+          const firstRowTop = firstCardRect.top;
+          const hiddenCards = cards.filter((card) => card.getBoundingClientRect().top - firstRowTop > 2);
+          const hasHiddenRows = hiddenCards.length > 0;
+          if (!hasHiddenRows) {
+            preview.classList.remove("is-expanded", "is-collapsed");
+            list.classList.remove("is-collapsed");
+            toggle.setAttribute("hidden", "hidden");
+            return;
+          }
+
+          hiddenCards.forEach((card) => card.classList.add("is-preview-hidden"));
+          list.classList.add("is-collapsed");
+          preview.classList.add("is-collapsed");
+          toggle.textContent = "View the rest";
+          toggle.setAttribute("aria-expanded", "false");
+          toggle.removeAttribute("hidden");
+        };
+
         if (reviewSection) {
           reviewSection.addEventListener("click", (event) => {
             const target = event.target;
             if (!(target instanceof Element)) return;
+
+            const revealButton = target.closest("[data-review-toggle]");
+            if (revealButton) {
+              const preview = reviewPreview();
+              if (preview instanceof HTMLElement) {
+                preview.classList.toggle("is-expanded");
+                updateReviewPreviewState();
+              }
+              return;
+            }
 
             const editButton = target.closest("[data-review-edit]");
             const deleteButton = target.closest("[data-review-delete]");
@@ -363,6 +465,10 @@
           });
         }
 
+        window.addEventListener("resize", () => {
+          updateReviewPreviewState();
+        });
+
         const activatePanel = (panelName) => {
           activePanel = panelName;
           panels.forEach((panel) => {
@@ -384,8 +490,8 @@
           });
         });
 
-        const stars = Array.from(feedback.querySelectorAll("[data-star-value]"));
-        const ratingNote = feedback.querySelector("[data-rating-note]");
+        const stars = feedback ? Array.from(feedback.querySelectorAll("[data-star-value]")) : [];
+        const ratingNote = feedback ? feedback.querySelector("[data-rating-note]") : null;
         let selectedRating = 0;
         let hoverRating = null;
 
@@ -428,7 +534,7 @@
           });
         });
 
-        const starRow = feedback.querySelector("[data-star-row]");
+        const starRow = feedback ? feedback.querySelector("[data-star-row]") : null;
         if (starRow) {
           starRow.addEventListener("mouseleave", () => {
             hoverRating = null;
@@ -530,10 +636,11 @@
 
         activatePanel("rating");
         paintStars(0);
+        updateReviewPreviewState();
       })();
     </script>
 
-    <script th:inline="javascript">
+    <script>
       (() => {
         const addButton = document.querySelector("[data-add-recipe-groceries]");
         if (!(addButton instanceof HTMLButtonElement)) return;
@@ -541,8 +648,8 @@
         const recipeId = addButton.getAttribute("data-recipe-id");
         if (!recipeId) return;
 
-        const csrfToken = /*[[${_csrf.token}]]*/ "";
-        const csrfHeader = /*[[${_csrf.headerName}]]*/ "X-CSRF-TOKEN";
+        const csrfToken = document.querySelector("meta[name='_csrf']")?.getAttribute("content") || "";
+        const csrfHeader = document.querySelector("meta[name='_csrf_header']")?.getAttribute("content") || "X-CSRF-TOKEN";
 
         addButton.addEventListener("click", async () => {
           if (addButton.disabled) return;

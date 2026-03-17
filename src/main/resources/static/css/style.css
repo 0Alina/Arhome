@@ -2700,7 +2700,7 @@ a.recipes-media {
 .recipe-review-title {
   margin: 0;
   font-size: 1.6rem;
-  color: #b36b3e;
+  color: #e2b37a;
 }
 
 .recipe-feedback-actions {
@@ -2872,6 +2872,54 @@ a.recipes-media {
   display: grid;
   grid-template-columns: repeat(4, minmax(0, 1fr));
   gap: 16px;
+}
+
+.recipe-reviews-preview {
+  position: relative;
+}
+
+.recipe-reviews-list.is-collapsed {
+  overflow: hidden;
+}
+
+.recipe-reviews-list.is-collapsed .recipe-user-review.is-preview-hidden {
+  display: none;
+}
+
+.recipe-reviews-fade {
+  position: absolute;
+  left: 0;
+  right: 0;
+  bottom: 40px;
+  height: 72px;
+  opacity: 0;
+  pointer-events: none;
+  transition: opacity 0.2s ease;
+  background: linear-gradient(180deg, rgba(25, 18, 14, 0) 0%, rgba(25, 18, 14, 0.94) 100%);
+}
+
+.recipe-reviews-preview.is-collapsed .recipe-reviews-fade {
+  opacity: 1;
+}
+
+.recipe-reviews-toggle {
+  margin: 12px auto 0;
+  display: block;
+  border: 1px solid rgba(201, 160, 122, 0.45);
+  background: rgba(42, 30, 24, 0.92);
+  color: #f0dfcf;
+  border-radius: 999px;
+  font-family: inherit;
+  font-size: 0.9rem;
+  font-weight: 700;
+  padding: 8px 16px;
+  cursor: pointer;
+}
+
+.recipe-reviews-toggle:hover,
+.recipe-reviews-toggle:focus {
+  border-color: #e1b48e;
+  color: #fff2e5;
 }
 
 .recipe-user-review {
