@@ -2700,7 +2700,40 @@ a.recipes-media {
 .recipe-review-title {
   margin: 0;
   font-size: 1.6rem;
+  color: #f0dfcf;
+}
+
+.recipe-review-title span {
   color: #e2b37a;
+}
+
+.recipe-review-filters {
+  display: flex;
+  gap: 10px;
+  flex-wrap: wrap;
+  margin: 2px 0 6px;
+}
+
+.recipe-review-filter {
+  appearance: none;
+  border: 1px solid rgba(106, 63, 42, 0.4);
+  background: #2a1e18;
+  color: #e6d7c7;
+  border-radius: 999px;
+  padding: 8px 14px;
+  font-size: 0.9rem;
+  font-weight: 700;
+  font-family: inherit;
+  cursor: pointer;
+  transition: background 0.2s ease, border-color 0.2s ease, color 0.2s ease;
+}
+
+.recipe-review-filter.is-active,
+.recipe-review-filter:hover,
+.recipe-review-filter:focus {
+  background: #6a3f2a;
+  border-color: #8b5f44;
+  color: #f3e7dc;
 }
 
 .recipe-feedback-actions {
@@ -2809,8 +2842,8 @@ a.recipes-media {
 }
 
 .recipe-feedback-lock-note {
-  margin-top: 8px;
-  margin-bottom: 14px;
+  margin-top: 4px;
+  margin-bottom: 11px;
   padding: 0;
   border: 0;
   background: transparent;

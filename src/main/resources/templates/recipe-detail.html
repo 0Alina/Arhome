@@ -103,7 +103,7 @@
           </section>
 
           <section class="recipe-review-section">
-            <h2 class="recipe-review-title">Reviews</h2>
+            <h2 class="recipe-review-title">Recipe <span>Reviews</span></h2>
             <div class="recipe-feedback" th:if="${!isOwnRecipe}" th:classappend="${hasCurrentUserReview} ? ' is-locked' : ''" data-feedback th:attr="data-recipe-id=${recipe.id}, hidden=${hasCurrentUserReview} ? 'hidden' : null">
             <div class="recipe-feedback-actions">
               <button class="recipe-feedback-btn is-active" type="button" data-toggle-panel="rating">Rate</button>
@@ -138,6 +138,11 @@
             <p class="recipe-feedback-note" data-no-reviews th:if="${reviewItems == null || #lists.isEmpty(reviewItems)}">No reviews yet.</p>
 
             <div class="recipe-reviews-preview" data-review-preview th:if="${reviewItems != null && !#lists.isEmpty(reviewItems)}">
+              <div class="recipe-review-filters" data-review-filters>
+                <button type="button" class="recipe-review-filter is-active" data-review-filter="recent">Most recent</button>
+                <button type="button" class="recipe-review-filter" data-review-filter="best">The best</button>
+                <button type="button" class="recipe-review-filter" data-review-filter="worst">The worst</button>
+              </div>
               <div class="recipe-reviews-list" data-review-list>
                 <article class="recipe-user-review recipe-user-review--illustrated" th:each="review : ${reviewItems}" th:attr="data-comment-id=${review.commentId}">
                   <div class="recipe-review-actions" th:if="${review.ownReview}">
@@ -193,9 +198,12 @@
         const noReviewsNote = () => document.querySelector("[data-no-reviews]");
         const reviewPreview = () => reviewSection ? reviewSection.querySelector("[data-review-preview]") : null;
         const reviewListNode = () => reviewSection ? reviewSection.querySelector("[data-review-list]") : null;
+        const reviewFilters = () => reviewSection ? reviewSection.querySelector("[data-review-filters]") : null;
         let activePanel = "rating";
         let editingCommentId = null;
         let editingArticle = null;
+        let activeReviewFilter = "recent";
+        let reviewOrderSeed = 0;
 
         const setLockState = (locked) => {
           if (!(feedback instanceof HTMLElement)) {
@@ -219,6 +227,73 @@
             .replaceAll('"', "&quot;")
             .replaceAll("'", "&#39;");
 
+        const reviewRatingFromText = (starText) => {
+          const matches = (starText || "").match(/⭐/g);
+          return matches ? matches.length : 0;
+        };
+
+        const ensureReviewMetadata = (card) => {
+          if (!(card instanceof HTMLElement)) return;
+          if (!card.hasAttribute("data-review-order")) {
+            card.setAttribute("data-review-order", String(reviewOrderSeed++));
+          }
+          if (!card.hasAttribute("data-review-rating")) {
+            const starsNode = card.querySelector(".recipe-user-review-stars");
+            const rating = reviewRatingFromText(starsNode && starsNode.textContent ? starsNode.textContent : "");
+            card.setAttribute("data-review-rating", String(rating));
+          }
+        };
+
+        const nextNewestOrder = (list) => {
+          const cards = Array.from(list.querySelectorAll(".recipe-user-review--illustrated"));
+          if (cards.length === 0) return -1;
+          const minOrder = cards.reduce((minValue, card) => {
+            const value = Number.parseInt(card.getAttribute("data-review-order") || "0", 10);
+            return Math.min(minValue, value);
+          }, Number.POSITIVE_INFINITY);
+          return Number.isFinite(minOrder) ? minOrder - 1 : -1;
+        };
+
+        const applyReviewSort = () => {
+          const list = reviewListNode();
+          if (!(list instanceof HTMLElement)) return;
+
+          const cards = Array.from(list.querySelectorAll(".recipe-user-review--illustrated"));
+          cards.forEach((card) => ensureReviewMetadata(card));
+
+          cards.sort((a, b) => {
+            const orderA = Number.parseInt(a.getAttribute("data-review-order") || "0", 10);
+            const orderB = Number.parseInt(b.getAttribute("data-review-order") || "0", 10);
+            const ratingA = Number.parseInt(a.getAttribute("data-review-rating") || "0", 10);
+            const ratingB = Number.parseInt(b.getAttribute("data-review-rating") || "0", 10);
+
+            if (activeReviewFilter === "best") {
+              if (ratingB !== ratingA) return ratingB - ratingA;
+              return orderA - orderB;
+            }
+            if (activeReviewFilter === "worst") {
+              if (ratingA !== ratingB) return ratingA - ratingB;
+              return orderA - orderB;
+            }
+            return orderA - orderB;
+          });
+
+          cards.forEach((card) => list.appendChild(card));
+        };
+
+        const syncReviewFilterButtons = () => {
+          const filters = reviewFilters();
+          if (!(filters instanceof HTMLElement)) return;
+          const buttons = Array.from(filters.querySelectorAll("[data-review-filter]"));
+          buttons.forEach((button) => {
+            if (!(button instanceof HTMLButtonElement)) return;
+            const key = button.getAttribute("data-review-filter");
+            const isActive = key === activeReviewFilter;
+            button.classList.toggle("is-active", isActive);
+            button.setAttribute("aria-pressed", isActive ? "true" : "false");
+          });
+        };
+
         const ensureReviewList = () => {
           let list = reviewListNode();
           if (list) return list;
@@ -228,6 +303,15 @@
             preview = document.createElement("div");
             preview.className = "recipe-reviews-preview";
             preview.setAttribute("data-review-preview", "");
+
+            const filters = document.createElement("div");
+            filters.className = "recipe-review-filters";
+            filters.setAttribute("data-review-filters", "");
+            filters.innerHTML = `
+              <button type="button" class="recipe-review-filter is-active" data-review-filter="recent">Most recent</button>
+              <button type="button" class="recipe-review-filter" data-review-filter="best">The best</button>
+              <button type="button" class="recipe-review-filter" data-review-filter="worst">The worst</button>
+            `;
 
             const fade = document.createElement("div");
             fade.className = "recipe-reviews-fade";
@@ -247,6 +331,7 @@
             } else {
               reviewSection.appendChild(preview);
             }
+            preview.appendChild(filters);
             preview.appendChild(fade);
             preview.appendChild(toggle);
           }
@@ -289,6 +374,7 @@
           if (reviewItem.commentId) {
             article.setAttribute("data-comment-id", String(reviewItem.commentId));
           }
+          article.setAttribute("data-review-order", String(nextNewestOrder(list)));
           article.innerHTML = `
             ${ownActionsHtml(reviewItem)}
             <div class="recipe-user-review-cap">
@@ -319,7 +405,9 @@
           }
           if (starsNode) {
             starsNode.textContent = reviewItem.starText || "";
+            article.setAttribute("data-review-rating", String(reviewRatingFromText(starsNode.textContent || "")));
           }
+          ensureReviewMetadata(article);
         };
 
         const ensureNoReviewsMessage = () => {
@@ -356,8 +444,13 @@
           }
 
           const cards = Array.from(list.querySelectorAll(".recipe-user-review--illustrated"));
-          cards.forEach((card) => card.classList.remove("is-preview-hidden"));
-          if (cards.length === 0) {
+          cards.forEach((card) => ensureReviewMetadata(card));
+          applyReviewSort();
+          syncReviewFilterButtons();
+
+          const sortedCards = Array.from(list.querySelectorAll(".recipe-user-review--illustrated"));
+          sortedCards.forEach((card) => card.classList.remove("is-preview-hidden"));
+          if (sortedCards.length === 0) {
             preview.classList.remove("is-collapsed", "is-expanded");
             list.classList.remove("is-collapsed");
             toggle.setAttribute("hidden", "hidden");
@@ -376,9 +469,9 @@
           list.classList.remove("is-collapsed");
           preview.classList.remove("is-collapsed");
 
-          const firstCardRect = cards[0].getBoundingClientRect();
+          const firstCardRect = sortedCards[0].getBoundingClientRect();
           const firstRowTop = firstCardRect.top;
-          const hiddenCards = cards.filter((card) => card.getBoundingClientRect().top - firstRowTop > 2);
+          const hiddenCards = sortedCards.filter((card) => card.getBoundingClientRect().top - firstRowTop > 2);
           const hasHiddenRows = hiddenCards.length > 0;
           if (!hasHiddenRows) {
             preview.classList.remove("is-expanded", "is-collapsed");
@@ -407,6 +500,20 @@
                 preview.classList.toggle("is-expanded");
                 updateReviewPreviewState();
               }
+              return;
+            }
+
+            const filterButton = target.closest("[data-review-filter]");
+            if (filterButton instanceof HTMLButtonElement) {
+              const nextFilter = filterButton.getAttribute("data-review-filter");
+              if (!nextFilter) return;
+              activeReviewFilter = nextFilter;
+              const preview = reviewPreview();
+              if (preview instanceof HTMLElement) {
+                preview.classList.remove("is-expanded");
+              }
+              syncReviewFilterButtons();
+              updateReviewPreviewState();
               return;
             }
 
@@ -636,6 +743,7 @@
 
         activatePanel("rating");
         paintStars(0);
+        syncReviewFilterButtons();
         updateReviewPreviewState();
       })();
     </script>
