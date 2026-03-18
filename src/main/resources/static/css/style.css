@@ -1609,6 +1609,44 @@ a.collection-media {
   gap: 24px;
 }
 
+.recipes-pagination {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 16px;
+  margin-top: 28px;
+  flex-wrap: wrap;
+}
+
+.recipes-page-btn {
+  border: 1px solid rgba(166, 108, 56, 0.75);
+  background: rgba(51, 34, 26, 0.92);
+  color: #f0dfcf;
+  padding: 8px 16px;
+  border-radius: 999px;
+  font-weight: 600;
+  text-decoration: none;
+  transition: border-color 0.2s ease, color 0.2s ease, transform 0.2s ease;
+}
+
+.recipes-page-btn:hover,
+.recipes-page-btn:focus {
+  border-color: #e1b48e;
+  color: #fff1e2;
+  transform: translateY(-1px);
+}
+
+.recipes-page-btn.is-disabled {
+  opacity: 0.5;
+  pointer-events: none;
+  transform: none;
+}
+
+.recipes-page-indicator {
+  color: rgba(240, 216, 193, 0.8);
+  font-weight: 600;
+}
+
 .recipes-add {
   grid-column: 1 / -1;
 }

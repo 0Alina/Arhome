@@ -84,49 +84,66 @@
             </div>
           </aside>
 
-          <div class="recipes-grid">
-            <article class="recipes-card" th:each="recipe : ${recipes}"
-                     th:attr="data-href=@{/recipes/{id}(id=${recipe.id})}"
-                     th:onclick="|window.location.href='@{/recipes/{id}(id=${recipe.id})}'|"
-                     th:onkeydown="|if(event.key==='Enter'){window.location.href='@{/recipes/{id}(id=${recipe.id})}';}|"
-                     role="link" tabindex="0" aria-label="Open recipe">
-              <button class="recipes-favorite" type="button" aria-label="Favorite recipe"
-                      th:attr="data-recipe-id=${recipe.id}, aria-pressed=${favoriteRecipeIds != null && favoriteRecipeIds.contains(recipe.id) ? 'true' : 'false'}"
-                      onclick="event.stopPropagation()"
-                      th:if="${currentUserId == null || recipe.ownerId != currentUserId}"
-                      th:classappend="${favoriteRecipeIds != null && favoriteRecipeIds.contains(recipe.id) ? ' is-active' : ''}">
-                <svg viewBox="0 0 20 20" aria-hidden="true">
-                  <path d="M9.999 17.27l-1.45-1.32C4.4 12.36 2 10.28 2 7.5 2 5.5 3.5 4 5.5 4c1.54 0 3.04.99 3.57 2.36h1.87C11.46 4.99 12.96 4 14.5 4 16.5 4 18 5.5 18 7.5c0 2.78-2.4 4.86-6.55 8.45l-1.45 1.32z"/>
-                </svg>
-              </button>
-              <div class="recipes-owner" th:if="${currentUserId != null && recipe.ownerId == currentUserId}">
-                Your Recipe
-              </div>
-              <a class="recipes-media" th:href="@{/recipes/{id}(id=${recipe.id})}"
-                 th:classappend="${recipe.imagePath != null ? '' : ' recipes-media--citrus'}"
-                 th:style="${recipe.imagePath != null ? 'background-image: linear-gradient(120deg, rgba(41, 30, 24, 0.25), rgba(18, 14, 11, 0.45)), url(' + recipe.imagePath + ')' : ''}"
-                 aria-label="View recipe"></a>
-              <div class="recipes-body">
-                <div>
-                  <div class="recipes-title-row">
-                    <h3><a th:href="@{/recipes/{id}(id=${recipe.id})}" th:text="${recipe.title}">Recipe title</a></h3>
-                    <span class="recipes-card-rating" th:title="${recipe.ratingCount + ' ratings'}">
-                      <span aria-hidden="true">⭐</span>
-                      <span th:text="${#numbers.formatDecimal(recipe.averageRating, 1, 1)}">0.0</span>
-                    </span>
+          <div class="recipes-results">
+            <div class="recipes-grid">
+              <article class="recipes-card" th:each="recipe : ${recipes}"
+                       th:attr="data-href=@{/recipes/{id}(id=${recipe.id})}"
+                       th:onclick="|window.location.href='@{/recipes/{id}(id=${recipe.id})}'|"
+                       th:onkeydown="|if(event.key==='Enter'){window.location.href='@{/recipes/{id}(id=${recipe.id})}';}|"
+                       role="link" tabindex="0" aria-label="Open recipe">
+                <button class="recipes-favorite" type="button" aria-label="Favorite recipe"
+                        th:attr="data-recipe-id=${recipe.id}, aria-pressed=${favoriteRecipeIds != null && favoriteRecipeIds.contains(recipe.id) ? 'true' : 'false'}"
+                        onclick="event.stopPropagation()"
+                        th:if="${currentUserId == null || recipe.ownerId != currentUserId}"
+                        th:classappend="${favoriteRecipeIds != null && favoriteRecipeIds.contains(recipe.id) ? ' is-active' : ''}">
+                  <svg viewBox="0 0 20 20" aria-hidden="true">
+                    <path d="M9.999 17.27l-1.45-1.32C4.4 12.36 2 10.28 2 7.5 2 5.5 3.5 4 5.5 4c1.54 0 3.04.99 3.57 2.36h1.87C11.46 4.99 12.96 4 14.5 4 16.5 4 18 5.5 18 7.5c0 2.78-2.4 4.86-6.55 8.45l-1.45 1.32z"/>
+                  </svg>
+                </button>
+                <div class="recipes-owner" th:if="${currentUserId != null && recipe.ownerId == currentUserId}">
+                  Your Recipe
+                </div>
+                <a class="recipes-media" th:href="@{/recipes/{id}(id=${recipe.id})}"
+                   th:classappend="${recipe.imagePath != null ? '' : ' recipes-media--citrus'}"
+                   th:style="${recipe.imagePath != null ? 'background-image: linear-gradient(120deg, rgba(41, 30, 24, 0.25), rgba(18, 14, 11, 0.45)), url(' + recipe.imagePath + ')' : ''}"
+                   aria-label="View recipe"></a>
+                <div class="recipes-body">
+                  <div>
+                    <div class="recipes-title-row">
+                      <h3><a th:href="@{/recipes/{id}(id=${recipe.id})}" th:text="${recipe.title}">Recipe title</a></h3>
+                      <span class="recipes-card-rating" th:title="${recipe.ratingCount + ' ratings'}">
+                        <span aria-hidden="true">⭐</span>
+                        <span th:text="${#numbers.formatDecimal(recipe.averageRating, 1, 1)}">0.0</span>
+                      </span>
+                    </div>
+                    <p class="recipes-note" th:text="${recipe.mealType + ' · ' + recipe.prepTime}">Meal · 0 min</p>
+                    <p class="recipes-desc" th:text="${recipe.shortDescription}">Short description.</p>
                   </div>
-                  <p class="recipes-note" th:text="${recipe.mealType + ' · ' + recipe.prepTime}">Meal · 0 min</p>
-                  <p class="recipes-desc" th:text="${recipe.shortDescription}">Short description.</p>
+                  <div class="recipes-tags">
+                    <span th:each="tag : ${recipe.tags}" th:text="${tag}">tag</span>
+                  </div>
+                  <div class="recipes-actions">
+                    <button class="recipes-action" type="button" onclick="event.stopPropagation()">+ groceries</button>
+                  </div>
                 </div>
-                <div class="recipes-tags">
-                  <span th:each="tag : ${recipe.tags}" th:text="${tag}">tag</span>
-                </div>
-                <div class="recipes-actions">
-                  <button class="recipes-action" type="button" onclick="event.stopPropagation()">+ groceries</button>
-                </div>
-              </div>
-            </article>
-            <p class="recipes-empty" th:if="${#lists.isEmpty(recipes)}" th:text="${searchQuery != null && !#strings.isEmpty(searchQuery) ? 'No recipes found for: ' + searchQuery + '.' : 'No recipes yet. Add your first one!'}">No recipes yet. Add your first one!</p>
+              </article>
+              <p class="recipes-empty" th:if="${#lists.isEmpty(recipes)}" th:text="${searchQuery != null && !#strings.isEmpty(searchQuery) ? 'No recipes found for: ' + searchQuery + '.' : 'No recipes yet. Add your first one!'}">No recipes yet. Add your first one!</p>
+            </div>
+            <nav class="recipes-pagination" th:if="${totalPages > 1}" aria-label="Recipes pagination">
+              <a class="recipes-page-btn"
+                 th:classappend="${currentPage == 1 ? ' is-disabled' : ''}"
+                 th:attr="aria-disabled=${currentPage == 1}, data-page=${currentPage - 1}"
+                 th:href="@{/recipes(q=${searchQuery}, mealType=${selectedMealTypes}, region=${selectedRegions}, by=${selectedByCategories}, time=${selectedTimeRanges}, style=${selectedStyles}, nutrition=${selectedNutritions}, page=${currentPage - 1})}">
+                Previous
+              </a>
+              <span class="recipes-page-indicator" th:text="${'Page ' + currentPage + ' of ' + totalPages}">Page 1 of 1</span>
+              <a class="recipes-page-btn"
+                 th:classappend="${currentPage == totalPages ? ' is-disabled' : ''}"
+                 th:attr="aria-disabled=${currentPage == totalPages}, data-page=${currentPage + 1}"
+                 th:href="@{/recipes(q=${searchQuery}, mealType=${selectedMealTypes}, region=${selectedRegions}, by=${selectedByCategories}, time=${selectedTimeRanges}, style=${selectedStyles}, nutrition=${selectedNutritions}, page=${currentPage + 1})}">
+                Next
+              </a>
+            </nav>
           </div>
         </div>
       </section>
@@ -141,7 +158,8 @@
         const csrfHeader = document.querySelector("meta[name='_csrf_header']")?.getAttribute("content");
         const searchForm = document.querySelector(".recipes-search");
         const searchInput = searchForm?.querySelector("input[name='q']");
-        let recipesGrid = document.querySelector(".recipes-grid");
+        let recipesResults = document.querySelector(".recipes-results");
+        let recipesGrid = recipesResults ? recipesResults.querySelector(".recipes-grid") : null;
         let currentRequestId = 0;
 
         const wireGridInteractions = () => {
@@ -185,6 +203,29 @@
 
           cards.forEach((card) => {
             card.classList.add("recipes-card--link");
+          });
+        };
+
+        const wirePagination = () => {
+          if (!recipesResults) {
+            return;
+          }
+          const pageButtons = recipesResults.querySelectorAll(".recipes-page-btn[data-page]");
+          pageButtons.forEach((btn) => {
+            btn.addEventListener("click", (event) => {
+              if (btn.classList.contains("is-disabled")) {
+                event.preventDefault();
+                return;
+              }
+              const pageValue = btn.getAttribute("data-page");
+              if (!pageValue) {
+                return;
+              }
+              event.preventDefault();
+              const params = getParamsFromLocation();
+              params.set("page", pageValue);
+              renderFromUrl(params, true);
+            });
           });
         };
 
@@ -249,13 +290,14 @@
               }
 
               const parsed = new DOMParser().parseFromString(html, "text/html");
-              const newGrid = parsed.querySelector(".recipes-grid");
-              if (!newGrid || !recipesGrid) {
+              const newResults = parsed.querySelector(".recipes-results");
+              if (!newResults || !recipesResults) {
                 return;
               }
 
-              recipesGrid.replaceWith(newGrid);
-              recipesGrid = newGrid;
+              recipesResults.replaceWith(newResults);
+              recipesResults = newResults;
+              recipesGrid = recipesResults.querySelector(".recipes-grid");
 
               if (pushHistory) {
                 history.pushState({}, "", nextUrl);
@@ -269,6 +311,7 @@
               syncFilterButtons(params);
               syncClearButton(params);
               wireGridInteractions();
+              wirePagination();
             })
             .catch(() => {
               window.location.href = nextUrl;
@@ -276,6 +319,7 @@
         };
 
         wireGridInteractions();
+        wirePagination();
 
         const filterButtons = document.querySelectorAll(".filters-group button[data-param][data-value]");
         syncFilterButtons(getParamsFromLocation());
@@ -287,6 +331,7 @@
           clearFiltersButton.addEventListener("click", () => {
             const params = getParamsFromLocation();
             FILTER_PARAM_NAMES.forEach((name) => params.delete(name));
+            params.delete("page");
             renderFromUrl(params, true);
           });
         }
@@ -308,6 +353,7 @@
 
             params.delete(param);
             nextValues.forEach((item) => params.append(param, item));
+            params.delete("page");
 
             const queryText = params.get("q");
             if (queryText !== null && queryText.trim() === "") {
@@ -330,6 +376,7 @@
             } else {
               params.delete("q");
             }
+            params.delete("page");
 
             renderFromUrl(params, true);
           });

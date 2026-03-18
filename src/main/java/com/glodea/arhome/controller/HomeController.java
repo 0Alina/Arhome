@@ -16,6 +16,9 @@ import com.glodea.arhome.entity.User;
 @Controller
 public class HomeController {
 
+    private static final int RECIPES_MAX_ROWS = 4;
+    private static final int RECIPES_DEFAULT_COLUMNS = 2;
+
     private final RecipeService recipeService;
     private final GroceryService groceryService;
     private final UserRepository userRepository;
@@ -39,6 +42,7 @@ public class HomeController {
                           @RequestParam(value = "time", required = false) java.util.List<String> timeRanges,
                           @RequestParam(value = "style", required = false) java.util.List<String> styles,
                           @RequestParam(value = "nutrition", required = false) java.util.List<String> nutritions,
+                          @RequestParam(value = "page", required = false) Integer page,
                           Model model) {
         java.util.List<String> selectedMealTypes = sanitizeFilterValues(mealTypes);
         java.util.List<String> selectedRegions = sanitizeFilterValues(regions);
@@ -47,7 +51,7 @@ public class HomeController {
         java.util.List<String> selectedStyles = sanitizeFilterValues(styles);
         java.util.List<String> selectedNutritions = sanitizeFilterValues(nutritions);
 
-        model.addAttribute("recipes", recipeService.searchRecipes(
+        java.util.List<com.glodea.arhome.dto.RecipeDto> filteredRecipes = recipeService.searchRecipes(
             query,
             selectedMealTypes,
             selectedRegions,
@@ -55,7 +59,24 @@ public class HomeController {
             selectedTimeRanges,
             selectedStyles,
             selectedNutritions
-        ));
+        );
+        int pageSize = RECIPES_MAX_ROWS * RECIPES_DEFAULT_COLUMNS;
+        int totalRecipes = filteredRecipes.size();
+        int totalPages = (int) Math.ceil(totalRecipes / (double) pageSize);
+        if (totalPages == 0) {
+            totalPages = 1;
+        }
+        int currentPage = page == null || page < 1 ? 1 : page;
+        if (currentPage > totalPages) {
+            currentPage = totalPages;
+        }
+        int fromIndex = Math.min((currentPage - 1) * pageSize, totalRecipes);
+        int toIndex = Math.min(fromIndex + pageSize, totalRecipes);
+        filteredRecipes = filteredRecipes.subList(fromIndex, toIndex);
+
+        model.addAttribute("recipes", filteredRecipes);
+        model.addAttribute("currentPage", currentPage);
+        model.addAttribute("totalPages", totalPages);
         model.addAttribute("searchQuery", query == null ? "" : query.trim());
         model.addAttribute("selectedMealTypes", selectedMealTypes);
         model.addAttribute("selectedRegions", selectedRegions);
@@ -154,6 +175,3 @@ public class HomeController {
     }
 
 }
-
-
-
