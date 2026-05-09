@@ -4,3 +4,8 @@ CREATE TABLE IF NOT EXISTS persistent_logins (
   token VARCHAR(64) NOT NULL,
   last_used TIMESTAMP NOT NULL
 );
+
+ALTER TABLE users ADD COLUMN IF NOT EXISTS restricted BOOLEAN;
+UPDATE users SET restricted = FALSE WHERE restricted IS NULL;
+ALTER TABLE users ALTER COLUMN restricted SET DEFAULT FALSE;
+ALTER TABLE users ALTER COLUMN restricted SET NOT NULL;

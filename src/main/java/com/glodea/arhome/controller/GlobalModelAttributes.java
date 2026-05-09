@@ -31,8 +31,11 @@ public class GlobalModelAttributes {
             return null;
         }
 
-        User user = userRepository.findByEmail(email).orElse(null);
-        return user != null ? user.getFullName() : null;
+        User user = userRepository.findByEmailIgnoreCase(email).orElse(null);
+        if (user == null || user.isRestricted()) {
+            return null;
+        }
+        return user.getFullName();
     }
 
     @ModelAttribute("currentUserId")
@@ -47,8 +50,11 @@ public class GlobalModelAttributes {
             return null;
         }
 
-        User user = userRepository.findByEmail(email).orElse(null);
-        return user != null ? user.getId() : null;
+        User user = userRepository.findByEmailIgnoreCase(email).orElse(null);
+        if (user == null || user.isRestricted()) {
+            return null;
+        }
+        return user.getId();
     }
 
     private String resolveEmail(Authentication authentication) {

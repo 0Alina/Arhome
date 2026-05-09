@@ -51,13 +51,15 @@ public class CustomOAuth2UserService implements OAuth2UserService<OAuth2UserRequ
             }
         }
 
-        User user = userRepository.findByEmail(email).orElse(null);
+        User user = userRepository.findByEmailIgnoreCase(email).orElse(null);
         if (user == null) {
             user = new User();
             user.setEmail(email);
             user.setFullName(fullName != null && !fullName.isBlank() ? fullName : email);
             user.setPasswordHash(passwordEncoder.encode(UUID.randomUUID().toString()));
             userRepository.save(user);
+        } else if (user.isRestricted()) {
+            throw new OAuth2AuthenticationException("Account is restricted");
         } else if (fullName != null && !fullName.isBlank() && !fullName.equals(user.getFullName())) {
             user.setFullName(fullName);
             userRepository.save(user);

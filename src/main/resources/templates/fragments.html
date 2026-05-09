@@ -7,7 +7,8 @@
   <body>
     <nav th:fragment="navbar" class="site-nav" aria-label="Primary">
       <div class="nav-inner">
-        <a class="brand" href="/">Ar(h)&ocirc;me</a>
+        <a class="brand" href="/" sec:authorize="!hasRole('ADMIN')">Ar(h)&ocirc;me</a>
+        <a class="brand" href="/admin/users" sec:authorize="hasRole('ADMIN')">Ar(h)&ocirc;me</a>
         <input class="nav-toggle" type="checkbox" id="nav-toggle" />
         <label class="nav-toggle-label" for="nav-toggle" aria-label="Toggle navigation">
           <span></span>
@@ -16,19 +17,28 @@
         </label>
         <label class="nav-overlay" for="nav-toggle" aria-hidden="true"></label>
         <ul class="nav-links">
-          <li><a href="/">Home</a></li>
-          <li><a href="/recipes">Recipes</a></li>
-          <li><a href="/plans">Plans</a></li>
-          <li><a href="/groceries">Groceries</a></li>
-          <li><a href="/collection">Collection</a></li>
+          <li sec:authorize="!hasRole('ADMIN')"><a href="/">Home</a></li>
+          <li sec:authorize="!hasRole('ADMIN')"><a href="/recipes">Recipes</a></li>
+          <li sec:authorize="!hasRole('ADMIN')"><a href="/plans">Plans</a></li>
+          <li sec:authorize="!hasRole('ADMIN')"><a href="/groceries">Groceries</a></li>
+          <li sec:authorize="!hasRole('ADMIN')"><a href="/collection">Collection</a></li>
+          <li sec:authorize="hasRole('ADMIN')"><a href="/admin/users">Users</a></li>
+          <li sec:authorize="hasRole('ADMIN')"><a href="/admin/recipes">Recipes</a></li>
+          <li sec:authorize="hasRole('ADMIN')"><a href="/admin/reviews">Reviews</a></li>
           <li sec:authorize="!isAuthenticated()">
             <a class="nav-cta btn-primary" href="/#auth-login">Get Started</a>
           </li>
-          <li sec:authorize="isAuthenticated()">
+          <li sec:authorize="isAuthenticated() and !hasRole('ADMIN')">
             <a class="nav-user" href="/profile" aria-label="Profile">
               <span class="nav-user-icon" aria-hidden="true">&#x1F464;</span>
               <span class="nav-user-name" th:text="${navUserName != null ? navUserName : #authentication.name}">User</span>
             </a>
+          </li>
+          <li sec:authorize="hasRole('ADMIN')">
+            <span class="nav-user nav-user--label" aria-label="Administrator">
+              <span class="nav-user-icon" aria-hidden="true">&#x1F464;</span>
+              <span class="nav-user-name">Administrator</span>
+            </span>
           </li>
           <li sec:authorize="isAuthenticated()">
             <form class="nav-logout" th:action="@{/logout}" method="post">
@@ -53,8 +63,8 @@
           <form class="auth-form" th:action="@{/login}" method="post" autocomplete="on">
             <input type="hidden" th:name="${_csrf.parameterName}" th:value="${_csrf.token}" />
 
-            <label class="auth-label" for="login-email">Email</label>
-            <input class="auth-input" id="login-email" name="username" type="email" placeholder="name@email.com" autocomplete="username" required />
+            <label class="auth-label" for="login-email">Email or username</label>
+            <input class="auth-input" id="login-email" name="username" type="text" placeholder="name@email.com or admin" autocomplete="username" required />
 
             <label class="auth-label" for="login-password">Password</label>
             <input class="auth-input" id="login-password" name="password" type="password" placeholder="Password" autocomplete="current-password" required />

@@ -1,5 +1,6 @@
 package com.glodea.arhome.entity;
 
+import java.time.Instant;
 import java.util.HashSet;
 import java.util.Set;
 
@@ -36,6 +37,12 @@ public class User {
 
     @Column
     private String category;
+
+    @Column(name = "created_at")
+    private Instant createdAt = Instant.now();
+
+    @Column(nullable = false)
+    private boolean restricted = false;
 
     @ManyToMany(fetch = FetchType.EAGER)
     @JoinTable(
@@ -91,6 +98,22 @@ public class User {
 
     public void setCategory(String category) {
         this.category = category;
+    }
+
+    public Instant getCreatedAt() {
+        return createdAt;
+    }
+
+    public void setCreatedAt(Instant createdAt) {
+        this.createdAt = createdAt;
+    }
+
+    public boolean isRestricted() {
+        return restricted;
+    }
+
+    public void setRestricted(boolean restricted) {
+        this.restricted = restricted;
     }
 
     public Set<Recipe> getFavoriteRecipes() {

@@ -13,6 +13,8 @@ public interface RecipeRatingRepository extends JpaRepository<RecipeRating, Long
 
     Optional<RecipeRating> findByRecipeIdAndUserId(Long recipeId, Long userId);
 
+    Optional<RecipeRating> findTopByRecipeIdAndUserIdOrderByUpdatedAtDesc(Long recipeId, Long userId);
+
     @Query("select r from RecipeRating r join fetch r.user where r.recipe.id = :recipeId")
     List<RecipeRating> findByRecipeId(@Param("recipeId") Long recipeId);
 
@@ -23,4 +25,8 @@ public interface RecipeRatingRepository extends JpaRepository<RecipeRating, Long
 
     @Query("select avg(r.ratingValue) from RecipeRating r where r.recipe.user.id = :userId")
     Double findAverageByRecipeOwnerId(@Param("userId") Long userId);
+
+    void deleteAllByRecipeId(Long recipeId);
+
+    void deleteByRecipeIdAndUserId(Long recipeId, Long userId);
 }

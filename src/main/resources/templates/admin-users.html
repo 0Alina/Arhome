@@ -1,0 +1,105 @@
+<!DOCTYPE html>
+<html lang="en" xmlns:th="http://www.thymeleaf.org">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Admin - Users</title>
+    <link rel="stylesheet" th:href="@{/css/style.css(v=67)}" href="/css/style.css?v=67" />
+  </head>
+  <body class="page-admin-users">
+    <div th:replace="~{fragments :: navbar}"></div>
+
+    <main class="page-content admin-page">
+      <section class="admin-hero">
+        <p class="admin-kicker">Administration</p>
+        <div class="admin-hero__top">
+          <h1>Users Management</h1>
+          <div class="admin-total" aria-label="Total users">
+            <span class="admin-total__label">Total</span>
+            <strong class="admin-total__value" th:text="${sectionTotal}">0</strong>
+          </div>
+        </div>
+        <p class="admin-subtitle">Monitor accounts and prepare user moderation actions.</p>
+        <form class="admin-search" method="get" th:action="@{/admin/users}">
+          <input
+            type="search"
+            name="q"
+            placeholder="Search users by name or email"
+            th:value="${searchQuery}"
+            aria-label="Search users"
+          />
+          <button class="btn-secondary" type="submit">Search</button>
+        </form>
+      </section>
+
+      <div class="admin-feedback admin-feedback--success" th:if="${adminMessage}" th:text="${adminMessage}">Action completed.</div>
+      <div class="admin-feedback admin-feedback--error" th:if="${adminError}" th:text="${adminError}">Action failed.</div>
+
+      <section class="admin-grid">
+        <article class="admin-panel">
+          <div class="admin-table-wrap">
+            <table class="admin-table">
+              <thead>
+                <tr>
+                  <th>ID</th>
+                  <th>Name</th>
+                  <th>Email</th>
+                  <th>Created</th>
+                  <th>Role</th>
+                  <th>Category</th>
+                  <th>Status</th>
+                  <th>Action</th>
+                </tr>
+              </thead>
+              <tbody>
+                <tr th:if="${#lists.isEmpty(users)}">
+                  <td colspan="8">No users yet.</td>
+                </tr>
+                <tr th:each="user : ${users}">
+                  <td th:text="${user.id}">1</td>
+                  <td th:text="${user.fullName}">User Name</td>
+                  <td th:text="${user.email}">user@email.com</td>
+                  <td th:text="${user.createdAt != null ? #temporals.format(user.createdAt.atZone(T(java.time.ZoneId).systemDefault()), 'dd/MM/yy') : '-'}">-</td>
+                  <td th:text="${user.role}">USER</td>
+                  <td th:text="${user.category != null ? user.category : '-'}">-</td>
+                  <td>
+                    <span class="admin-status" th:classappend="${user.restricted ? ' admin-status--restricted' : ' admin-status--active'}"
+                          th:text="${user.restricted ? 'Restricted' : 'Active'}">Active</span>
+                  </td>
+                  <td>
+                    <form th:if="${!user.restricted and user.role != 'ADMIN'}" th:action="@{/admin/users/{id}/restrict(id=${user.id})}" method="post" class="admin-inline-form">
+                      <input type="hidden" th:name="${_csrf.parameterName}" th:value="${_csrf.token}" />
+                      <input type="hidden" name="q" th:value="${searchQuery}" />
+                      <input type="hidden" name="page" th:value="${currentPage}" />
+                      <button type="submit" class="admin-action-btn admin-action-btn--warn">Restrict</button>
+                    </form>
+                    <span th:if="${user.restricted}" class="admin-action-muted">Restricted</span>
+                    <span th:if="${user.role == 'ADMIN'}" class="admin-action-muted">Protected</span>
+                  </td>
+                </tr>
+              </tbody>
+            </table>
+          </div>
+        </article>
+      </section>
+
+      <nav class="recipes-pagination" th:if="${totalPages > 1}" aria-label="Users pagination">
+        <a class="recipes-page-btn"
+           th:classappend="${currentPage == 1 ? ' is-disabled' : ''}"
+           th:attr="aria-disabled=${currentPage == 1}"
+           th:href="@{/admin/users(q=${searchQuery}, page=${currentPage - 1})}">
+          Previous
+        </a>
+        <span class="recipes-page-indicator" th:text="${'Page ' + currentPage + ' of ' + totalPages}">Page 1 of 1</span>
+        <a class="recipes-page-btn"
+           th:classappend="${currentPage == totalPages ? ' is-disabled' : ''}"
+           th:attr="aria-disabled=${currentPage == totalPages}"
+           th:href="@{/admin/users(q=${searchQuery}, page=${currentPage + 1})}">
+          Next
+        </a>
+      </nav>
+    </main>
+
+    <div th:replace="~{fragments :: footer}"></div>
+  </body>
+</html>

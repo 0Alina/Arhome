@@ -2,6 +2,8 @@ package com.glodea.arhome.repository;
 
 import java.util.List;
 
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.Pageable;
 import org.springframework.data.jpa.repository.JpaRepository;
 
 import com.glodea.arhome.entity.Recipe;
@@ -12,4 +14,10 @@ public interface RecipeRepository extends JpaRepository<Recipe, Long> {
     java.util.Optional<Recipe> findByIdAndUser(Long id, User user);
     List<Recipe> findAllByOrderByCreatedAtDesc();
     List<Recipe> findByTitleContainingIgnoreCaseOrIngredientsContainingIgnoreCaseOrderByCreatedAtDesc(String title, String ingredients);
+
+    Page<Recipe> findByTitleContainingIgnoreCaseOrUser_FullNameContainingIgnoreCaseOrderByCreatedAtDesc(
+        String title,
+        String authorName,
+        Pageable pageable
+    );
 }

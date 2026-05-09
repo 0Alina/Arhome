@@ -45,12 +45,15 @@ public class ProfileController {
             return "redirect:/?authError#auth-login";
         }
         Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
-        User user = userRepository.findByEmail(email).orElse(null);
+        User user = userRepository.findByEmailIgnoreCase(email).orElse(null);
         if (user == null) {
             user = ensureUserForOAuth(authentication, email);
             if (user == null) {
                 return "redirect:/?authError#auth-login";
             }
+        }
+        if (user.isRestricted()) {
+            return "redirect:/?authError#auth-login";
         }
         List<RecipeDto> recipes = recipeService.getRecipesForUser(user);
         model.addAttribute("recipes", recipes);
@@ -77,12 +80,15 @@ public class ProfileController {
             return "redirect:/?authError#auth-login";
         }
         Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
-        User user = userRepository.findByEmail(email).orElse(null);
+        User user = userRepository.findByEmailIgnoreCase(email).orElse(null);
         if (user == null) {
             user = ensureUserForOAuth(authentication, email);
             if (user == null) {
                 return "redirect:/?authError#auth-login";
             }
+        }
+        if (user.isRestricted()) {
+            return "redirect:/?authError#auth-login";
         }
         user.setCategory(category);
         userRepository.save(user);
@@ -93,6 +99,7 @@ public class ProfileController {
             user.getPasswordHash(),
             user.getFullName(),
             user.getCategory(),
+            user.isRestricted(),
             List.of(() -> "ROLE_" + role)
         );
 

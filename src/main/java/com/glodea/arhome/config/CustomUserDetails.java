@@ -11,13 +11,22 @@ public class CustomUserDetails implements UserDetails {
     private final String passwordHash;
     private final String fullName;
     private final String category;
+    private final boolean restricted;
     private final Collection<? extends GrantedAuthority> authorities;
 
-    public CustomUserDetails(String email, String passwordHash, String fullName, String category, Collection<? extends GrantedAuthority> authorities) {
+    public CustomUserDetails(
+        String email,
+        String passwordHash,
+        String fullName,
+        String category,
+        boolean restricted,
+        Collection<? extends GrantedAuthority> authorities
+    ) {
         this.email = email;
         this.passwordHash = passwordHash;
         this.fullName = fullName;
         this.category = category;
+        this.restricted = restricted;
         this.authorities = authorities;
     }
 
@@ -61,6 +70,6 @@ public class CustomUserDetails implements UserDetails {
 
     @Override
     public boolean isEnabled() {
-        return true;
+        return !restricted;
     }
 }

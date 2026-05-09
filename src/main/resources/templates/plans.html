@@ -82,7 +82,15 @@
 
         <section class="plans-week-placeholder" data-week-plans hidden>
           <h2>Week Plans</h2>
-          <p>This section is next on the roadmap. For now, choose <strong>Diets</strong> to continue.</p>
+          <p data-week-plan-placeholder>No weekly plan yet. Choose a diet or create a custom one to generate a plan.</p>
+          <div class="diet-plan-output" data-week-plan-output hidden>
+            <div class="diet-plan-output-head">
+              <h3 data-week-plan-title>Weekly plan</h3>
+              <span class="diet-plan-output-status" data-week-plan-status></span>
+            </div>
+            <div class="diet-plan-output-body" data-week-plan-body></div>
+            <p class="diet-plan-output-error" data-week-plan-error hidden></p>
+          </div>
         </section>
       </section>
     </main>
@@ -231,6 +239,15 @@
 
         const detailCard = document.querySelector("[data-diet-details]");
         const dietCards = document.querySelectorAll(".diet-type-card");
+        const planOutput = document.querySelector("[data-week-plan-output]");
+        const planTitle = document.querySelector("[data-week-plan-title]");
+        const planBody = document.querySelector("[data-week-plan-body]");
+        const planStatus = document.querySelector("[data-week-plan-status]");
+        const planError = document.querySelector("[data-week-plan-error]");
+        const planPlaceholder = document.querySelector("[data-week-plan-placeholder]");
+
+        let selectedDiet = null;
+        let selectedCustom = null;
 
         const details = {
           "high-protein": {
@@ -435,7 +452,33 @@
           });
         });
         if (createDietButton) {
-          createDietButton.addEventListener("click", closeModal);
+          createDietButton.addEventListener("click", () => {
+            const custom = {
+              goals: collectChecked("goal"),
+              allergies: collectChecked("allergy"),
+              dietaryPreferences: collectChecked("dietaryPreference"),
+              enjoyFoods: collectChips("enjoy"),
+              avoidFoods: collectChips("avoid"),
+              regions: collectChecked("region"),
+              times: collectChecked("time"),
+              styles: collectChecked("style"),
+              mealsPerDay: collectChecked("mealsPerDay"),
+            };
+            closeModal();
+            dietCards.forEach((item) => item.classList.remove("is-active"));
+            if (detailCard) {
+              detailCard.innerHTML = `
+                <p class="diet-details-title">Custom diet</p>
+                <p class="diet-details-placeholder">Using your preferences to build a weekly plan.</p>
+                <div class="diet-details-actions">
+                  <button type="button" class="diet-plan-btn" data-create-week-plan>Generate weekly plan</button>
+                </div>
+              `;
+            }
+            selectedDiet = null;
+            selectedCustom = custom;
+            createPlan({ source: "custom", custom });
+          });
         }
         document.querySelectorAll("[data-food-input]").forEach((input) => {
           input.addEventListener("keydown", (event) => {
@@ -473,7 +516,135 @@
             <h4>Good to Know</h4>
             <p>${data.note}</p>
           </div>
+          <div class="diet-details-actions">
+            <button type="button" class="diet-plan-btn" data-create-week-plan>Generate weekly plan</button>
+          </div>
         `;
+
+        const escapeHtml = (value) =>
+          String(value)
+            .replace(/&/g, "&amp;")
+            .replace(/</g, "&lt;")
+            .replace(/>/g, "&gt;")
+            .replace(/\"/g, "&quot;");
+
+        const setPlanLoading = (label) => {
+          if (!planOutput || !planBody || !planStatus) return;
+          planOutput.hidden = false;
+          if (planPlaceholder) {
+            planPlaceholder.hidden = true;
+          }
+          planStatus.textContent = label || "Generating...";
+          planBody.innerHTML = "";
+          if (planError) {
+            planError.hidden = true;
+            planError.textContent = "";
+          }
+        };
+
+        const setPlanError = (message) => {
+          if (!planOutput || !planBody || !planStatus || !planError) return;
+          planOutput.hidden = false;
+          if (planPlaceholder) {
+            planPlaceholder.hidden = true;
+          }
+          planStatus.textContent = "";
+          planBody.innerHTML = "";
+          planError.hidden = false;
+          planError.textContent = message;
+        };
+
+        const renderPlan = (plan) => {
+          if (!planOutput || !planBody || !planTitle || !planStatus) return;
+          planOutput.hidden = false;
+          if (planPlaceholder) {
+            planPlaceholder.hidden = true;
+          }
+          planStatus.textContent = "";
+          planTitle.textContent = plan && plan.title ? plan.title : "Weekly plan";
+
+          if (!plan || !Array.isArray(plan.days)) {
+            planBody.innerHTML = `<pre class="diet-plan-raw">${escapeHtml(JSON.stringify(plan, null, 2))}</pre>`;
+            return;
+          }
+
+          const dayHtml = plan.days.map((day) => {
+            const meals = Array.isArray(day.meals) ? day.meals : [];
+            const mealHtml = meals.map((meal) => {
+              const recipe = meal.recipe || {};
+              const ingredients = Array.isArray(recipe.ingredients) ? recipe.ingredients : [];
+              const steps = Array.isArray(recipe.steps) ? recipe.steps : [];
+              return `
+                <div class="diet-plan-meal">
+                  <h5>${escapeHtml(meal.name || "Meal")}</h5>
+                  <p class="diet-plan-meal-title">${escapeHtml(recipe.title || "Recipe")}</p>
+                  ${ingredients.length ? `<p class="diet-plan-label">Ingredients</p><ul>${ingredients.map((item) => `<li>${escapeHtml(item)}</li>`).join("")}</ul>` : ""}
+                  ${steps.length ? `<p class="diet-plan-label">Steps</p><ol>${steps.map((item) => `<li>${escapeHtml(item)}</li>`).join("")}</ol>` : ""}
+                  <p class="diet-plan-meta">${escapeHtml([recipe.time, recipe.portion, recipe.notes].filter(Boolean).join(" | "))}</p>
+                </div>
+              `;
+            }).join("");
+
+            return `
+              <article class="diet-plan-day">
+                <h4>${escapeHtml(day.day || "Day")}</h4>
+                <div class="diet-plan-meals">${mealHtml}</div>
+              </article>
+            `;
+          }).join("");
+
+          planBody.innerHTML = dayHtml;
+        };
+
+        const collectChecked = (name) =>
+          Array.from(document.querySelectorAll(`input[name="${name}"]:checked`)).map((input) => input.value);
+
+        const collectChips = (kind) =>
+          Array.from(document.querySelectorAll(`[data-food-list="${kind}"] .plans-food-chip`))
+            .map((chip) => chip.textContent.trim())
+            .filter(Boolean);
+
+        const createPlan = async (payload) => {
+          setMainSection("week-plans");
+          setPlanLoading();
+          try {
+            const response = await fetch("/api/meal-plans/generate", {
+              method: "POST",
+              headers: { "Content-Type": "application/json" },
+              body: JSON.stringify(payload),
+            });
+            const contentType = response.headers.get("content-type") || "";
+            if (!contentType.includes("application/json")) {
+              throw new Error(`Request failed (${response.status}).`);
+            }
+            const data = await response.json();
+            if (!response.ok || !data || data.ok === false) {
+              throw new Error((data && data.message) || "Plan generation failed.");
+            }
+            renderPlan(data.plan || {});
+          } catch (error) {
+            setPlanError(error instanceof Error ? error.message : "Plan generation failed.");
+          }
+        };
+
+        const loadLatestPlan = async () => {
+          try {
+            const response = await fetch("/api/meal-plans/latest");
+            if (response.status === 204) {
+              return;
+            }
+            const contentType = response.headers.get("content-type") || "";
+            if (!contentType.includes("application/json")) {
+              return;
+            }
+            const data = await response.json();
+            if (data && data.ok && data.plan) {
+              renderPlan(data.plan);
+            }
+          } catch (error) {
+            // ignore load errors
+          }
+        };
 
         if (detailCard && dietCards.length > 0) {
           dietCards.forEach((card) => {
@@ -482,12 +653,33 @@
               card.classList.add("is-active");
               const key = card.dataset.diet;
               const data = details[key];
+              selectedDiet = data ? { key, ...data } : null;
+              selectedCustom = null;
               detailCard.innerHTML = data
                 ? renderDetails(data)
                 : "<p class=\"diet-details-placeholder\">Details coming soon.</p>";
             });
           });
         }
+
+        if (detailCard) {
+          detailCard.addEventListener("click", (event) => {
+            const target = event.target;
+            if (!(target instanceof HTMLElement)) return;
+            if (!target.matches("[data-create-week-plan]")) return;
+            if (selectedDiet) {
+              createPlan({ source: "diet", diet: selectedDiet });
+              return;
+            }
+            if (selectedCustom) {
+              createPlan({ source: "custom", custom: selectedCustom });
+              return;
+            }
+            setPlanError("Select a diet first or use the custom form.");
+          });
+        }
+
+        loadLatestPlan();
       })();
     </script>
   </body>

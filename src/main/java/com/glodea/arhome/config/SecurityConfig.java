@@ -4,6 +4,8 @@ import javax.sql.DataSource;
 
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
+import org.springframework.security.core.Authentication;
+import org.springframework.security.core.GrantedAuthority;
 import org.springframework.security.authentication.AuthenticationManager;
 import org.springframework.security.config.annotation.authentication.configuration.AuthenticationConfiguration;
 import org.springframework.security.config.annotation.method.configuration.EnableMethodSecurity;
@@ -32,8 +34,12 @@ public class SecurityConfig {
         ClientRegistrationRepository clientRegistrationRepository
     ) throws Exception {
         http
+            .csrf(csrf -> csrf
+                .ignoringRequestMatchers("/api/meal-plans/**")
+            )
             .authorizeHttpRequests(auth -> auth
-                .requestMatchers("/css/**", "/img/**", "/", "/home", "/recipes/**", "/plans", "/collection", "/groceries", "/search", "/register", "/login").permitAll()
+                .requestMatchers("/admin/**").hasRole("ADMIN")
+                .requestMatchers("/css/**", "/img/**", "/js/**", "/", "/home", "/recipes/**", "/plans", "/collection", "/groceries", "/search", "/register", "/login", "/api/meal-plans/**").permitAll()
                 .anyRequest().authenticated()
             )
             .formLogin(form -> form
@@ -41,7 +47,9 @@ public class SecurityConfig {
                 .loginProcessingUrl("/login")
                 .usernameParameter("username")
                 .passwordParameter("password")
-                .defaultSuccessUrl("/profile", true)
+                .successHandler((request, response, authentication) -> {
+                    response.sendRedirect(resolveSuccessUrl(authentication));
+                })
                 .failureUrl("/?authError#auth-login")
             )
             .oauth2Login(oauth2 -> oauth2
@@ -50,7 +58,9 @@ public class SecurityConfig {
                     .authorizationRequestResolver(authorizationRequestResolver(clientRegistrationRepository))
                 )
                 .userInfoEndpoint(userInfo -> userInfo.userService(customOAuth2UserService))
-                .defaultSuccessUrl("/profile", true)
+                .successHandler((request, response, authentication) -> {
+                    response.sendRedirect(resolveSuccessUrl(authentication));
+                })
             )
             .rememberMe(remember -> remember
                 .rememberMeParameter("remember-me")
@@ -122,6 +132,19 @@ public class SecurityConfig {
                 return authorizationRequest;
             }
         };
+    }
+
+    private String resolveSuccessUrl(Authentication authentication) {
+        if (authentication == null || authentication.getAuthorities() == null) {
+            return "/profile";
+        }
+
+        boolean isAdmin = authentication.getAuthorities()
+            .stream()
+            .map(GrantedAuthority::getAuthority)
+            .anyMatch("ROLE_ADMIN"::equals);
+
+        return isAdmin ? "/admin/users" : "/profile";
     }
 
 }

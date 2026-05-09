@@ -23,16 +23,19 @@ public class RegistrationServiceImpl implements RegistrationService {
         if (!StringUtils.hasText(fullName) || !StringUtils.hasText(email) || !StringUtils.hasText(password)) {
             throw new IllegalArgumentException("Missing required fields");
         }
+
+        String normalizedEmail = email.trim().toLowerCase();
+
         if (!password.equals(confirmPassword)) {
             throw new IllegalArgumentException("Passwords do not match");
         }
-        if (userRepository.existsByEmail(email)) {
+        if (userRepository.existsByEmailIgnoreCase(normalizedEmail)) {
             throw new IllegalArgumentException("Email already registered");
         }
 
         User user = new User();
         user.setFullName(fullName.trim());
-        user.setEmail(email.trim().toLowerCase());
+        user.setEmail(normalizedEmail);
         user.setPasswordHash(passwordEncoder.encode(password));
         user.setRole("USER");
         user.setCategory("Unselected");

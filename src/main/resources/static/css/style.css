@@ -118,10 +118,326 @@ body.page-recipes .nav-links a[href="/recipes"],
 body.page-plans .nav-links a[href="/plans"],
 body.page-groceries .nav-links a[href="/groceries"],
 body.page-collection .nav-links a[href="/collection"],
+body.page-admin-users .nav-links a[href="/admin/users"],
+body.page-admin-recipes .nav-links a[href="/admin/recipes"],
+body.page-admin-reviews .nav-links a[href="/admin/reviews"],
 body.page-profile .nav-links a[href="/profile"],
 body.page-profile .nav-user {
   border-color: #c7a27e;
   color: #d8b28b;
+}
+
+.admin-page {
+  max-width: 1260px;
+  margin: 0 auto;
+  padding: 40px 24px 90px;
+}
+
+.admin-hero {
+  background: rgba(74, 46, 33, 0.65);
+  border: 1px solid rgba(201, 160, 122, 0.35);
+  border-radius: 20px;
+  padding: 30px;
+  margin-bottom: 22px;
+}
+
+.admin-kicker {
+  margin: 0;
+  font-size: 0.78rem;
+  letter-spacing: 0.14em;
+  text-transform: uppercase;
+  color: #cfa989;
+}
+
+.admin-hero h1 {
+  margin: 10px 0 6px;
+  color: #f3e7dc;
+}
+
+.admin-hero__top {
+  display: flex;
+  align-items: flex-end;
+  justify-content: space-between;
+  gap: 16px;
+}
+
+.admin-total {
+  display: inline-flex;
+  align-items: baseline;
+  gap: 10px;
+  background: rgba(34, 25, 21, 0.65);
+  border: 1px solid rgba(201, 160, 122, 0.3);
+  border-radius: 12px;
+  padding: 8px 12px;
+}
+
+.admin-total__label {
+  color: #d4baa6;
+  font-size: 0.82rem;
+  text-transform: uppercase;
+  letter-spacing: 0.06em;
+}
+
+.admin-total__value {
+  color: #f3e7dc;
+  font-size: 1.35rem;
+  line-height: 1;
+  font-weight: 600;
+}
+
+.admin-subtitle {
+  margin: 0;
+  color: #d9c8b8;
+  max-width: 760px;
+}
+
+.admin-search {
+  margin-top: 16px;
+  display: flex;
+  gap: 10px;
+  align-items: center;
+}
+
+.admin-search input {
+  flex: 1;
+  min-width: 220px;
+  background: rgba(22, 16, 13, 0.7);
+  border: 1px solid rgba(201, 160, 122, 0.35);
+  border-radius: 10px;
+  color: #f3e7dc;
+  padding: 10px 12px;
+}
+
+.admin-search input::placeholder {
+  color: #bca28f;
+}
+
+.admin-metrics {
+  display: grid;
+  grid-template-columns: repeat(3, minmax(0, 1fr));
+  gap: 14px;
+  margin-bottom: 22px;
+}
+
+.admin-metrics--single {
+  grid-template-columns: minmax(0, 1fr);
+  max-width: 340px;
+}
+
+.admin-metric {
+  background: #221915;
+  border: 1px solid rgba(201, 160, 122, 0.25);
+  border-radius: 16px;
+  padding: 18px;
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+}
+
+.admin-metric__label {
+  color: #d4baa6;
+  font-size: 0.9rem;
+}
+
+.admin-metric__value {
+  font-size: 1.95rem;
+  color: #f3e7dc;
+  line-height: 1;
+}
+
+.admin-metric__hint {
+  color: #b7a08e;
+  font-size: 0.82rem;
+}
+
+.admin-grid {
+  display: grid;
+  gap: 16px;
+}
+
+.admin-panel {
+  background: #211813;
+  border: 1px solid rgba(201, 160, 122, 0.2);
+  border-radius: 16px;
+  padding: 18px;
+}
+
+.admin-panel__head {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  gap: 12px;
+  margin-bottom: 12px;
+}
+
+.admin-panel__head h2 {
+  margin: 0;
+  font-size: 1.1rem;
+  color: #f3e7dc;
+}
+
+.admin-table-wrap {
+  overflow-x: auto;
+}
+
+.admin-table {
+  width: 100%;
+  border-collapse: collapse;
+  min-width: 680px;
+}
+
+.admin-table th,
+.admin-table td {
+  text-align: left;
+  padding: 10px;
+  border-bottom: 1px solid rgba(201, 160, 122, 0.15);
+  color: #e8d9cb;
+}
+
+.admin-table th {
+  font-size: 0.82rem;
+  color: #c7ae98;
+  text-transform: uppercase;
+  letter-spacing: 0.07em;
+}
+
+.admin-table td a {
+  color: #e8d2be;
+}
+
+.admin-inline-form {
+  margin: 0;
+}
+
+.admin-action-btn {
+  border: 1px solid transparent;
+  border-radius: 999px;
+  padding: 6px 12px;
+  font: inherit;
+  font-size: 0.82rem;
+  font-weight: 600;
+  cursor: pointer;
+  transition: transform 0.15s ease, border-color 0.15s ease, filter 0.15s ease;
+}
+
+.admin-action-btn:hover,
+.admin-action-btn:focus {
+  transform: translateY(-1px);
+  filter: brightness(1.06);
+}
+
+.admin-action-btn--warn {
+  background: rgba(191, 137, 65, 0.22);
+  border-color: rgba(223, 167, 92, 0.75);
+  color: #f5e2cb;
+}
+
+.admin-action-btn--danger {
+  background: rgba(140, 49, 49, 0.25);
+  border-color: rgba(188, 84, 84, 0.8);
+  color: #f8d6d6;
+}
+
+.admin-action-muted {
+  color: #c0ab97;
+  font-size: 0.84rem;
+}
+
+.admin-status {
+  display: inline-flex;
+  align-items: center;
+  border-radius: 999px;
+  padding: 4px 10px;
+  font-size: 0.78rem;
+  font-weight: 700;
+  letter-spacing: 0.02em;
+}
+
+.admin-status--active {
+  color: #d6f4db;
+  background: rgba(65, 124, 74, 0.28);
+  border: 1px solid rgba(121, 190, 132, 0.45);
+}
+
+.admin-status--restricted {
+  color: #ffd9d9;
+  background: rgba(121, 37, 37, 0.35);
+  border: 1px solid rgba(207, 102, 102, 0.5);
+}
+
+.admin-feedback {
+  border-radius: 12px;
+  padding: 10px 14px;
+  margin-bottom: 14px;
+  font-size: 0.92rem;
+}
+
+.admin-feedback--success {
+  background: rgba(66, 125, 76, 0.25);
+  border: 1px solid rgba(134, 201, 147, 0.38);
+  color: #d9f1dd;
+}
+
+.admin-feedback--error {
+  background: rgba(125, 58, 58, 0.24);
+  border: 1px solid rgba(201, 128, 128, 0.42);
+  color: #f8d8d8;
+}
+
+.admin-panel--reviews p {
+  margin: 0 0 12px;
+  color: #d7c4b4;
+}
+
+.admin-review-stats {
+  list-style: none;
+  margin: 0;
+  padding: 0;
+  display: grid;
+  grid-template-columns: repeat(3, minmax(0, 1fr));
+  gap: 10px;
+}
+
+.admin-review-stats li {
+  background: rgba(29, 22, 18, 0.9);
+  border: 1px solid rgba(201, 160, 122, 0.2);
+  border-radius: 12px;
+  padding: 12px;
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+}
+
+.admin-review-stats span {
+  color: #c9b4a2;
+  font-size: 0.86rem;
+}
+
+.admin-review-stats strong {
+  color: #f3e7dc;
+  font-size: 1.1rem;
+}
+
+@media (max-width: 900px) {
+  .admin-hero__top {
+    align-items: flex-start;
+    flex-direction: column;
+  }
+
+  .admin-search {
+    flex-direction: column;
+    align-items: stretch;
+  }
+
+  .admin-metrics,
+  .admin-review-stats {
+    grid-template-columns: 1fr;
+  }
+
+  .admin-panel__head {
+    flex-direction: column;
+    align-items: flex-start;
+  }
 }
 
 .nav-links a.btn-primary {
@@ -193,6 +509,16 @@ body.page-profile .nav-user {
 .nav-user:focus {
   border-color: #c7a27e;
   color: #d8b28b;
+}
+
+.nav-user--label {
+  cursor: default;
+}
+
+.nav-user--label:hover,
+.nav-user--label:focus {
+  border-color: transparent;
+  color: inherit;
 }
 
 .page-content {
@@ -4355,6 +4681,131 @@ body {
 
 .diet-details-list--title {
   color: inherit;
+}
+
+.diet-details-actions {
+  margin-top: 14px;
+  display: flex;
+  justify-content: center;
+}
+
+.diet-plan-btn {
+  border: 0;
+  border-radius: 12px;
+  padding: 10px 18px;
+  background: #b97a45;
+  color: #1d120d;
+  font-size: 0.95rem;
+  font-weight: 700;
+  cursor: pointer;
+}
+
+.diet-plan-btn:hover,
+.diet-plan-btn:focus {
+  background: #c68952;
+}
+
+.diet-plan-output {
+  margin-top: 16px;
+  background: #1f1613;
+  color: #ead8c7;
+  border-radius: 16px;
+  padding: 16px 18px;
+  box-shadow: 0 16px 26px rgba(12, 8, 6, 0.35);
+  border: 1px solid rgba(255, 255, 255, 0.06);
+  display: grid;
+  gap: 12px;
+}
+
+.diet-plan-output-head {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 12px;
+}
+
+.diet-plan-output-head h3 {
+  margin: 0;
+  font-size: 1rem;
+  color: #ead8c7;
+}
+
+.diet-plan-output-status {
+  color: #c98a52;
+  font-style: italic;
+  font-weight: 600;
+}
+
+.diet-plan-output-error {
+  margin: 0;
+  color: #f0b498;
+  font-weight: 600;
+}
+
+.diet-plan-raw {
+  margin: 0;
+  white-space: pre-wrap;
+  color: #d7bea7;
+  font-size: 0.9rem;
+}
+
+.diet-plan-day {
+  border-top: 1px solid rgba(255, 255, 255, 0.08);
+  padding-top: 12px;
+}
+
+.diet-plan-day h4 {
+  margin: 0 0 10px;
+  color: #c9a07a;
+  font-size: 0.95rem;
+  text-transform: uppercase;
+  letter-spacing: 0.08em;
+}
+
+.diet-plan-meals {
+  display: grid;
+  gap: 12px;
+}
+
+.diet-plan-meal {
+  background: #2a201d;
+  border-radius: 12px;
+  padding: 10px 12px;
+  border: 1px solid rgba(255, 255, 255, 0.06);
+}
+
+.diet-plan-meal h5 {
+  margin: 0 0 6px;
+  color: #ead8c7;
+  font-size: 0.95rem;
+}
+
+.diet-plan-meal-title {
+  margin: 0 0 8px;
+  color: #c98a52;
+  font-weight: 700;
+}
+
+.diet-plan-label {
+  margin: 8px 0 4px;
+  color: #6a3f2a;
+  font-size: 0.8rem;
+  text-transform: uppercase;
+  letter-spacing: 0.08em;
+}
+
+.diet-plan-meal ul,
+.diet-plan-meal ol {
+  margin: 0 0 6px 16px;
+  padding: 0;
+  color: #d7bea7;
+  font-size: 0.9rem;
+}
+
+.diet-plan-meta {
+  margin: 6px 0 0;
+  color: #c9a07a;
+  font-size: 0.85rem;
 }
 
 body.plans-modal-open {

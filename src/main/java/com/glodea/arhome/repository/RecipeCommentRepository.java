@@ -16,4 +16,18 @@ public interface RecipeCommentRepository extends JpaRepository<RecipeComment, Lo
     Optional<RecipeComment> findByIdAndRecipeId(Long id, Long recipeId);
 
     Optional<RecipeComment> findTopByRecipeIdAndUserIdOrderByCreatedAtDesc(Long recipeId, Long userId);
+
+	void deleteAllByRecipeId(Long recipeId);
+
+	@Query("""
+		select c from RecipeComment c
+		join fetch c.user u
+		join fetch c.recipe r
+		where lower(c.commentText) like lower(concat('%', :query, '%'))
+		   or lower(u.fullName) like lower(concat('%', :query, '%'))
+		   or lower(u.email) like lower(concat('%', :query, '%'))
+		   or lower(r.title) like lower(concat('%', :query, '%'))
+		order by c.createdAt desc
+	""")
+	List<RecipeComment> searchForAdmin(@Param("query") String query);
 }

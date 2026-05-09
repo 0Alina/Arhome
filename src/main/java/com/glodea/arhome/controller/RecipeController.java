@@ -58,6 +58,11 @@ public class RecipeController {
 
     @GetMapping("/add")
     public String addRecipe(Model model) {
+        User user = getCurrentUser();
+        if (isAdmin(user)) {
+            return "redirect:/admin/recipes";
+        }
+
         RecipeCreateRequest request = new RecipeCreateRequest();
         request.setIngredientItems(List.of(new RecipeIngredientInput("", "", "")));
         model.addAttribute("recipe", request);
@@ -72,6 +77,9 @@ public class RecipeController {
         User user = getCurrentUser();
         if (user == null) {
             return "redirect:/?authError#auth-login";
+        }
+        if (isAdmin(user)) {
+            return "redirect:/admin/recipes";
         }
 
         String imagePath = cloudinaryService.uploadImage(photo, "arhome/recipes");
@@ -101,6 +109,9 @@ public class RecipeController {
         User user = getCurrentUser();
         if (user == null) {
             return "redirect:/?authError#auth-login";
+        }
+        if (isAdmin(user)) {
+            return "redirect:/admin/recipes";
         }
 
         Recipe recipe = recipeService.getRecipeForUser(user, id);
@@ -301,6 +312,9 @@ public class RecipeController {
         if (user == null) {
             return "redirect:/?authError#auth-login";
         }
+        if (isAdmin(user)) {
+            return "redirect:/admin/recipes";
+        }
 
         String imagePath = cloudinaryService.uploadImage(photo, "arhome/recipes");
 
@@ -313,6 +327,9 @@ public class RecipeController {
         User user = getCurrentUser();
         if (user == null) {
             return "redirect:/?authError#auth-login";
+        }
+        if (isAdmin(user)) {
+            return "redirect:/admin/recipes";
         }
         recipeService.deleteRecipe(user, id);
         return "redirect:/profile";
@@ -357,6 +374,10 @@ public class RecipeController {
         }
         String fallback = authentication.getName();
         return fallback != null ? fallback.trim().toLowerCase() : null;
+    }
+
+    private boolean isAdmin(User user) {
+        return user != null && "ADMIN".equalsIgnoreCase(user.getRole());
     }
 
     private List<String> splitLines(String value) {
