@@ -3,7 +3,7 @@
   <head>
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-    <title th:text="${pageTitle != null ? pageTitle : 'Add Recipe'}">Add Recipe</title>
+    <title th:text="${pageTitle != null ? pageTitle : 'Ajouter une recette'}">Ajouter une recette</title>
     <link rel="stylesheet" th:href="@{/css/style.css(v=64)}" href="/css/style.css?v=64" />
   </head>
   <body class="page-recipes">
@@ -18,38 +18,38 @@
             <div class="add-recipe-spread add-recipe-spread--one">
               <div class="add-recipe-col add-recipe-col--left">
                 <div class="add-recipe-field">
-                  <label for="recipe-title">Title</label>
-                  <input id="recipe-title" name="title" type="text" placeholder="Recipe title" th:value="${recipe.title}" required />
+                  <label for="recipe-title">Titre</label>
+                  <input id="recipe-title" name="title" type="text" placeholder="Titre de la recette" th:value="${recipe.title}" required />
                 </div>
                 <div class="add-recipe-field">
-                  <label for="recipe-photo">Recipe photo (optional)</label>
+                  <label for="recipe-photo">Photo de la recette (optionnelle)</label>
                   <div class="file-field">
                     <input id="recipe-photo" type="file" accept="image/*" />
                     <button class="file-button" type="button" data-file-trigger
-                            th:text="${isEdit == true ? 'Change file' : 'Choose file'}">Choose file</button>
+                            th:text="${isEdit == true ? 'Changer le fichier' : 'Choisir un fichier'}">Choisir un fichier</button>
                     <span class="file-name" data-file-name
-                          th:text="${isEdit == true ? 'Current image set' : 'No image selected'}">No image selected</span>
+                          th:text="${isEdit == true ? 'Image actuelle définie' : 'Aucune image sélectionnée'}">Aucune image sélectionnée</span>
                   </div>
                   <input type="hidden" name="imagePath" th:value="${recipe.imagePath}" data-image-path />
                 </div>
                 <div class="add-recipe-field">
-                  <label for="recipe-desc">Short description</label>
-                  <textarea id="recipe-desc" name="shortDescription" rows="2" placeholder="Short description" th:text="${recipe.shortDescription}"></textarea>
+                  <label for="recipe-desc">Description courte</label>
+                  <textarea id="recipe-desc" name="shortDescription" rows="2" placeholder="Description courte" th:text="${recipe.shortDescription}"></textarea>
                 </div>
                 <div class="add-recipe-grid">
                   <div class="add-recipe-field">
-                    <label for="recipe-time">Prep time</label>
-                    <input id="recipe-time" name="prepTime" type="text" placeholder="e.g. 35 min" th:value="${recipe.prepTime}" required />
+                    <label for="recipe-time">Temps de préparation</label>
+                    <input id="recipe-time" name="prepTime" type="text" placeholder="ex. 35 min" th:value="${recipe.prepTime}" required />
                   </div>
                   <div class="add-recipe-field">
-                    <label for="recipe-meal">Meal type</label>
+                    <label for="recipe-meal">Type de repas</label>
                     <div class="ingredient-unit-select meal-type-select" data-meal-select>
                       <input id="recipe-meal" type="hidden" name="mealType" th:value="${recipe.mealType}" data-meal-value />
                       <button type="button"
                               class="ingredient-unit-trigger meal-type-trigger"
                               data-meal-trigger
                               aria-expanded="false"
-                              th:text="${recipe.mealType != null && !#strings.isEmpty(recipe.mealType) ? recipe.mealType : 'Select one'}">Select one</button>
+                              th:text="${recipe.mealType != null && !#strings.isEmpty(recipe.mealType) ? recipe.mealType : 'Sélectionner'}">Sélectionner</button>
                       <div class="ingredient-unit-menu meal-type-menu" data-meal-menu>
                         <button type="button" class="ingredient-unit-option" data-meal-option data-value="Breakfast">Breakfast</button>
                         <button type="button" class="ingredient-unit-option" data-meal-option data-value="Lunch">Lunch</button>
@@ -61,7 +61,7 @@
                 </div>
                 <div class="add-recipe-tags">
                   <div class="add-recipe-tag-group">
-                    <span>Region</span>
+                    <span>Région</span>
                     <label><input type="checkbox" name="regionTags" value="American" th:checked="${recipe.regionTags != null && recipe.regionTags.contains('American')}" /> American</label>
                     <label><input type="checkbox" name="regionTags" value="Asian" th:checked="${recipe.regionTags != null && recipe.regionTags.contains('Asian')}" /> Asian</label>
                     <label><input type="checkbox" name="regionTags" value="European" th:checked="${recipe.regionTags != null && recipe.regionTags.contains('European')}" /> European</label>
@@ -75,10 +75,10 @@
                   </div>
                   <div class="add-recipe-tag-group">
                     <span>Nutrition</span>
-                    <label><input type="checkbox" name="nutritionTags" value="Vegetarian" th:checked="${recipe.nutritionTags != null && recipe.nutritionTags.contains('Vegetarian')}" /> Vegetarian</label>
-                    <label><input type="checkbox" name="nutritionTags" value="Gluten-free" th:checked="${recipe.nutritionTags != null && recipe.nutritionTags.contains('Gluten-free')}" /> Gluten-free</label>
-                    <label><input type="checkbox" name="nutritionTags" value="Protein+" th:checked="${recipe.nutritionTags != null && recipe.nutritionTags.contains('Protein+')}" /> Protein+</label>
-                    <label><input type="checkbox" name="nutritionTags" value="Fibre+" th:checked="${recipe.nutritionTags != null && recipe.nutritionTags.contains('Fibre+')}" /> Fibre+</label>
+                    <label><input type="checkbox" name="nutritionTags" value="Vegetarian" th:checked="${recipe.nutritionTags != null && recipe.nutritionTags.contains('Vegetarian')}" /> Végétarien</label>
+                    <label><input type="checkbox" name="nutritionTags" value="Gluten-free" th:checked="${recipe.nutritionTags != null && recipe.nutritionTags.contains('Gluten-free')}" /> Sans gluten</label>
+                    <label><input type="checkbox" name="nutritionTags" value="Protein+" th:checked="${recipe.nutritionTags != null && recipe.nutritionTags.contains('Protein+')}" /> Protéines+</label>
+                    <label><input type="checkbox" name="nutritionTags" value="Fibre+" th:checked="${recipe.nutritionTags != null && recipe.nutritionTags.contains('Fibre+')}" /> Fibres+</label>
                   </div>
                 </div>
               </div>
@@ -100,7 +100,7 @@
                            step="0.5"
                              th:name="|ingredientItems[${stat.index}].quantity|"
                              th:value="${item.quantity}"
-                             placeholder="Qty"
+                             placeholder="Quantité"
                              required />
                       <div class="ingredient-unit-select" data-unit-select>
                         <input type="hidden"
@@ -111,7 +111,7 @@
                                 class="ingredient-unit-trigger"
                                 data-unit-trigger
                           aria-expanded="false"
-                                th:text="${item.unit != null && !#strings.isEmpty(item.unit) ? item.unit : 'Unit'}">Unit</button>
+                                th:text="${item.unit != null && !#strings.isEmpty(item.unit) ? item.unit : 'Unité'}">Unité</button>
                         <div class="ingredient-unit-menu" data-unit-menu>
                           <button type="button" class="ingredient-unit-option" data-unit-option data-value="pcs">pcs</button>
                           <button type="button" class="ingredient-unit-option" data-unit-option data-value="slice">slice</button>
@@ -129,7 +129,7 @@
                         </div>
                       </div>
                       <button class="btn-secondary" type="button" data-ingredient-action
-                              th:text="${stat.last ? 'Add' : 'Remove'}">Add</button>
+                              th:text="${stat.last ? 'Ajouter' : 'Retirer'}">Ajouter</button>
                     </div>
                   </div>
                   <datalist id="ingredient-suggestions"></datalist>
@@ -140,31 +140,31 @@
             <div class="add-recipe-spread add-recipe-spread--two">
               <div class="add-recipe-col add-recipe-col--left">
                 <div class="add-recipe-field add-recipe-field--fill">
-                  <label for="recipe-steps">Steps</label>
-                  <textarea id="recipe-steps" name="steps" rows="12" placeholder="Write the steps" data-list="number" th:text="${recipe.steps}"></textarea>
+                  <label for="recipe-steps">Étapes</label>
+                  <textarea id="recipe-steps" name="steps" rows="12" placeholder="Écrivez les étapes" data-list="number" th:text="${recipe.steps}"></textarea>
                 </div>
               </div>
               <div class="add-recipe-divider" aria-hidden="true"></div>
               <div class="add-recipe-col add-recipe-col--right">
                 <div class="add-recipe-field add-recipe-field--fill">
                   <label for="recipe-notes">Instructions</label>
-                  <textarea id="recipe-notes" name="instructions" rows="12" placeholder="Write the instructions" th:text="${recipe.instructions}"></textarea>
+                  <textarea id="recipe-notes" name="instructions" rows="12" placeholder="Écrivez les instructions" th:text="${recipe.instructions}"></textarea>
                 </div>
               </div>
             </div>
           </form>
           <div class="add-recipe-book-nav">
-            <button class="add-recipe-arrow add-recipe-arrow--left" type="button" data-prev-page aria-label="Previous">
+            <button class="add-recipe-arrow add-recipe-arrow--left" type="button" data-prev-page aria-label="Précédent">
               <span class="add-recipe-arrow__icon" aria-hidden="true"></span>
             </button>
-            <button class="add-recipe-arrow add-recipe-arrow--right" type="button" data-next-page aria-label="Next">
+            <button class="add-recipe-arrow add-recipe-arrow--right" type="button" data-next-page aria-label="Suivant">
               <span class="add-recipe-arrow__icon" aria-hidden="true"></span>
             </button>
           </div>
           </div>
           <div class="add-recipe-actions">
-            <a class="btn-secondary add-recipe-cancel" href="/profile">Cancel</a>
-            <button class="btn-primary add-recipe-submit" type="submit" form="add-recipe-form">Save recipe</button>
+            <a class="btn-secondary add-recipe-cancel" href="/profile">Annuler</a>
+            <button class="btn-primary add-recipe-submit" type="submit" form="add-recipe-form">Enregistrer la recette</button>
           </div>
         </div>
       </section>
@@ -205,7 +205,7 @@
               return;
             }
 
-            fileName.textContent = "Uploading...";
+            fileName.textContent = "Téléversement...";
             if (submitBtn) submitBtn.disabled = true;
 
             const formData = new FormData();
@@ -222,11 +222,11 @@
                   if (imagePathInput) imagePathInput.value = data.url;
                   fileName.textContent = fileInput.files[0].name;
                 } else {
-                  fileName.textContent = "Upload failed";
+                  fileName.textContent = "Échec du téléversement";
                 }
               })
               .catch(() => {
-                fileName.textContent = "Upload failed";
+                fileName.textContent = "Échec du téléversement";
               })
               .finally(() => {
                 if (submitBtn) submitBtn.disabled = false;
@@ -238,7 +238,7 @@
           form.addEventListener("submit", (event) => {
             if (fileInput.files && fileInput.files.length > 0 && !imagePathInput.value) {
               event.preventDefault();
-              fileName.textContent = "Upload not finished";
+              fileName.textContent = "Téléversement non terminé";
             }
           });
         }

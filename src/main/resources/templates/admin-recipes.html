@@ -3,7 +3,7 @@
   <head>
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-    <title>Admin - Recipes</title>
+    <title>Admin - Recettes</title>
     <link rel="stylesheet" th:href="@{/css/style.css(v=67)}" href="/css/style.css?v=67" />
   </head>
   <body class="page-admin-recipes">
@@ -13,27 +13,27 @@
       <section class="admin-hero">
         <p class="admin-kicker">Administration</p>
         <div class="admin-hero__top">
-          <h1>Recipes Management</h1>
+          <h1>Gestion des recettes</h1>
           <div class="admin-total" aria-label="Total recipes">
             <span class="admin-total__label">Total</span>
             <strong class="admin-total__value" th:text="${sectionTotal}">0</strong>
           </div>
         </div>
-        <p class="admin-subtitle">Monitor recipes and prepare moderation workflows.</p>
+        <p class="admin-subtitle">Surveillez les recettes et preparez la moderation.</p>
         <form class="admin-search" method="get" th:action="@{/admin/recipes}">
           <input
             type="search"
             name="q"
-            placeholder="Search recipes by title or author"
+            placeholder="Rechercher par titre ou auteur"
             th:value="${searchQuery}"
-            aria-label="Search recipes"
+            aria-label="Rechercher des recettes"
           />
-          <button class="btn-secondary" type="submit">Search</button>
+          <button class="btn-secondary" type="submit">Rechercher</button>
         </form>
       </section>
 
-      <div class="admin-feedback admin-feedback--success" th:if="${adminMessage}" th:text="${adminMessage}">Action completed.</div>
-      <div class="admin-feedback admin-feedback--error" th:if="${adminError}" th:text="${adminError}">Action failed.</div>
+      <div class="admin-feedback admin-feedback--success" th:if="${adminMessage}" th:text="${adminMessage}">Action terminee.</div>
+      <div class="admin-feedback admin-feedback--error" th:if="${adminError}" th:text="${adminError}">Echec de l'action.</div>
 
       <section class="admin-grid">
         <article class="admin-panel">
@@ -42,15 +42,15 @@
               <thead>
                 <tr>
                   <th>ID</th>
-                  <th>Title</th>
-                  <th>Author</th>
-                  <th>Published</th>
+                  <th>Titre</th>
+                  <th>Auteur</th>
+                  <th>Publié</th>
                   <th>Action</th>
                 </tr>
               </thead>
               <tbody>
                 <tr th:if="${#lists.isEmpty(recipes)}">
-                  <td colspan="5">No recipes yet.</td>
+                  <td colspan="5">Aucune recette pour le moment.</td>
                 </tr>
                 <tr th:each="recipe : ${recipes}">
                   <td th:text="${recipe.id}">1</td>
@@ -60,11 +60,11 @@
                   <td th:text="${recipe.user != null ? recipe.user.fullName : '-'}">Author</td>
                   <td th:text="${recipe.createdAt != null ? #temporals.format(recipe.createdAt.atZone(T(java.time.ZoneId).systemDefault()), 'dd/MM/yy') : '-'}">-</td>
                   <td>
-                    <form th:action="@{/admin/recipes/{id}/delete(id=${recipe.id})}" method="post" class="admin-inline-form" onsubmit="return confirm('Delete this recipe?');">
+                    <form th:action="@{/admin/recipes/{id}/delete(id=${recipe.id})}" method="post" class="admin-inline-form" onsubmit="return confirm('Supprimer cette recette ?');">
                       <input type="hidden" th:name="${_csrf.parameterName}" th:value="${_csrf.token}" />
                       <input type="hidden" name="q" th:value="${searchQuery}" />
                       <input type="hidden" name="page" th:value="${currentPage}" />
-                      <button type="submit" class="admin-action-btn admin-action-btn--danger">Delete</button>
+                      <button type="submit" class="admin-action-btn admin-action-btn--danger">Supprimer</button>
                     </form>
                   </td>
                 </tr>
@@ -74,19 +74,19 @@
         </article>
       </section>
 
-      <nav class="recipes-pagination" th:if="${totalPages > 1}" aria-label="Recipes pagination">
+      <nav class="recipes-pagination" th:if="${totalPages > 1}" aria-label="Pagination des recettes">
         <a class="recipes-page-btn"
            th:classappend="${currentPage == 1 ? ' is-disabled' : ''}"
            th:attr="aria-disabled=${currentPage == 1}"
            th:href="@{/admin/recipes(q=${searchQuery}, page=${currentPage - 1})}">
-          Previous
+          Précédent
         </a>
-        <span class="recipes-page-indicator" th:text="${'Page ' + currentPage + ' of ' + totalPages}">Page 1 of 1</span>
+        <span class="recipes-page-indicator" th:text="${'Page ' + currentPage + ' sur ' + totalPages}">Page 1 sur 1</span>
         <a class="recipes-page-btn"
            th:classappend="${currentPage == totalPages ? ' is-disabled' : ''}"
            th:attr="aria-disabled=${currentPage == totalPages}"
            th:href="@{/admin/recipes(q=${searchQuery}, page=${currentPage + 1})}">
-          Next
+          Suivant
         </a>
       </nav>
     </main>

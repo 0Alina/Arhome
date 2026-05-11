@@ -5,7 +5,7 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
     <meta name="_csrf" th:content="${_csrf.token}" />
     <meta name="_csrf_header" th:content="${_csrf.headerName}" />
-    <title th:text="${recipe.title}">Recipe</title>
+    <title th:text="${recipe.title}">Recette</title>
     <link rel="stylesheet" th:href="@{/css/style.css(v=82)}" href="/css/style.css?v=82" />
   </head>
   <body class="page-recipes page-recipe-detail">
@@ -60,17 +60,17 @@
                   <span class="recipe-rating-icon">⭐</span>
                 </span>
                 <span class="recipe-rating-value" data-rating-average th:text="${#numbers.formatDecimal(recipeAverageRating, 1, 1)}">0.0</span>
-                <span class="recipe-rating-count" data-rating-count th:text="${recipeRatingCount + ' ratings'}">0 ratings</span>
+                <span class="recipe-rating-count" data-rating-count th:text="${recipeRatingCount + ' avis'}">0 avis</span>
               </div>
               <div class="recipe-detail-footer-row">
                 <p class="recipe-detail-author">
-                  Cooked with love by <span th:text="${authorName}">Chef</span>
+                  Cuisinée avec amour par <span th:text="${authorName}">Chef</span>
                 </p>
                 <button type="button"
                   class="btn-primary recipe-add-groceries-btn"
                         data-add-recipe-groceries
                         th:attr="data-recipe-id=${recipe.id}">
-                  Add to groceries
+                  Ajouter aux courses
                 </button>
               </div>
             </div>
@@ -84,7 +84,7 @@
           </section>
 
           <section class="recipe-steps">
-            <h2>Cooking <span>Steps</span></h2>
+            <h2>Étapes de <span>cuisson</span></h2>
             <div class="recipe-steps-list">
               <div class="recipe-step" th:each="step : ${stepsItems}">
                 <span class="recipe-step-index"
@@ -98,61 +98,61 @@
           </section>
 
           <section class="recipe-serving" th:if="${recipe.instructions != null && !#strings.isEmpty(recipe.instructions)}">
-            <h2>Serving <span>Instructions</span></h2>
+            <h2>Instructions de <span>service</span></h2>
             <p class="recipe-serving-text" th:text="${recipe.instructions}">Serving instructions.</p>
           </section>
 
           <section class="recipe-review-section">
-            <h2 class="recipe-review-title">Recipe <span>Reviews</span></h2>
+            <h2 class="recipe-review-title">Avis <span>recette</span></h2>
             <div class="recipe-feedback" th:if="${!isOwnRecipe}" th:classappend="${hasCurrentUserReview} ? ' is-locked' : ''" data-feedback th:attr="data-recipe-id=${recipe.id}, hidden=${hasCurrentUserReview} ? 'hidden' : null">
             <div class="recipe-feedback-actions">
-              <button class="recipe-feedback-btn is-active" type="button" data-toggle-panel="rating">Rate</button>
-              <button class="recipe-feedback-btn" type="button" data-toggle-panel="comment">Comment</button>
+              <button class="recipe-feedback-btn is-active" type="button" data-toggle-panel="rating">Noter</button>
+              <button class="recipe-feedback-btn" type="button" data-toggle-panel="comment">Commenter</button>
             </div>
 
             <div class="recipe-feedback-panel is-active" data-panel="rating">
-              <h3>Rate this recipe</h3>
-              <div class="recipe-stars" role="radiogroup" aria-label="Select a rating" data-star-row>
-                <button type="button" class="recipe-star" data-star-value="1" aria-label="Rate 1 out of 5"><span class="recipe-star-glyph">⭐</span></button>
-                <button type="button" class="recipe-star" data-star-value="2" aria-label="Rate 2 out of 5"><span class="recipe-star-glyph">⭐</span></button>
-                <button type="button" class="recipe-star" data-star-value="3" aria-label="Rate 3 out of 5"><span class="recipe-star-glyph">⭐</span></button>
-                <button type="button" class="recipe-star" data-star-value="4" aria-label="Rate 4 out of 5"><span class="recipe-star-glyph">⭐</span></button>
-                <button type="button" class="recipe-star" data-star-value="5" aria-label="Rate 5 out of 5"><span class="recipe-star-glyph">⭐</span></button>
+              <h3>Notez cette recette</h3>
+              <div class="recipe-stars" role="radiogroup" aria-label="Sélectionner une note" data-star-row>
+                <button type="button" class="recipe-star" data-star-value="1" aria-label="Noter 1 sur 5"><span class="recipe-star-glyph">⭐</span></button>
+                <button type="button" class="recipe-star" data-star-value="2" aria-label="Noter 2 sur 5"><span class="recipe-star-glyph">⭐</span></button>
+                <button type="button" class="recipe-star" data-star-value="3" aria-label="Noter 3 sur 5"><span class="recipe-star-glyph">⭐</span></button>
+                <button type="button" class="recipe-star" data-star-value="4" aria-label="Noter 4 sur 5"><span class="recipe-star-glyph">⭐</span></button>
+                <button type="button" class="recipe-star" data-star-value="5" aria-label="Noter 5 sur 5"><span class="recipe-star-glyph">⭐</span></button>
               </div>
-              <p class="recipe-feedback-note" data-rating-note>Select your rating (half stars supported)</p>
+              <p class="recipe-feedback-note" data-rating-note>Sélectionnez votre note (demi-étoiles possibles)</p>
             </div>
 
             <div class="recipe-feedback-panel" data-panel="comment" hidden>
-              <h3>Leave a comment</h3>
-              <textarea class="recipe-comment-input" rows="4" placeholder="Write your comment..."></textarea>
+              <h3>Laisser un commentaire</h3>
+              <textarea class="recipe-comment-input" rows="4" placeholder="Écrivez votre commentaire..."></textarea>
             </div>
 
             <div class="recipe-feedback-footer">
-              <button class="recipe-comment-post" type="button" data-feedback-post>Post</button>
+              <button class="recipe-comment-post" type="button" data-feedback-post>Publier</button>
               <span class="recipe-feedback-note" data-feedback-note></span>
             </div>
             </div>
 
-            <p class="recipe-feedback-note recipe-feedback-lock-note" data-review-lock-note th:if="${!isOwnRecipe}" th:attr="hidden=${hasCurrentUserReview} ? null : 'hidden'">You already reviewed this recipe. Edit your existing review instead.</p>
+            <p class="recipe-feedback-note recipe-feedback-lock-note" data-review-lock-note th:if="${!isOwnRecipe}" th:attr="hidden=${hasCurrentUserReview} ? null : 'hidden'">Vous avez déjà noté cette recette. Modifiez plutôt votre avis.</p>
 
-            <p class="recipe-feedback-note" data-no-reviews th:if="${reviewItems == null || #lists.isEmpty(reviewItems)}">No reviews yet.</p>
+            <p class="recipe-feedback-note" data-no-reviews th:if="${reviewItems == null || #lists.isEmpty(reviewItems)}">Aucun avis pour le moment.</p>
 
             <div class="recipe-reviews-preview" data-review-preview th:if="${reviewItems != null && !#lists.isEmpty(reviewItems)}">
               <div class="recipe-review-filters" data-review-filters>
-                <button type="button" class="recipe-review-filter is-active" data-review-filter="recent">Most recent</button>
-                <button type="button" class="recipe-review-filter" data-review-filter="best">The best</button>
-                <button type="button" class="recipe-review-filter" data-review-filter="worst">The worst</button>
+                <button type="button" class="recipe-review-filter is-active" data-review-filter="recent">Les plus récents</button>
+                <button type="button" class="recipe-review-filter" data-review-filter="best">Les meilleurs</button>
+                <button type="button" class="recipe-review-filter" data-review-filter="worst">Les moins bons</button>
               </div>
               <div class="recipe-reviews-list" data-review-list>
                 <article class="recipe-user-review recipe-user-review--illustrated" th:each="review : ${reviewItems}" th:attr="data-comment-id=${review.commentId}">
                   <div class="recipe-review-actions" th:if="${review.ownReview}">
-                    <button type="button" class="recipe-review-action recipe-review-action--edit" data-review-edit aria-label="Edit review">
+                    <button type="button" class="recipe-review-action recipe-review-action--edit" data-review-edit aria-label="Modifier l'avis">
                       <svg viewBox="0 0 24 24" aria-hidden="true">
                         <path d="M4 20l3.8-.8L19 8l-3-3L4.8 16.2 4 20z" />
                         <path d="M14.5 6.5l3 3" />
                       </svg>
                     </button>
-                    <button type="button" class="recipe-review-action recipe-review-action--delete" data-review-delete aria-label="Delete review">
+                    <button type="button" class="recipe-review-action recipe-review-action--delete" data-review-delete aria-label="Supprimer l'avis">
                       <svg viewBox="0 0 24 24" aria-hidden="true">
                         <path d="m14.74 9-.346 9m-4.788 0L9.26 9m9.968-3.21c.342.052.682.107 1.022.166m-1.022-.165L18.16 19.673a2.25 2.25 0 0 1-2.244 2.077H8.084a2.25 2.25 0 0 1-2.244-2.077L4.772 5.79m14.456 0a48.108 48.108 0 0 0-3.478-.397m-12 .562c.34-.059.68-.114 1.022-.165m0 0a48.11 48.11 0 0 1 3.478-.397m7.5 0v-.916c0-1.18-.91-2.164-2.09-2.201a51.964 51.964 0 0 0-3.32 0c-1.18.037-2.09 1.022-2.09 2.201v.916m7.5 0a48.667 48.667 0 0 0-7.5 0" />
                       </svg>
@@ -161,7 +161,7 @@
                   <div class="recipe-user-review-cap">
                     <div class="recipe-user-review-meta">
                       <span class="recipe-user-review-name" th:text="${review.userName}">User Name</span>
-                      <span class="recipe-user-review-category" th:text="${review.userCategory}">young&hungry</span>
+                      <span class="recipe-user-review-category" th:text="${review.userCategory}">Jeunes &amp; affamés</span>
                       <span class="recipe-user-review-stars" th:text="${review.starText}">⭐⭐⭐⭐⭐</span>
                     </div>
                   </div>
@@ -171,7 +171,7 @@
                 </article>
               </div>
               <div class="recipe-reviews-fade" data-review-fade aria-hidden="true"></div>
-              <button type="button" class="recipe-reviews-toggle" data-review-toggle hidden>View the rest</button>
+              <button type="button" class="recipe-reviews-toggle" data-review-toggle hidden>Voir la suite</button>
             </div>
           </section>
         </div>
@@ -231,6 +231,28 @@
           const matches = (starText || "").match(/⭐/g);
           return matches ? matches.length : 0;
         };
+
+        const formatCategory = (value) => {
+          const trimmed = (value || "").trim();
+          if (!trimmed) return "";
+          const map = {
+            "Teen Kitchen": "Cuisine ado",
+            "Young & Hungry": "Jeunes & affamés",
+            "Home Cooks": "Cuisiniers à la maison",
+            "Grandma's Classics": "Classiques de grand-mère",
+            "Teen Kitchen (13-19 years)": "Cuisine ado (13-19 ans)",
+            "Young & Hungry (20-35 years)": "Jeunes & affamés (20-35 ans)",
+            "Home Cooks (36-55 years)": "Cuisiniers à la maison (36-55 ans)",
+            "Grandma's Classics (56+ years)": "Classiques de grand-mère (56+ ans)",
+          };
+          return map[trimmed] || trimmed;
+        };
+
+        document.querySelectorAll(".recipe-user-review-category, .recipe-user-category").forEach((node) => {
+          if (!(node instanceof HTMLElement)) return;
+          const mapped = formatCategory(node.textContent || "");
+          if (mapped) node.textContent = mapped;
+        });
 
         const ensureReviewMetadata = (card) => {
           if (!(card instanceof HTMLElement)) return;
@@ -308,9 +330,9 @@
             filters.className = "recipe-review-filters";
             filters.setAttribute("data-review-filters", "");
             filters.innerHTML = `
-              <button type="button" class="recipe-review-filter is-active" data-review-filter="recent">Most recent</button>
-              <button type="button" class="recipe-review-filter" data-review-filter="best">The best</button>
-              <button type="button" class="recipe-review-filter" data-review-filter="worst">The worst</button>
+              <button type="button" class="recipe-review-filter is-active" data-review-filter="recent">Les plus recents</button>
+              <button type="button" class="recipe-review-filter" data-review-filter="best">Les meilleurs</button>
+              <button type="button" class="recipe-review-filter" data-review-filter="worst">Les moins bons</button>
             `;
 
             const fade = document.createElement("div");
@@ -323,7 +345,7 @@
             toggle.className = "recipe-reviews-toggle";
             toggle.setAttribute("data-review-toggle", "");
             toggle.setAttribute("hidden", "hidden");
-            toggle.textContent = "View the rest";
+            toggle.textContent = "Voir la suite";
 
             const note = noReviewsNote();
             if (note && note.parentNode === reviewSection) {
@@ -350,13 +372,13 @@
           }
           return `
             <div class="recipe-review-actions">
-              <button type="button" class="recipe-review-action recipe-review-action--edit" data-review-edit aria-label="Edit review">
+              <button type="button" class="recipe-review-action recipe-review-action--edit" data-review-edit aria-label="Modifier l'avis">
                 <svg viewBox="0 0 24 24" aria-hidden="true">
                   <path d="M4 20l3.8-.8L19 8l-3-3L4.8 16.2 4 20z" />
                   <path d="M14.5 6.5l3 3" />
                 </svg>
               </button>
-              <button type="button" class="recipe-review-action recipe-review-action--delete" data-review-delete aria-label="Delete review">
+              <button type="button" class="recipe-review-action recipe-review-action--delete" data-review-delete aria-label="Supprimer l'avis">
                 <svg viewBox="0 0 24 24" aria-hidden="true">
                   <path d="m14.74 9-.346 9m-4.788 0L9.26 9m9.968-3.21c.342.052.682.107 1.022.166m-1.022-.165L18.16 19.673a2.25 2.25 0 0 1-2.244 2.077H8.084a2.25 2.25 0 0 1-2.244-2.077L4.772 5.79m14.456 0a48.108 48.108 0 0 0-3.478-.397m-12 .562c.34-.059.68-.114 1.022-.165m0 0a48.11 48.11 0 0 1 3.478-.397m7.5 0v-.916c0-1.18-.91-2.164-2.09-2.201a51.964 51.964 0 0 0-3.32 0c-1.18.037-2.09 1.022-2.09 2.201v.916m7.5 0a48.667 48.667 0 0 0-7.5 0" />
                 </svg>
@@ -379,8 +401,8 @@
             ${ownActionsHtml(reviewItem)}
             <div class="recipe-user-review-cap">
               <div class="recipe-user-review-meta">
-                <span class="recipe-user-review-name">${escapeHtml(reviewItem.userName || "Anonymous")}</span>
-                <span class="recipe-user-review-category">${escapeHtml(reviewItem.userCategory || "Young & Hungry")}</span>
+                <span class="recipe-user-review-name">${escapeHtml(reviewItem.userName || "Anonyme")}</span>
+                <span class="recipe-user-review-category">${escapeHtml(formatCategory(reviewItem.userCategory || "Jeunes & affamés"))}</span>
                 <span class="recipe-user-review-stars">${escapeHtml(reviewItem.starText || "")}</span>
               </div>
             </div>
@@ -427,7 +449,7 @@
           const note = document.createElement("p");
           note.className = "recipe-feedback-note";
           note.setAttribute("data-no-reviews", "");
-          note.textContent = "No reviews yet.";
+          note.textContent = "Aucun avis pour le moment.";
           reviewSection.appendChild(note);
         };
 
@@ -483,7 +505,7 @@
           hiddenCards.forEach((card) => card.classList.add("is-preview-hidden"));
           list.classList.add("is-collapsed");
           preview.classList.add("is-collapsed");
-          toggle.textContent = "View the rest";
+          toggle.textContent = "Voir la suite";
           toggle.setAttribute("aria-expanded", "false");
           toggle.removeAttribute("hidden");
         };
@@ -553,10 +575,10 @@
                 [csrfHeader]: csrfToken,
               },
             })
-              .then((res) => (res.ok ? res.json() : Promise.reject(new Error("Could not delete review."))))
+              .then((res) => (res.ok ? res.json() : Promise.reject(new Error("Impossible de supprimer l'avis."))))
               .then((data) => {
                 if (!data || !data.ok) {
-                  throw new Error((data && data.message) || "Could not delete review.");
+                  throw new Error((data && data.message) || "Impossible de supprimer l'avis.");
                 }
                 article.remove();
                 ensureNoReviewsMessage();
@@ -706,7 +728,7 @@
                   summaryAverage.textContent = data.averageRating.toFixed(1);
                 }
                 if (summaryCount && typeof data.ratingCount === "number") {
-                  summaryCount.textContent = `${data.ratingCount} ratings`;
+                  summaryCount.textContent = `${data.ratingCount} avis`;
                 }
                 if (data.reviewItem && typeof data.reviewItem === "object") {
                   if (editingCommentId && editingArticle) {
@@ -782,7 +804,7 @@
             window.location.href = "/groceries";
           } catch (_error) {
             addButton.disabled = false;
-            addButton.textContent = previousText || "Add to groceries";
+            addButton.textContent = previousText || "Ajouter aux courses";
           }
         });
       })();

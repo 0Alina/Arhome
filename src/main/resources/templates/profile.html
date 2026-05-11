@@ -3,7 +3,7 @@
   <head>
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-    <title>Profile</title>
+    <title>Profil</title>
     <link rel="stylesheet" th:href="@{/css/style.css(v=64)}" href="/css/style.css?v=64" />
   </head>
   <body class="page-profile">
@@ -14,7 +14,7 @@
         <div class="profile-shell">
           <div class="profile-header">
             <span class="section-kicker"></span>
-            <h1>Profile Details</h1>
+            <h1>Détails du profil</h1>
           </div>
 
           <div class="profile-card">
@@ -24,12 +24,12 @@
                 <h2 class="profile-name" th:text="${profileFullName}">Nume Prenume</h2>
                 <div class="profile-meta">
                   <div class="profile-meta-item">
-                    <span class="meta-label">Category</span>
-                    <span class="meta-value"
-                          th:text="${profileCategory != null && profileCategory != 'Unselected' ? profileCategory : 'Not selected'}">Not selected</span>
+                    <span class="meta-label">Catégorie</span>
+                      <span class="meta-value" data-category-text
+                          th:text="${profileCategory != null && profileCategory != 'Unselected' ? profileCategory : 'Non sélectionnée'}">Non sélectionnée</span>
                   </div>
                   <div class="profile-meta-item">
-                    <span class="meta-label">Email Address</span>
+                    <span class="meta-label">Adresse e-mail</span>
                     <span class="meta-value" th:text="${profileEmail}">andreea.popescu@example.com</span>
                   </div>
                 </div>
@@ -41,21 +41,21 @@
                 <div class="profile-stat-icon" aria-hidden="true">&#x1F372;</div>
                 <div>
                   <span class="profile-stat-value" th:text="${profileRecipesUploaded}">0</span>
-                  <span class="profile-stat-label">Recipes uploaded</span>
+                  <span class="profile-stat-label">Recettes publiées</span>
                 </div>
               </div>
               <div class="profile-stat">
                 <div class="profile-stat-icon" aria-hidden="true">&#x1F5D3;</div>
                 <div>
                   <span class="profile-stat-value">6</span>
-                  <span class="profile-stat-label">Plans created</span>
+                  <span class="profile-stat-label">Plans créés</span>
                 </div>
               </div>
               <div class="profile-stat">
                 <div class="profile-stat-icon" aria-hidden="true">&#x2B50;</div>
                 <div>
                   <span class="profile-stat-value" th:text="${#numbers.formatDecimal(profileAverageRating, 1, 1)}">0.0</span>
-                  <span class="profile-stat-label">Average rating</span>
+                  <span class="profile-stat-label">Note moyenne</span>
                 </div>
               </div>
             </div>
@@ -67,22 +67,22 @@
         <div class="history-shell">
           <div class="history-header">
             <span class="section-kicker"></span>
-            <h2>My Recipes</h2>
+            <h2>Mes recettes</h2>
           </div>
           <div class="history-grid">
             <div class="recipes-add">
-              <a class="btn-primary recipes-add-btn" href="/recipes/add">Add Recipe</a>
+              <a class="btn-primary recipes-add-btn" href="/recipes/add">Ajouter une recette</a>
             </div>
             <article class="recipes-card" th:each="recipe : ${recipes}"
                      th:attr="data-href=@{/recipes/{id}(id=${recipe.id})}"
                      th:onclick="|window.location.href='@{/recipes/{id}(id=${recipe.id})}'|"
                      th:onkeydown="|if(event.key==='Enter'){window.location.href='@{/recipes/{id}(id=${recipe.id})}';}|"
-                     role="link" tabindex="0" aria-label="Open recipe">
-              <a class="recipes-edit" th:href="@{/recipes/{id}/edit(id=${recipe.id})}" aria-label="Edit recipe"
-                 onclick="event.stopPropagation()">Edit</a>
+                     role="link" tabindex="0" aria-label="Ouvrir la recette">
+                <a class="recipes-edit" th:href="@{/recipes/{id}/edit(id=${recipe.id})}" aria-label="Modifier la recette"
+                  onclick="event.stopPropagation()">Modifier</a>
               <form class="recipes-delete" th:action="@{/recipes/{id}/delete(id=${recipe.id})}" method="post">
                 <input type="hidden" th:name="${_csrf.parameterName}" th:value="${_csrf.token}" />
-                <button type="submit" aria-label="Delete recipe" title="Delete recipe" onclick="event.stopPropagation()">
+                <button type="submit" aria-label="Supprimer la recette" title="Supprimer la recette" onclick="event.stopPropagation()">
                   <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor" aria-hidden="true">
                     <path stroke-linecap="round" stroke-linejoin="round" d="m14.74 9-.346 9m-4.788 0L9.26 9m9.968-3.21c.342.052.682.107 1.022.166m-1.022-.165L18.16 19.673a2.25 2.25 0 0 1-2.244 2.077H8.084a2.25 2.25 0 0 1-2.244-2.077L4.772 5.79m14.456 0a48.108 48.108 0 0 0-3.478-.397m-12 .562c.34-.059.68-.114 1.022-.165m0 0a48.11 48.11 0 0 1 3.478-.397m7.5 0v-.916c0-1.18-.91-2.164-2.09-2.201a51.964 51.964 0 0 0-3.32 0c-1.18.037-2.09 1.022-2.09 2.201v.916m7.5 0a48.667 48.667 0 0 0-7.5 0" />
                   </svg>
@@ -91,28 +91,28 @@
               <a class="recipes-media" th:href="@{/recipes/{id}(id=${recipe.id})}"
                  th:classappend="${recipe.imagePath != null ? '' : ' recipes-media--citrus'}"
                  th:style="${recipe.imagePath != null ? 'background-image: linear-gradient(120deg, rgba(41, 30, 24, 0.25), rgba(18, 14, 11, 0.45)), url(' + recipe.imagePath + ')' : ''}"
-                 aria-label="View recipe"></a>
+                 aria-label="Voir la recette"></a>
               <div class="recipes-body">
                 <div>
                   <div class="recipes-title-row">
-                    <h3><a th:href="@{/recipes/{id}(id=${recipe.id})}" th:text="${recipe.title}">Recipe title</a></h3>
-                    <span class="recipes-card-rating" th:title="${recipe.ratingCount + ' ratings'}">
+                    <h3><a th:href="@{/recipes/{id}(id=${recipe.id})}" th:text="${recipe.title}">Titre de la recette</a></h3>
+                    <span class="recipes-card-rating" th:title="${recipe.ratingCount + ' avis'}">
                       <span aria-hidden="true">⭐</span>
                       <span th:text="${#numbers.formatDecimal(recipe.averageRating, 1, 1)}">0.0</span>
                     </span>
                   </div>
-                  <p class="recipes-note" th:text="${recipe.mealType + ' · ' + recipe.prepTime}">Meal · 0 min</p>
-                  <p class="recipes-desc" th:text="${recipe.shortDescription}">Short description.</p>
+                  <p class="recipes-note" th:text="${recipe.mealType + ' · ' + recipe.prepTime}">Repas · 0 min</p>
+                  <p class="recipes-desc" th:text="${recipe.shortDescription}">Description courte.</p>
                 </div>
                 <div class="recipes-tags">
                   <span th:each="tag : ${recipe.tags}" th:text="${tag}">tag</span>
                 </div>
                 <div class="recipes-actions">
-                  <button class="recipes-action" type="button" onclick="event.stopPropagation()">+ groceries</button>
+                  <button class="recipes-action" type="button" onclick="event.stopPropagation()">+ courses</button>
                 </div>
               </div>
             </article>
-            <p class="recipes-empty" th:if="${#lists.isEmpty(recipes)}">No recipes yet. Add your first one!</p>
+            <p class="recipes-empty" th:if="${#lists.isEmpty(recipes)}">Aucune recette pour le moment. Ajoutez la première !</p>
           </div>
         </div>
       </section>
@@ -122,27 +122,27 @@
     <div class="category-modal" th:if="${needsCategory}">
       <div class="category-modal__overlay"></div>
       <div class="category-modal__card" role="dialog" aria-modal="true">
-        <h2>Select your category</h2>
-        <p>This helps us personalize your experience.</p>
+        <h2>Sélectionnez votre catégorie</h2>
+        <p>Cela nous aide à personnaliser votre expérience.</p>
         <form th:action="@{/profile/category}" method="post">
           <input type="hidden" th:name="${_csrf.parameterName}" th:value="${_csrf.token}" />
           <label>
-            <span>Category</span>
+            <span>Catégorie</span>
             <div class="category-select" data-select="category">
               <button class="category-select__trigger" type="button" aria-haspopup="listbox" aria-expanded="false">
-                <span class="category-select__value">Select one</span>
+                <span class="category-select__value">Sélectionner</span>
                 <span class="category-select__chevron" aria-hidden="true"></span>
               </button>
               <div class="category-select__menu" role="listbox" aria-hidden="true">
-                <button type="button" class="category-select__option" data-value="Teen Kitchen (13-19 years)">Teen Kitchen (13-19 years)</button>
-                <button type="button" class="category-select__option" data-value="Young &amp; Hungry (20-35 years)">Young &amp; Hungry (20-35 years)</button>
-                <button type="button" class="category-select__option" data-value="Home Cooks (36-55 years)">Home Cooks (36-55 years)</button>
-                <button type="button" class="category-select__option" data-value="Grandma&rsquo;s Classics (56+ years)">Grandma&rsquo;s Classics (56+ years)</button>
+                <button type="button" class="category-select__option" data-value="Teen Kitchen (13-19 years)">Cuisine ado (13-19 ans)</button>
+                <button type="button" class="category-select__option" data-value="Young &amp; Hungry (20-35 years)">Jeunes &amp; affamés (20-35 ans)</button>
+                <button type="button" class="category-select__option" data-value="Home Cooks (36-55 years)">Cuisiniers à la maison (36-55 ans)</button>
+                <button type="button" class="category-select__option" data-value="Grandma&rsquo;s Classics (56+ years)">Classiques de grand-mère (56+ ans)</button>
               </div>
               <input type="hidden" name="category" required />
             </div>
           </label>
-          <button type="submit" class="btn-primary">Save category</button>
+          <button type="submit" class="btn-primary">Enregistrer la catégorie</button>
         </form>
       </div>
     </div>
@@ -188,6 +188,27 @@
             closeMenu();
           }
         });
+      })();
+    </script>
+    <script>
+      (() => {
+        const map = {
+          "Teen Kitchen": "Cuisine ado",
+          "Young & Hungry": "Jeunes & affamés",
+          "Home Cooks": "Cuisiniers à la maison",
+          "Grandma's Classics": "Classiques de grand-mère",
+          "Teen Kitchen (13-19 years)": "Cuisine ado (13-19 ans)",
+          "Young & Hungry (20-35 years)": "Jeunes & affamés (20-35 ans)",
+          "Home Cooks (36-55 years)": "Cuisiniers à la maison (36-55 ans)",
+          "Grandma's Classics (56+ years)": "Classiques de grand-mère (56+ ans)",
+        };
+
+        const categoryNode = document.querySelector("[data-category-text]");
+        if (!(categoryNode instanceof HTMLElement)) return;
+        const text = (categoryNode.textContent || "").trim();
+        if (text && map[text]) {
+          categoryNode.textContent = map[text];
+        }
       })();
     </script>
   </body>

@@ -15,19 +15,19 @@
         <section class="collection-hero">
           <div class="collection-hero-inner">
             <div class="collection-hero-text">
-              <h1>Your Collection, Curated for Daily Cooking</h1>
+              <h1>Votre collection, pensée pour la cuisine du quotidien</h1>
               <p class="collection-subtitle">
-                A growing collection of recipes tailored to your preferences, schedule, and
-                pantry. Save favorites, filter by mood, and build a week that feels easy.
+                Une collection de recettes adaptée à vos préférences, votre emploi du temps et
+                votre placard. Sauvegardez vos favoris, filtrez selon l&rsquo;envie et construisez une semaine simple.
               </p>
               <div class="collection-meta">
                 <div>
-                  <span class="collection-meta-label">Meals saved</span>
-                  <span class="collection-meta-value">128 recipes</span>
+                  <span class="collection-meta-label">Repas sauvegardés</span>
+                  <span class="collection-meta-value">128 recettes</span>
                 </div>
                 <div>
-                  <span class="collection-meta-label">Last updated</span>
-                  <span class="collection-meta-value">Today</span>
+                  <span class="collection-meta-label">Dernière mise à jour</span>
+                  <span class="collection-meta-value">Aujourd&rsquo;hui</span>
                 </div>
               </div>
             </div>
@@ -40,42 +40,42 @@
           <div class="collection-controls">
             <form class="collection-search-row" th:action="@{/collection}" method="get">
               <div class="collection-search">
-                <input type="text" name="q" th:value="${collectionSearchQuery}" placeholder="Search recipes" aria-label="Search recipes" />
+                <input type="text" name="q" th:value="${collectionSearchQuery}" placeholder="Rechercher des recettes" aria-label="Rechercher des recettes" />
                 <input type="hidden" name="mealType" th:value="${collectionMealType}" />
                 <input type="hidden" name="sort" th:value="${collectionSort}" />
-                <button class="collection-search-btn" type="submit">Search</button>
+                <button class="collection-search-btn" type="submit">Rechercher</button>
               </div>
             </form>
             <div class="collection-toolbar">
               <div class="collection-filters">
                 <button class="collection-filter" type="button" data-meal="All"
-                        th:classappend="${collectionMealType == null || collectionMealType == 'All' ? ' is-active' : ''}">All</button>
+                  th:classappend="${collectionMealType == null || collectionMealType == 'All' ? ' is-active' : ''}">Tous</button>
                 <button class="collection-filter" type="button" data-meal="Breakfast"
-                        th:classappend="${collectionMealType == 'Breakfast' ? ' is-active' : ''}">Breakfast</button>
+                  th:classappend="${collectionMealType == 'Breakfast' ? ' is-active' : ''}">Petit-déjeuner</button>
                 <button class="collection-filter" type="button" data-meal="Lunch"
-                        th:classappend="${collectionMealType == 'Lunch' ? ' is-active' : ''}">Lunch</button>
+                  th:classappend="${collectionMealType == 'Lunch' ? ' is-active' : ''}">Déjeuner</button>
                 <button class="collection-filter" type="button" data-meal="Dinner"
-                        th:classappend="${collectionMealType == 'Dinner' ? ' is-active' : ''}">Dinner</button>
+                  th:classappend="${collectionMealType == 'Dinner' ? ' is-active' : ''}">Dîner</button>
                 <button class="collection-filter" type="button" data-meal="Dessert"
-                        th:classappend="${collectionMealType == 'Dessert' ? ' is-active' : ''}">Dessert</button>
+                  th:classappend="${collectionMealType == 'Dessert' ? ' is-active' : ''}">Dessert</button>
               </div>
               <div class="collection-sort">
-                <span class="collection-sort-label">Sort by</span>
+                <span class="collection-sort-label">Trier par</span>
                 <div class="collection-select" data-select>
-                  <select aria-label="Sort recipes">
-                    <option value="recent" th:selected="${collectionSort == 'recent'}">Recently saved</option>
-                    <option value="time" th:selected="${collectionSort == 'time'}">Shortest time</option>
-                    <option value="alpha" th:selected="${collectionSort == 'alpha'}">Alphabetical</option>
+                  <select aria-label="Trier les recettes">
+                    <option value="recent" th:selected="${collectionSort == 'recent'}">Récemment enregistrées</option>
+                    <option value="time" th:selected="${collectionSort == 'time'}">Temps le plus court</option>
+                    <option value="alpha" th:selected="${collectionSort == 'alpha'}">Alphabétique</option>
                   </select>
                   <button class="collection-select-trigger" type="button" aria-haspopup="listbox"
-                          th:text="${collectionSort == 'time' ? 'Shortest time' : (collectionSort == 'alpha' ? 'Alphabetical' : 'Recently saved')}">Recently saved</button>
+                    th:text="${collectionSort == 'time' ? 'Temps le plus court' : (collectionSort == 'alpha' ? 'Alphabétique' : 'Récemment enregistrées')}">Récemment enregistrées</button>
                   <ul class="collection-select-menu" role="listbox">
                     <li class="collection-select-option" role="option" data-sort="recent"
-                        th:classappend="${collectionSort == 'recent' ? ' is-selected' : ''}">Recently saved</li>
+                  th:classappend="${collectionSort == 'recent' ? ' is-selected' : ''}">Récemment enregistrées</li>
                     <li class="collection-select-option" role="option" data-sort="time"
-                        th:classappend="${collectionSort == 'time' ? ' is-selected' : ''}">Shortest time</li>
+                  th:classappend="${collectionSort == 'time' ? ' is-selected' : ''}">Temps le plus court</li>
                     <li class="collection-select-option" role="option" data-sort="alpha"
-                        th:classappend="${collectionSort == 'alpha' ? ' is-selected' : ''}">Alphabetical</li>
+                  th:classappend="${collectionSort == 'alpha' ? ' is-selected' : ''}">Alphabétique</li>
                   </ul>
                 </div>
               </div>
@@ -83,7 +83,7 @@
           </div>
           <div class="collection-grid">
             <article class="collection-card" th:each="recipe : ${favoriteRecipes}">
-              <button class="collection-favorite is-active" type="button" aria-label="Favorite recipe" aria-pressed="true"
+              <button class="collection-favorite is-active" type="button" aria-label="Recette favorite" aria-pressed="true"
                       th:attr="data-recipe-id=${recipe.id}">
                 <svg viewBox="0 0 20 20" aria-hidden="true">
                   <path d="M9.999 17.27l-1.45-1.32C4.4 12.36 2 10.28 2 7.5 2 5.5 3.5 4 5.5 4c1.54 0 3.04.99 3.57 2.36h1.87C11.46 4.99 12.96 4 14.5 4 16.5 4 18 5.5 18 7.5c0 2.78-2.4 4.86-6.55 8.45l-1.45 1.32z"/>
@@ -92,23 +92,23 @@
               <a class="collection-media" th:href="@{/recipes/{id}(id=${recipe.id})}"
                  th:classappend="${recipe.imagePath != null ? '' : ' collection-media--citrus'}"
                  th:style="${recipe.imagePath != null ? 'background-image: linear-gradient(120deg, rgba(41, 30, 24, 0.25), rgba(18, 14, 11, 0.45)), url(' + recipe.imagePath + ')' : ''}"
-                 aria-label="View recipe"></a>
+                 aria-label="Voir la recette"></a>
               <div class="collection-card-body">
                 <div>
-                  <h3><a th:href="@{/recipes/{id}(id=${recipe.id})}" th:text="${recipe.title}">Recipe title</a></h3>
-                  <p class="collection-card-note" th:text="${recipe.mealType + ' · ' + recipe.prepTime}">Meal · 0 min</p>
+                  <h3><a th:href="@{/recipes/{id}(id=${recipe.id})}" th:text="${recipe.title}">Titre de la recette</a></h3>
+                  <p class="collection-card-note" th:text="${recipe.mealType + ' · ' + recipe.prepTime}">Repas · 0 min</p>
                 </div>
-                <p class="collection-card-desc" th:text="${recipe.shortDescription}">Short description.</p>
+                <p class="collection-card-desc" th:text="${recipe.shortDescription}">Description courte.</p>
                 <div class="collection-tags">
                   <span th:each="tag : ${recipe.tags}" th:text="${tag}">tag</span>
                 </div>
                 <div class="collection-card-actions">
-                  <button class="collection-action" type="button">+ groceries</button>
+                  <button class="collection-action" type="button">+ courses</button>
                 </div>
               </div>
             </article>
             <p class="collection-empty" th:if="${#lists.isEmpty(favoriteRecipes)}">
-              Your collection is empty.
+              Votre collection est vide.
             </p>
           </div>
         </section>
@@ -116,10 +116,10 @@
     </main>
     <section class="collection-modal" aria-hidden="true">
       <div class="collection-modal-card">
-        <button class="collection-modal-close" type="button" aria-label="Close">&times;</button>
-        <h3>Recipe details</h3>
+        <button class="collection-modal-close" type="button" aria-label="Fermer">&times;</button>
+        <h3>Détails de la recette</h3>
         <p class="collection-modal-text">
-          Select a recipe to view ingredients, steps, and nutrition.
+          Sélectionnez une recette pour voir les ingrédients, les étapes et la nutrition.
         </p>
       </div>
     </section>
@@ -149,9 +149,9 @@
         const getParamsFromLocation = () => new URLSearchParams(window.location.search);
 
         const getSortLabel = (sortValue) => {
-          if (sortValue === "time") return "Shortest time";
-          if (sortValue === "alpha") return "Alphabetical";
-          return "Recently saved";
+          if (sortValue === "time") return "Temps le plus court";
+          if (sortValue === "alpha") return "Alphabétique";
+          return "Récemment enregistrées";
         };
 
         const wireFavoriteButtons = () => {
@@ -228,7 +228,7 @@
 
           return fetch(nextUrl, { headers: { "X-Requested-With": "XMLHttpRequest" } })
             .then((res) => {
-              if (!res.ok) throw new Error("Failed to refresh collection");
+              if (!res.ok) throw new Error("Échec du rafraîchissement de la collection");
               return res.text();
             })
             .then((html) => {

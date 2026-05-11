@@ -1609,6 +1609,7 @@ a.collection-media {
   padding: 18px 20px 22px;
   display: grid;
   gap: 12px;
+  align-content: start;
 }
 
 .collection-card-body h3 {
@@ -2687,6 +2688,7 @@ a.recipes-media {
   padding: 16px 18px 20px;
   display: grid;
   gap: 12px;
+  align-content: start;
 }
 
 .recipes-title-row {
