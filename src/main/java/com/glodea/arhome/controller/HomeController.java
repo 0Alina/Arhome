@@ -102,9 +102,11 @@ public class HomeController {
         if (user != null) {
             model.addAttribute("initialManualItems", groceryService.listItems(user));
             model.addAttribute("initialRecipeBoxes", groceryService.getRecipeBoxes(user));
+            model.addAttribute("initialPlanBoxes", groceryService.getPlanBoxes(user));
         } else {
             model.addAttribute("initialManualItems", java.util.List.of());
             model.addAttribute("initialRecipeBoxes", java.util.List.of());
+            model.addAttribute("initialPlanBoxes", java.util.List.of());
         }
         return "groceries";
     }

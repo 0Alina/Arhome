@@ -83,6 +83,24 @@
         <section class="plans-week-placeholder" data-week-plans hidden>
           <h2>Week Plans</h2>
           <p data-week-plan-placeholder>No weekly plan yet. Choose a diet or create a custom one to generate a plan.</p>
+          <div class="plans-week-layout">
+            <section class="plans-week-column">
+              <div class="plans-week-column-head">
+                <h3>Active plans</h3>
+                <span class="plans-week-count" data-week-plan-count></span>
+              </div>
+              <p class="plans-week-empty" data-week-plan-empty hidden>No active plans yet.</p>
+              <div class="plans-week-grid" data-week-plan-list></div>
+            </section>
+            <section class="plans-week-column plans-week-column--history">
+              <div class="plans-week-column-head">
+                <h3>History</h3>
+                <span class="plans-week-count" data-week-plan-history-count></span>
+              </div>
+              <p class="plans-week-empty" data-week-plan-history-empty hidden>No finished plans yet.</p>
+              <div class="plans-week-grid" data-week-plan-history></div>
+            </section>
+          </div>
           <div class="diet-plan-output" data-week-plan-output hidden>
             <div class="diet-plan-output-head">
               <h3 data-week-plan-title>Weekly plan</h3>
@@ -205,6 +223,20 @@
       </section>
     </div>
 
+    <div class="plans-detail-modal" data-plan-detail-modal aria-hidden="true">
+      <button class="plans-customize-backdrop" type="button" data-plan-detail-close aria-label="Close"></button>
+      <section class="plans-detail-card" role="dialog" aria-modal="true" aria-labelledby="plan-detail-title">
+        <header class="plans-detail-header">
+          <div>
+            <h2 id="plan-detail-title">Weekly plan</h2>
+            <p class="plans-detail-meta" data-plan-detail-meta></p>
+          </div>
+          <button class="plans-customize-close" type="button" data-plan-detail-close aria-label="Close">x</button>
+        </header>
+        <div class="plans-detail-body" data-plan-detail-body></div>
+      </section>
+    </div>
+
     <div th:replace="~{fragments :: auth-modals}"></div>
     <div th:replace="~{fragments :: footer}"></div>
     <script>
@@ -213,6 +245,28 @@
         const dietsView = document.querySelector("[data-diets-view]");
         const weekPlansView = document.querySelector("[data-week-plans]");
         const sectionButtons = document.querySelectorAll("[data-open-section]");
+        const navBar = document.querySelector(".site-nav");
+        const csrfToken = document.querySelector("meta[name='_csrf']")?.getAttribute("content") || "";
+        const csrfHeader = document.querySelector("meta[name='_csrf_header']")?.getAttribute("content") || "X-CSRF-TOKEN";
+
+        const apiHeaders = () => {
+          const headers = { "Content-Type": "application/json" };
+          if (csrfToken) {
+            headers[csrfHeader] = csrfToken;
+          }
+          return headers;
+        };
+
+        const updatePlanModalSizing = () => {
+          const navHeight = navBar ? navBar.getBoundingClientRect().height : 0;
+          const basePadding = 24;
+          const padding = Math.max(48, Math.round(navHeight + basePadding));
+          const bottomPadding = Math.max(24, Math.round(padding * 0.45));
+          const maxHeight = Math.max(200, Math.round(window.innerHeight - padding - bottomPadding));
+          document.documentElement.style.setProperty("--plan-modal-padding", `${padding}px`);
+          document.documentElement.style.setProperty("--plan-modal-padding-bottom", `${bottomPadding}px`);
+          document.documentElement.style.setProperty("--plan-modal-max-height", `${maxHeight}px`);
+        };
 
         const setMainSection = (sectionName) => {
           sectionButtons.forEach((button) => {
@@ -245,9 +299,22 @@
         const planStatus = document.querySelector("[data-week-plan-status]");
         const planError = document.querySelector("[data-week-plan-error]");
         const planPlaceholder = document.querySelector("[data-week-plan-placeholder]");
+        const planList = document.querySelector("[data-week-plan-list]");
+        const planEmpty = document.querySelector("[data-week-plan-empty]");
+        const planCount = document.querySelector("[data-week-plan-count]");
+        const planHistoryList = document.querySelector("[data-week-plan-history]");
+        const planHistoryEmpty = document.querySelector("[data-week-plan-history-empty]");
+        const planHistoryCount = document.querySelector("[data-week-plan-history-count]");
+
+        const planDetailModal = document.querySelector("[data-plan-detail-modal]");
+        const planDetailCloseButtons = document.querySelectorAll("[data-plan-detail-close]");
+        const planDetailTitle = document.querySelector("#plan-detail-title");
+        const planDetailMeta = document.querySelector("[data-plan-detail-meta]");
+        const planDetailBody = document.querySelector("[data-plan-detail-body]");
 
         let selectedDiet = null;
         let selectedCustom = null;
+        const planCache = new Map();
 
         const details = {
           "high-protein": {
@@ -528,44 +595,39 @@
             .replace(/>/g, "&gt;")
             .replace(/\"/g, "&quot;");
 
-        const setPlanLoading = (label) => {
-          if (!planOutput || !planBody || !planStatus) return;
-          planOutput.hidden = false;
-          if (planPlaceholder) {
-            planPlaceholder.hidden = true;
+        const formatDate = (value) => {
+          if (!value) return "";
+          const parsed = new Date(value);
+          if (Number.isNaN(parsed.getTime())) return "";
+          return parsed.toLocaleDateString("ro-RO", {
+            day: "2-digit",
+            month: "short",
+            year: "numeric",
+          });
+        };
+
+        const updatePlanCounts = () => {
+          if (planCount && planList) {
+            planCount.textContent = planList.children.length ? `${planList.children.length} active` : "";
           }
-          planStatus.textContent = label || "Generating...";
-          planBody.innerHTML = "";
-          if (planError) {
-            planError.hidden = true;
-            planError.textContent = "";
+          if (planHistoryCount && planHistoryList) {
+            planHistoryCount.textContent = planHistoryList.children.length ? `${planHistoryList.children.length} finished` : "";
+          }
+          if (planEmpty && planList) {
+            planEmpty.hidden = planList.children.length > 0;
+          }
+          if (planHistoryEmpty && planHistoryList) {
+            planHistoryEmpty.hidden = planHistoryList.children.length > 0;
+          }
+          if (planPlaceholder && planList && planHistoryList) {
+            const total = planList.children.length + planHistoryList.children.length;
+            planPlaceholder.hidden = total > 0;
           }
         };
 
-        const setPlanError = (message) => {
-          if (!planOutput || !planBody || !planStatus || !planError) return;
-          planOutput.hidden = false;
-          if (planPlaceholder) {
-            planPlaceholder.hidden = true;
-          }
-          planStatus.textContent = "";
-          planBody.innerHTML = "";
-          planError.hidden = false;
-          planError.textContent = message;
-        };
-
-        const renderPlan = (plan) => {
-          if (!planOutput || !planBody || !planTitle || !planStatus) return;
-          planOutput.hidden = false;
-          if (planPlaceholder) {
-            planPlaceholder.hidden = true;
-          }
-          planStatus.textContent = "";
-          planTitle.textContent = plan && plan.title ? plan.title : "Weekly plan";
-
+        const renderPlanDetails = (plan) => {
           if (!plan || !Array.isArray(plan.days)) {
-            planBody.innerHTML = `<pre class="diet-plan-raw">${escapeHtml(JSON.stringify(plan, null, 2))}</pre>`;
-            return;
+            return `<pre class="diet-plan-raw">${escapeHtml(JSON.stringify(plan, null, 2))}</pre>`;
           }
 
           const dayHtml = plan.days.map((day) => {
@@ -593,7 +655,141 @@
             `;
           }).join("");
 
-          planBody.innerHTML = dayHtml;
+          return dayHtml;
+        };
+
+        const openPlanModal = (plan) => {
+          if (!planDetailModal || !planDetailBody || !planDetailTitle || !planDetailMeta) return;
+          planDetailTitle.textContent = plan.title || "Weekly plan";
+          const createdText = formatDate(plan.createdAt);
+          const metaBits = [];
+          if (createdText) metaBits.push(`Created: ${createdText}`);
+          if (!plan.active && plan.completedAt) {
+            const completedText = formatDate(plan.completedAt);
+            if (completedText) metaBits.push(`Finished: ${completedText}`);
+          }
+          planDetailMeta.textContent = metaBits.join(" | ");
+          planDetailBody.innerHTML = renderPlanDetails(plan.plan || plan);
+          planDetailModal.setAttribute("aria-hidden", "false");
+          document.body.classList.add("plans-modal-open");
+        };
+
+        const closePlanModal = () => {
+          if (!planDetailModal) return;
+          planDetailModal.setAttribute("aria-hidden", "true");
+          document.body.classList.remove("plans-modal-open");
+        };
+
+        const createPlanCard = (plan) => {
+          const card = document.createElement("article");
+          card.className = "plans-week-card";
+          card.dataset.planId = String(plan.planId || "");
+          card.dataset.active = plan.active ? "true" : "false";
+
+          const head = document.createElement("div");
+          head.className = "plans-week-card-head";
+
+          const title = document.createElement("h4");
+          title.textContent = plan.title || "Weekly plan";
+
+          const badge = document.createElement("span");
+          badge.className = plan.active ? "plans-week-card-badge is-active" : "plans-week-card-badge";
+          badge.textContent = plan.active ? "Active" : "Finished";
+
+          head.appendChild(title);
+          head.appendChild(badge);
+
+          const meta = document.createElement("p");
+          meta.className = "plans-week-card-meta";
+          const createdText = formatDate(plan.createdAt);
+          meta.textContent = createdText ? `Created ${createdText}` : "";
+
+          const actions = document.createElement("div");
+          actions.className = "plans-week-card-actions";
+
+          const openBtn = document.createElement("button");
+          openBtn.type = "button";
+          openBtn.className = "plans-week-card-open";
+          openBtn.setAttribute("data-plan-open", "");
+          openBtn.textContent = "View";
+
+          actions.appendChild(openBtn);
+
+          if (plan.active) {
+            const doneBtn = document.createElement("button");
+            doneBtn.type = "button";
+            doneBtn.className = "plans-week-card-done";
+            doneBtn.setAttribute("data-plan-done", "");
+            doneBtn.textContent = "Done";
+            actions.appendChild(doneBtn);
+          }
+
+          const deleteBtn = document.createElement("button");
+          deleteBtn.type = "button";
+          deleteBtn.className = "plans-week-card-delete";
+          deleteBtn.setAttribute("data-plan-delete", "");
+          deleteBtn.textContent = "Delete";
+          actions.appendChild(deleteBtn);
+
+          card.appendChild(head);
+          card.appendChild(meta);
+          card.appendChild(actions);
+          return card;
+        };
+
+        const addPlanToList = (plan) => {
+          if (!planList || !planHistoryList) return;
+          const card = createPlanCard(plan);
+          if (plan.active) {
+            planList.prepend(card);
+          } else {
+            planHistoryList.prepend(card);
+          }
+          updatePlanCounts();
+        };
+
+        const setPlanLoading = (label) => {
+          if (!planOutput || !planBody || !planStatus) return;
+          planOutput.hidden = false;
+          if (planPlaceholder) {
+            planPlaceholder.hidden = true;
+          }
+          if (planTitle) {
+            planTitle.textContent = "Weekly plan";
+          }
+          planStatus.textContent = label || "Generating...";
+          planBody.innerHTML = "";
+          if (planError) {
+            planError.hidden = true;
+            planError.textContent = "";
+          }
+        };
+
+        const setPlanError = (message) => {
+          if (!planOutput || !planBody || !planStatus || !planError) return;
+          planOutput.hidden = false;
+          if (planPlaceholder) {
+            planPlaceholder.hidden = true;
+          }
+          planStatus.textContent = "";
+          planBody.innerHTML = "";
+          planError.hidden = false;
+          planError.textContent = message;
+        };
+
+        const setPlanSuccess = (title) => {
+          if (!planOutput || !planBody || !planStatus || !planTitle) return;
+          planOutput.hidden = false;
+          if (planPlaceholder) {
+            planPlaceholder.hidden = true;
+          }
+          planTitle.textContent = title || "Weekly plan";
+          planStatus.textContent = "Plan saved";
+          planBody.innerHTML = "";
+          if (planError) {
+            planError.hidden = true;
+            planError.textContent = "";
+          }
         };
 
         const collectChecked = (name) =>
@@ -610,7 +806,7 @@
           try {
             const response = await fetch("/api/meal-plans/generate", {
               method: "POST",
-              headers: { "Content-Type": "application/json" },
+              headers: apiHeaders(),
               body: JSON.stringify(payload),
             });
             const contentType = response.headers.get("content-type") || "";
@@ -621,26 +817,57 @@
             if (!response.ok || !data || data.ok === false) {
               throw new Error((data && data.message) || "Plan generation failed.");
             }
-            renderPlan(data.plan || {});
+            const createdPlan = {
+              planId: data.planId,
+              createdAt: data.createdAt,
+              completedAt: data.completedAt || null,
+              source: data.source,
+              title: data.title || (data.plan && data.plan.title) || "Weekly plan",
+              active: data.active !== false,
+              plan: data.plan || {},
+            };
+            if (createdPlan.planId != null) {
+              planCache.set(String(createdPlan.planId), createdPlan);
+              addPlanToList(createdPlan);
+            }
+            setPlanSuccess(createdPlan.title);
           } catch (error) {
             setPlanError(error instanceof Error ? error.message : "Plan generation failed.");
           }
         };
 
-        const loadLatestPlan = async () => {
+        const loadPlans = async () => {
+          if (!planList || !planHistoryList) return;
           try {
-            const response = await fetch("/api/meal-plans/latest");
-            if (response.status === 204) {
-              return;
-            }
+            const response = await fetch("/api/meal-plans");
             const contentType = response.headers.get("content-type") || "";
             if (!contentType.includes("application/json")) {
               return;
             }
             const data = await response.json();
-            if (data && data.ok && data.plan) {
-              renderPlan(data.plan);
+            if (!data || data.ok === false || !Array.isArray(data.plans)) {
+              return;
             }
+
+            planList.innerHTML = "";
+            planHistoryList.innerHTML = "";
+            planCache.clear();
+
+            data.plans.forEach((plan) => {
+              if (!plan || plan.planId == null) return;
+              const normalized = {
+                planId: plan.planId,
+                createdAt: plan.createdAt,
+                completedAt: plan.completedAt || null,
+                source: plan.source,
+                title: plan.title || (plan.plan && plan.plan.title) || "Weekly plan",
+                active: !!plan.active,
+                plan: plan.plan || {},
+              };
+              planCache.set(String(normalized.planId), normalized);
+              addPlanToList(normalized);
+            });
+            updatePlanCounts();
           } catch (error) {
             // ignore load errors
           }
@@ -679,7 +906,105 @@
           });
         }
 
-        loadLatestPlan();
+        planDetailCloseButtons.forEach((button) => {
+          button.addEventListener("click", closePlanModal);
+        });
+
+        document.addEventListener("keydown", (event) => {
+          if (event.key === "Escape" && planDetailModal?.getAttribute("aria-hidden") === "false") {
+            closePlanModal();
+          }
+        });
+
+        const handlePlanCardClick = async (event) => {
+          const target = event.target;
+          if (!(target instanceof HTMLElement)) return;
+          const card = target.closest(".plans-week-card");
+          if (!(card instanceof HTMLElement)) return;
+          const planId = card.dataset.planId;
+          if (!planId) return;
+
+          const doneBtn = target.closest("[data-plan-done]");
+          if (doneBtn instanceof HTMLElement) {
+            doneBtn.setAttribute("disabled", "true");
+            try {
+              const response = await fetch(`/api/meal-plans/${planId}/complete`, {
+                method: "PATCH",
+                headers: apiHeaders(),
+              });
+              const contentType = response.headers.get("content-type") || "";
+              if (!contentType.includes("application/json")) {
+                doneBtn.removeAttribute("disabled");
+                return;
+              }
+              const data = await response.json();
+              if (!response.ok || !data || data.ok === false) {
+                doneBtn.removeAttribute("disabled");
+                return;
+              }
+
+              const cached = planCache.get(planId);
+              if (cached) {
+                cached.active = false;
+                cached.completedAt = data.completedAt || cached.completedAt || null;
+                planCache.set(planId, cached);
+                card.remove();
+                addPlanToList(cached);
+                updatePlanCounts();
+              }
+            } catch (_error) {
+              doneBtn.removeAttribute("disabled");
+            }
+            return;
+          }
+
+          const deleteBtn = target.closest("[data-plan-delete]");
+          if (deleteBtn instanceof HTMLElement) {
+            deleteBtn.setAttribute("disabled", "true");
+            try {
+              const response = await fetch(`/api/meal-plans/${planId}`, {
+                method: "DELETE",
+                headers: apiHeaders(),
+              });
+              const contentType = response.headers.get("content-type") || "";
+              if (!contentType.includes("application/json")) {
+                deleteBtn.removeAttribute("disabled");
+                return;
+              }
+              const data = await response.json();
+              if (!response.ok || !data || data.ok === false) {
+                deleteBtn.removeAttribute("disabled");
+                return;
+              }
+
+              planCache.delete(planId);
+              card.remove();
+              updatePlanCounts();
+            } catch (_error) {
+              deleteBtn.removeAttribute("disabled");
+            }
+            return;
+          }
+
+          const openBtn = target.closest("[data-plan-open]");
+          if (openBtn || card) {
+            const cached = planCache.get(planId);
+            if (cached) {
+              openPlanModal(cached);
+            }
+          }
+        };
+
+        if (planList) {
+          planList.addEventListener("click", handlePlanCardClick);
+        }
+        if (planHistoryList) {
+          planHistoryList.addEventListener("click", handlePlanCardClick);
+        }
+
+        updatePlanModalSizing();
+        window.addEventListener("resize", updatePlanModalSizing);
+        loadPlans();
       })();
     </script>
   </body>

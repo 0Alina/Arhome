@@ -34,6 +34,12 @@ public class MealPlan {
     private String planJson;
 
     @Column(nullable = false)
+    private boolean active = true;
+
+    @Column
+    private Instant completedAt;
+
+    @Column(nullable = false)
     private Instant createdAt = Instant.now();
 
     public Long getId() {
@@ -74,6 +80,22 @@ public class MealPlan {
 
     public void setPlanJson(String planJson) {
         this.planJson = planJson;
+    }
+
+    public boolean isActive() {
+        return active;
+    }
+
+    public void setActive(boolean active) {
+        this.active = active;
+    }
+
+    public Instant getCompletedAt() {
+        return completedAt;
+    }
+
+    public void setCompletedAt(Instant completedAt) {
+        this.completedAt = completedAt;
     }
 
     public Instant getCreatedAt() {

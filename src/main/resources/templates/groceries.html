@@ -15,158 +15,8 @@
           <p class="groceries-top-note">All the ingredients you need, ready for your next trip to the store.</p>
           <div class="groceries-layout">
             <section class="groceries-weekly" aria-label="Weekly plan groceries">
-              <article class="weekly-plan-box">
-                <div class="weekly-plan-box-head">
-                  <p>From weekly plan</p>
-                  <span>Day 2</span>
-                </div>
-                <ul class="weekly-plan-checklist">
-                  <li>
-                    <label>
-                      <input type="checkbox" />
-                      <span>Chicken breast</span>
-                    </label>
-                    <strong>500 g</strong>
-                  </li>
-                  <li>
-                    <label>
-                      <input type="checkbox" />
-                      <span>Bell peppers</span>
-                    </label>
-                    <strong>2 pcs</strong>
-                  </li>
-                  <li>
-                    <label>
-                      <input type="checkbox" />
-                      <span>Olive oil</span>
-                    </label>
-                    <strong>2 tbsp</strong>
-                  </li>
-                  <li>
-                    <label>
-                      <input type="checkbox" />
-                      <span>Garlic</span>
-                    </label>
-                    <strong>3 cloves</strong>
-                  </li>
-                  <li>
-                    <label>
-                      <input type="checkbox" />
-                      <span>Tomatoes</span>
-                    </label>
-                    <strong>4 pcs</strong>
-                  </li>
-                  <li>
-                    <label>
-                      <input type="checkbox" />
-                      <span>Parsley</span>
-                    </label>
-                    <strong>1 bunch</strong>
-                  </li>
-                </ul>
-              </article>
-
-              <article class="weekly-plan-box">
-                <div class="weekly-plan-box-head">
-                  <p>From weekly plan</p>
-                  <span>Day 4</span>
-                </div>
-                <ul class="weekly-plan-checklist">
-                  <li>
-                    <label>
-                      <input type="checkbox" />
-                      <span>Greek yogurt</span>
-                    </label>
-                    <strong>350 g</strong>
-                  </li>
-                  <li>
-                    <label>
-                      <input type="checkbox" />
-                      <span>Blueberries</span>
-                    </label>
-                    <strong>250 g</strong>
-                  </li>
-                  <li>
-                    <label>
-                      <input type="checkbox" />
-                      <span>Honey</span>
-                    </label>
-                    <strong>4 tsp</strong>
-                  </li>
-                  <li>
-                    <label>
-                      <input type="checkbox" />
-                      <span>Oats</span>
-                    </label>
-                    <strong>300 g</strong>
-                  </li>
-                  <li>
-                    <label>
-                      <input type="checkbox" />
-                      <span>Chia seeds</span>
-                    </label>
-                    <strong>80 g</strong>
-                  </li>
-                  <li>
-                    <label>
-                      <input type="checkbox" />
-                      <span>Almond milk</span>
-                    </label>
-                    <strong>1 l</strong>
-                  </li>
-                </ul>
-              </article>
-
-              <article class="weekly-plan-box">
-                <div class="weekly-plan-box-head">
-                  <p>From weekly plan</p>
-                  <span>Day 6</span>
-                </div>
-                <ul class="weekly-plan-checklist">
-                  <li>
-                    <label>
-                      <input type="checkbox" />
-                      <span>Salmon fillet</span>
-                    </label>
-                    <strong>600 g</strong>
-                  </li>
-                  <li>
-                    <label>
-                      <input type="checkbox" />
-                      <span>Lemon</span>
-                    </label>
-                    <strong>2 pcs</strong>
-                  </li>
-                  <li>
-                    <label>
-                      <input type="checkbox" />
-                      <span>Asparagus</span>
-                    </label>
-                    <strong>400 g</strong>
-                  </li>
-                  <li>
-                    <label>
-                      <input type="checkbox" />
-                      <span>Butter</span>
-                    </label>
-                    <strong>40 g</strong>
-                  </li>
-                  <li>
-                    <label>
-                      <input type="checkbox" />
-                      <span>Broccoli</span>
-                    </label>
-                    <strong>1 head</strong>
-                  </li>
-                  <li>
-                    <label>
-                      <input type="checkbox" />
-                      <span>Dill</span>
-                    </label>
-                    <strong>1 bunch</strong>
-                  </li>
-                </ul>
-              </article>
+              <p class="weekly-plan-empty" data-weekly-plan-empty hidden>No active weekly plan yet.</p>
+              <div class="weekly-plan-list" data-weekly-plan-list></div>
             </section>
 
             <div class="groceries-right-column">
@@ -234,6 +84,7 @@
       (() => {
         const initialManualItems = /*[[${initialManualItems}]]*/ [];
         const initialRecipeBoxes = /*[[${initialRecipeBoxes}]]*/ [];
+        const initialPlanBoxes = /*[[${initialPlanBoxes}]]*/ [];
 
         const rowsContainer = document.querySelector("[data-groceries-rows]");
         if (!(rowsContainer instanceof HTMLElement)) return;
@@ -251,6 +102,8 @@
         const addedBoughtList = document.querySelector("[data-groceries-added-bought-list]");
         const recipeEmpty = document.querySelector("[data-groceries-recipe-empty]");
         const recipeGroups = document.querySelector("[data-groceries-recipe-groups]");
+        const weeklyPlanEmpty = document.querySelector("[data-weekly-plan-empty]");
+        const weeklyPlanList = document.querySelector("[data-weekly-plan-list]");
 
         if (!(inlineAddButton instanceof HTMLButtonElement)
           || !(productInput instanceof HTMLInputElement)
@@ -260,7 +113,9 @@
           || !(addedBoughtSection instanceof HTMLElement)
           || !(addedBoughtList instanceof HTMLUListElement)
           || !(recipeEmpty instanceof HTMLElement)
-          || !(recipeGroups instanceof HTMLElement)) {
+          || !(recipeGroups instanceof HTMLElement)
+          || !(weeklyPlanEmpty instanceof HTMLElement)
+          || !(weeklyPlanList instanceof HTMLElement)) {
           return;
         }
 
@@ -276,6 +131,9 @@
         const RECIPE_GROUP_AUTO_REMOVE_MS = 3000;
         const RECIPE_GROUP_FADE_MS = 450;
         const pendingRecipeGroupAutoDelete = new WeakMap();
+        const PLAN_BOX_AUTO_REMOVE_MS = 3000;
+        const PLAN_BOX_FADE_MS = 450;
+        const pendingPlanBoxAutoDelete = new WeakMap();
 
         const clearManualAutoDelete = (row, options = {}) => {
           const { clearFadeClass = true } = options;
@@ -418,6 +276,76 @@
           const boughtList = groupElement.querySelector("[data-recipe-group-bought-list]");
           if (!(boughtSection instanceof HTMLElement) || !(boughtList instanceof HTMLUListElement)) return;
           boughtSection.hidden = boughtList.children.length === 0;
+        };
+
+        const refreshPlanBoxBoughtVisibility = (boxElement) => {
+          if (!(boxElement instanceof HTMLElement)) return;
+          const boughtSection = boxElement.querySelector(".bought-section");
+          const boughtList = boxElement.querySelector(".bought-checklist");
+          if (!(boughtSection instanceof HTMLElement) || !(boughtList instanceof HTMLUListElement)) return;
+          boughtSection.hidden = boughtList.children.length === 0;
+        };
+
+        const removePlanBoxIfComplete = async (boxElement) => {
+          if (!(boxElement instanceof HTMLElement)) return;
+          const activeList = boxElement.querySelector(".weekly-plan-checklist");
+          const boughtList = boxElement.querySelector(".bought-checklist");
+          if (!(activeList instanceof HTMLUListElement) || !(boughtList instanceof HTMLUListElement)) return;
+          if (activeList.children.length > 0 || boughtList.children.length === 0) return;
+
+          const ids = Array.from(boughtList.querySelectorAll("li[data-id]"))
+            .map((row) => row.getAttribute("data-id"))
+            .filter(Boolean);
+          schedulePlanBoxAutoDelete(boxElement, ids);
+        };
+
+        const clearPlanBoxAutoDelete = (boxElement) => {
+          const timerState = pendingPlanBoxAutoDelete.get(boxElement);
+          if (timerState) {
+            clearTimeout(timerState.fadeTimerId);
+            clearTimeout(timerState.deleteTimerId);
+            pendingPlanBoxAutoDelete.delete(boxElement);
+          }
+          boxElement.classList.remove("is-clearing");
+        };
+
+        const autoRemovePlanBox = async (boxElement, ids) => {
+          const previousParent = boxElement.parentElement;
+          const previousNextSibling = boxElement.nextSibling;
+
+          boxElement.remove();
+          weeklyPlanEmpty.hidden = !!weeklyPlanList.querySelector(".weekly-plan-box");
+
+          if (!ids || ids.length === 0) return;
+          const results = await Promise.allSettled(
+            ids.map((itemId) => fetch(`/groceries/items/${itemId}`, {
+              method: "DELETE",
+              headers: apiHeaders(),
+            }))
+          );
+
+          const hasFailure = results.some((result) => result.status === "rejected" || (result.value && !result.value.ok));
+          if (hasFailure && previousParent instanceof Node) {
+            previousParent.insertBefore(boxElement, previousNextSibling);
+            boxElement.classList.remove("is-clearing");
+            weeklyPlanEmpty.hidden = true;
+          }
+        };
+
+        const schedulePlanBoxAutoDelete = (boxElement, ids) => {
+          clearPlanBoxAutoDelete(boxElement);
+
+          const fadeDelay = Math.max(0, PLAN_BOX_AUTO_REMOVE_MS - PLAN_BOX_FADE_MS);
+          const fadeTimerId = setTimeout(() => {
+            boxElement.classList.add("is-clearing");
+          }, fadeDelay);
+
+          const deleteTimerId = setTimeout(() => {
+            pendingPlanBoxAutoDelete.delete(boxElement);
+            autoRemovePlanBox(boxElement, ids);
+          }, PLAN_BOX_AUTO_REMOVE_MS);
+
+          pendingPlanBoxAutoDelete.set(boxElement, { fadeTimerId, deleteTimerId });
         };
 
         const clearRecipeGroupAutoDelete = (groupElement, options = {}) => {
@@ -574,6 +502,32 @@
           return row;
         };
 
+        const createPlanItem = (item) => {
+          const row = document.createElement("li");
+          row.dataset.id = String(item.id);
+
+          const label = document.createElement("label");
+          const checkbox = document.createElement("input");
+          checkbox.type = "checkbox";
+          checkbox.checked = !!item.bought;
+
+          const name = document.createElement("span");
+          name.textContent = item.productName;
+
+          label.appendChild(checkbox);
+          label.appendChild(name);
+
+          const meta = document.createElement("strong");
+          meta.textContent = `${item.quantity} ${item.unit}`;
+
+          row.appendChild(label);
+          row.appendChild(meta);
+          if (item.bought) {
+            row.classList.add("is-bought");
+          }
+          return row;
+        };
+
         const createRecipeGroup = (box) => {
           const group = document.createElement("section");
           group.className = "groceries-recipe-group";
@@ -652,6 +606,67 @@
           recipeEmpty.hidden = true;
           sourceBoxes.forEach((box) => {
             recipeGroups.appendChild(createRecipeGroup(box));
+          });
+        };
+
+        const createPlanBox = (box) => {
+          const group = document.createElement("article");
+          group.className = "weekly-plan-box";
+          group.dataset.planId = String(box.planId || "");
+          group.dataset.planDay = String(box.day || "");
+
+          const head = document.createElement("div");
+          head.className = "weekly-plan-box-head";
+
+          const title = document.createElement("p");
+          title.textContent = box.planTitle || "Weekly plan";
+
+          const day = document.createElement("span");
+          day.textContent = box.day || "Day";
+
+          head.appendChild(title);
+          head.appendChild(day);
+
+          const activeList = document.createElement("ul");
+          activeList.className = "weekly-plan-checklist";
+
+          const boughtSection = document.createElement("section");
+          boughtSection.className = "bought-section";
+          boughtSection.hidden = true;
+
+          const boughtTitle = document.createElement("h4");
+          boughtTitle.textContent = "Already bought";
+
+          const boughtList = document.createElement("ul");
+          boughtList.className = "weekly-plan-checklist bought-checklist";
+
+          boughtSection.appendChild(boughtTitle);
+          boughtSection.appendChild(boughtList);
+
+          group.appendChild(head);
+          group.appendChild(activeList);
+          group.appendChild(boughtSection);
+
+          const items = Array.isArray(box.items) ? box.items : [];
+          items.forEach((item) => {
+            const row = createPlanItem(item);
+            if (item.bought) {
+              boughtList.appendChild(row);
+            } else {
+              activeList.appendChild(row);
+            }
+          });
+
+          refreshPlanBoxBoughtVisibility(group);
+          return group;
+        };
+
+        const renderPlanBoxes = (boxes) => {
+          weeklyPlanList.innerHTML = "";
+          const sourceBoxes = Array.isArray(boxes) ? boxes : [];
+          weeklyPlanEmpty.hidden = sourceBoxes.length > 0;
+          sourceBoxes.forEach((box) => {
+            weeklyPlanList.appendChild(createPlanBox(box));
           });
         };
 
@@ -790,6 +805,10 @@
           const previousParent = row.parentElement;
           const previousBoughtClass = row.classList.contains("is-bought");
 
+          if (!bought) {
+            clearPlanBoxAutoDelete(group);
+          }
+
           if (bought) {
             row.classList.add("is-bought");
             addedBoughtList.appendChild(row);
@@ -912,6 +931,66 @@
           }
         };
 
+        const handlePlanBoughtToggle = async (row, checkbox) => {
+          const id = row.dataset.id;
+          if (!id) return;
+          const bought = checkbox.checked;
+
+          const group = row.closest(".weekly-plan-box");
+          if (!(group instanceof HTMLElement)) return;
+          const activeList = group.querySelector(".weekly-plan-checklist");
+          const boughtList = group.querySelector(".bought-checklist");
+          if (!(activeList instanceof HTMLUListElement) || !(boughtList instanceof HTMLUListElement)) return;
+
+          const previousParent = row.parentElement;
+          const previousBoughtClass = row.classList.contains("is-bought");
+
+          if (bought) {
+            row.classList.add("is-bought");
+            boughtList.appendChild(row);
+          } else {
+            row.classList.remove("is-bought");
+            activeList.appendChild(row);
+          }
+          refreshPlanBoxBoughtVisibility(group);
+
+          try {
+            const response = await fetch(`/groceries/items/${id}/bought`, {
+              method: "PATCH",
+              headers: apiHeaders(),
+              body: JSON.stringify({ bought }),
+            });
+            if (!response.ok) {
+              checkbox.checked = !bought;
+              if (previousParent instanceof HTMLElement) {
+                previousParent.appendChild(row);
+              }
+              if (previousBoughtClass) {
+                row.classList.add("is-bought");
+              } else {
+                row.classList.remove("is-bought");
+              }
+              refreshPlanBoxBoughtVisibility(group);
+              return;
+            }
+
+            if (bought) {
+              await removePlanBoxIfComplete(group);
+            }
+          } catch (_error) {
+            checkbox.checked = !bought;
+            if (previousParent instanceof HTMLElement) {
+              previousParent.appendChild(row);
+            }
+            if (previousBoughtClass) {
+              row.classList.add("is-bought");
+            } else {
+              row.classList.remove("is-bought");
+            }
+            refreshPlanBoxBoughtVisibility(group);
+          }
+        };
+
         const handleAddedListClick = (event) => {
           const target = event.target;
           if (!(target instanceof HTMLElement)) return;
@@ -939,6 +1018,14 @@
           const row = target.closest("li");
           if (!(row instanceof HTMLLIElement)) return;
           handleRecipeBoughtToggle(row, target);
+        };
+
+        const handlePlanListChange = (event) => {
+          const target = event.target;
+          if (!(target instanceof HTMLInputElement) || target.type !== "checkbox") return;
+          const row = target.closest("li");
+          if (!(row instanceof HTMLLIElement)) return;
+          handlePlanBoughtToggle(row, target);
         };
 
         const handleRecipeGroupRemove = async (event) => {
@@ -981,6 +1068,7 @@
         addedBoughtList.addEventListener("change", handleAddedListChange);
         recipeGroups.addEventListener("click", handleRecipeGroupRemove);
         recipeGroups.addEventListener("change", handleRecipeListChange);
+        weeklyPlanList.addEventListener("change", handlePlanListChange);
 
         document.addEventListener("click", (event) => {
           const target = event.target;
@@ -998,6 +1086,7 @@
 
         renderUserItems(Array.isArray(initialManualItems) ? initialManualItems : []);
         renderRecipeItems(Array.isArray(initialRecipeBoxes) ? initialRecipeBoxes : []);
+        renderPlanBoxes(Array.isArray(initialPlanBoxes) ? initialPlanBoxes : []);
       })();
     </script>
   </body>

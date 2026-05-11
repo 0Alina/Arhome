@@ -20,7 +20,8 @@ import jakarta.persistence.Index;
     name = "grocery_items",
     indexes = {
         @Index(name = "idx_grocery_items_user_created", columnList = "user_id, created_at"),
-        @Index(name = "idx_grocery_items_user_recipe_created", columnList = "user_id, source_recipe_id, created_at")
+            @Index(name = "idx_grocery_items_user_recipe_created", columnList = "user_id, source_recipe_id, created_at"),
+            @Index(name = "idx_grocery_items_user_plan_created", columnList = "user_id, source_plan_id, created_at")
     }
 )
 public class GroceryItem {
@@ -50,6 +51,15 @@ public class GroceryItem {
 
     @Column(name = "source_recipe_title", length = 220)
     private String sourceRecipeTitle;
+
+    @Column(name = "source_plan_id")
+    private Long sourcePlanId;
+
+    @Column(name = "source_plan_title", length = 220)
+    private String sourcePlanTitle;
+
+    @Column(name = "source_plan_day", length = 60)
+    private String sourcePlanDay;
 
     @Column(name = "created_at", nullable = false)
     private LocalDateTime createdAt;
@@ -131,5 +141,29 @@ public class GroceryItem {
 
     public void setSourceRecipeTitle(String sourceRecipeTitle) {
         this.sourceRecipeTitle = sourceRecipeTitle;
+    }
+
+    public Long getSourcePlanId() {
+        return sourcePlanId;
+    }
+
+    public void setSourcePlanId(Long sourcePlanId) {
+        this.sourcePlanId = sourcePlanId;
+    }
+
+    public String getSourcePlanTitle() {
+        return sourcePlanTitle;
+    }
+
+    public void setSourcePlanTitle(String sourcePlanTitle) {
+        this.sourcePlanTitle = sourcePlanTitle;
+    }
+
+    public String getSourcePlanDay() {
+        return sourcePlanDay;
+    }
+
+    public void setSourcePlanDay(String sourcePlanDay) {
+        this.sourcePlanDay = sourcePlanDay;
     }
 }

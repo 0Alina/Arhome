@@ -4524,6 +4524,221 @@ body {
   color: #d0bca9;
 }
 
+.plans-week-layout {
+  margin-top: 18px;
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: 18px;
+}
+
+.plans-week-column {
+  background: #1f1613;
+  border: 1px solid rgba(255, 255, 255, 0.06);
+  border-radius: 16px;
+  padding: 16px;
+  display: grid;
+  gap: 12px;
+  align-content: start;
+}
+
+.plans-week-column-head {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 10px;
+}
+
+.plans-week-column-head h3 {
+  margin: 0;
+  font-size: 1rem;
+  color: #ead8c7;
+}
+
+.plans-week-count {
+  color: #c98a52;
+  font-size: 0.85rem;
+  font-weight: 600;
+}
+
+.plans-week-empty {
+  margin: 0;
+  color: #c98a52;
+  font-style: italic;
+}
+
+.plans-week-grid {
+  display: grid;
+  gap: 12px;
+  justify-items: start;
+  align-content: start;
+}
+
+.plans-week-card {
+  background: #2a201d;
+  border-radius: 14px;
+  border: 1px solid rgba(255, 255, 255, 0.06);
+  padding: 14px;
+  display: grid;
+  gap: 8px;
+  box-shadow: 0 14px 24px rgba(12, 8, 6, 0.32);
+  cursor: pointer;
+  width: min(100%, 320px);
+}
+
+.plans-week-card-head {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 10px;
+}
+
+.plans-week-card-head h4 {
+  margin: 0;
+  color: #ead8c7;
+  font-size: 0.98rem;
+}
+
+.plans-week-card-badge {
+  border-radius: 999px;
+  padding: 4px 10px;
+  border: 1px solid rgba(201, 160, 122, 0.45);
+  color: #c9a07a;
+  font-size: 0.75rem;
+  text-transform: uppercase;
+  letter-spacing: 0.08em;
+}
+
+.plans-week-card-badge.is-active {
+  border-color: rgba(176, 117, 66, 0.8);
+  color: #e6c29c;
+}
+
+.plans-week-card-meta {
+  margin: 0;
+  color: #d0bca9;
+  font-size: 0.85rem;
+}
+
+.plans-week-card-actions {
+  display: flex;
+  gap: 8px;
+  flex-wrap: wrap;
+}
+
+.plans-week-card-open,
+.plans-week-card-done {
+  border: 0;
+  border-radius: 10px;
+  padding: 8px 12px;
+  font-weight: 700;
+  cursor: pointer;
+}
+
+.plans-week-card-open {
+  background: #6f4330;
+  color: #231510;
+}
+
+.plans-week-card-done {
+  background: #2a1e18;
+  color: #d7bea7;
+  border: 1px solid rgba(201, 160, 122, 0.3);
+}
+
+.plans-week-card-delete {
+  border: 1px solid rgba(183, 90, 90, 0.6);
+  border-radius: 10px;
+  padding: 8px 12px;
+  font-weight: 700;
+  cursor: pointer;
+  background: rgba(68, 34, 34, 0.9);
+  color: #e8c1c1;
+}
+
+.plans-detail-modal {
+  position: fixed;
+  inset: 0;
+  z-index: 60;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: var(--plan-modal-padding, 96px) 0 var(--plan-modal-padding-bottom, 72px);
+  opacity: 0;
+  pointer-events: none;
+  transition: opacity 0.2s ease;
+}
+
+.plans-detail-modal[aria-hidden="false"] {
+  opacity: 1;
+  pointer-events: auto;
+}
+
+.plans-detail-card {
+  position: relative;
+  width: min(1100px, calc(100vw - 16px));
+  max-height: var(--plan-modal-max-height, calc(100vh - 192px));
+  overflow: auto;
+  border-radius: 20px;
+  background: #2a201d;
+  border: 1px solid rgba(255, 255, 255, 0.08);
+  box-shadow: 0 24px 40px rgba(12, 8, 6, 0.5);
+  padding: 18px 18px 28px;
+  color: #ead8c7;
+  scrollbar-width: thin;
+  scrollbar-color: #6a3f2a #1f1613;
+}
+
+.plans-detail-card::-webkit-scrollbar {
+  width: 10px;
+}
+
+.plans-detail-card::-webkit-scrollbar-track {
+  background: #1f1613;
+  border-radius: 12px;
+}
+
+.plans-detail-card::-webkit-scrollbar-thumb {
+  background: #6a3f2a;
+  border-radius: 12px;
+  border: 2px solid #1f1613;
+}
+
+.plans-detail-header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 12px;
+}
+
+.plans-detail-header h2 {
+  margin: 0 0 4px;
+  font-size: 1.3rem;
+}
+
+.plans-detail-meta {
+  margin: 0;
+  color: #c98a52;
+  font-size: 0.9rem;
+}
+
+.plans-detail-body {
+  margin-top: 16px;
+}
+
+@media (max-width: 960px) {
+  .plans-week-layout {
+    grid-template-columns: 1fr;
+  }
+
+  .plans-detail-modal {
+    padding: var(--plan-modal-padding, 72px) 0 var(--plan-modal-padding-bottom, 56px);
+  }
+
+  .plans-detail-card {
+    max-height: var(--plan-modal-max-height, calc(100vh - 144px));
+  }
+}
+
 [data-diets-view][hidden],
 [data-week-plans][hidden] {
   display: none !important;
@@ -5219,6 +5434,17 @@ body.plans-modal-open {
   gap: 14px;
 }
 
+.weekly-plan-list {
+  display: grid;
+  gap: 14px;
+}
+
+.weekly-plan-empty {
+  margin: 0;
+  color: var(--groceries-accent-caramel);
+  font-style: italic;
+}
+
 .weekly-plan-box {
   background: #2c1c16;
   border: 1px solid rgba(106, 63, 42, 0.35);
@@ -5230,6 +5456,12 @@ body.plans-modal-open {
   display: grid;
   gap: 10px;
   min-height: 168px;
+  transition: opacity 0.45s ease, transform 0.45s ease;
+}
+
+.weekly-plan-box.is-clearing {
+  opacity: 0;
+  transform: translateY(-4px);
 }
 
 .weekly-plan-box-head {

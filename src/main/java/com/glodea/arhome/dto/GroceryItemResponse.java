@@ -9,6 +9,9 @@ public class GroceryItemResponse {
     private boolean bought;
     private Long sourceRecipeId;
     private String sourceRecipeTitle;
+    private Long sourcePlanId;
+    private String sourcePlanTitle;
+    private String sourcePlanDay;
 
     public GroceryItemResponse() {
     }
@@ -30,6 +33,21 @@ public class GroceryItemResponse {
         this.bought = bought;
         this.sourceRecipeId = sourceRecipeId;
         this.sourceRecipeTitle = sourceRecipeTitle;
+    }
+
+    public GroceryItemResponse(Long id, String productName, String quantity, String unit, boolean bought,
+                               Long sourceRecipeId, String sourceRecipeTitle,
+                               Long sourcePlanId, String sourcePlanTitle, String sourcePlanDay) {
+        this.id = id;
+        this.productName = productName;
+        this.quantity = quantity;
+        this.unit = unit;
+        this.bought = bought;
+        this.sourceRecipeId = sourceRecipeId;
+        this.sourceRecipeTitle = sourceRecipeTitle;
+        this.sourcePlanId = sourcePlanId;
+        this.sourcePlanTitle = sourcePlanTitle;
+        this.sourcePlanDay = sourcePlanDay;
     }
 
     public Long getId() {
@@ -86,5 +104,29 @@ public class GroceryItemResponse {
 
     public void setSourceRecipeTitle(String sourceRecipeTitle) {
         this.sourceRecipeTitle = sourceRecipeTitle;
+    }
+
+    public Long getSourcePlanId() {
+        return sourcePlanId;
+    }
+
+    public void setSourcePlanId(Long sourcePlanId) {
+        this.sourcePlanId = sourcePlanId;
+    }
+
+    public String getSourcePlanTitle() {
+        return sourcePlanTitle;
+    }
+
+    public void setSourcePlanTitle(String sourcePlanTitle) {
+        this.sourcePlanTitle = sourcePlanTitle;
+    }
+
+    public String getSourcePlanDay() {
+        return sourcePlanDay;
+    }
+
+    public void setSourcePlanDay(String sourcePlanDay) {
+        this.sourcePlanDay = sourcePlanDay;
     }
 }
